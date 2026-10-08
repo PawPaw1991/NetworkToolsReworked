@@ -1,0 +1,9 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+.idea/
+# Never commit decompiled third-party code
+decompiled/
+mod-src/

@@ -1,0 +1,16 @@
+<Publish>
+	<!--Id must be set in order to update an existing mod. Not required for the first publish-->
+	<ModId Value="" />
+	<DisplayName Value="Network Tools Reworked" />
+	<ShortDescription Value="Precise node, slope, curve and connection tools for roads, paths, rail and waterways." />
+	<LongDescription>Add, remove and slide nodes, reshape slopes and curves, connect, loop, parallel and generate networks. Every edit goes through the game's own tool pipeline so saves stay consistent.</LongDescription>
+	<Thumbnail Value="Properties/Thumbnail.png" />
+	<Screenshot Value="" />
+	<Tag Value="Code Mod" />
+	<ForumLink Value="" />
+	<ModVersion Value="0.1.0" />
+	<GameVersion Value="1.6.*" />
+	<Dependency Id="" DisplayName="" />
+	<ChangeLog Value="" />
+	<ExternalLink Type="github" Url="https://github.com/PawPaw1991/NetworkToolsReworked" />
+</Publish>
