@@ -36,6 +36,7 @@ import { BridgeOptions } from "./BridgeOptions";
 import { FilletOptions } from "./FilletOptions";
 import { SplitOptions } from "./SplitOptions";
 import { HelixOptions } from "./HelixOptions";
+import { HistoryOptions } from "./HistoryOptions";
 
 // Default keys; they can be rebound in Options.
 const TOOLS: { id: ToolId; label: string; hint: string; keys: string }[] = [
@@ -241,6 +242,8 @@ export const ToolPanel = () => {
       {active === "Split" && <SplitOptions />}
 
       {active === "Helix" && <HelixOptions />}
+
+      {active === "Undo" && <HistoryOptions />}
 
       <PresetOptions />
 

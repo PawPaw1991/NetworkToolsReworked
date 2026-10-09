@@ -132,7 +132,7 @@ namespace NetworkToolsReworked.Tools
             else if (click || applyRequested)
             {
                 applyMode = ApplyMode.Apply;
-                UndoRecorder.Commit();
+                UndoRecorder.Commit(Summary);
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"Roundabout applied at {m_Node}, radius {radius}");
                 m_Node = Entity.Null;

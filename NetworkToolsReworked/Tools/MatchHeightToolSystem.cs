@@ -148,7 +148,7 @@ namespace NetworkToolsReworked.Tools
             if (click)
             {
                 applyMode = ApplyMode.Apply;
-                UndoRecorder.Commit();
+                UndoRecorder.Commit(Summary);
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"Match height applied: {hovered} to {TargetHeight}");
             }

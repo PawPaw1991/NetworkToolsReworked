@@ -245,7 +245,7 @@ namespace NetworkToolsReworked.Tools
             else if (emitted && (click || applyRequested))
             {
                 applyMode = ApplyMode.Apply;
-                UndoRecorder.Commit();
+                UndoRecorder.Commit(Summary);
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"{toolID} applied over {m_PathEdges.Count} edges from {m_StartNode} to {end}");
                 Reset();
@@ -308,7 +308,7 @@ namespace NetworkToolsReworked.Tools
             if (emitted && apply)
             {
                 applyMode = ApplyMode.Apply;
-                UndoRecorder.Commit();
+                UndoRecorder.Commit(Summary);
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"{toolID} applied to the Move It selection: {roads} roads");
                 Reset();

@@ -159,7 +159,7 @@ namespace NetworkToolsReworked.Tools
             if (fixable && (applyAction.WasPressedThisFrame() || applyRequested))
             {
                 applyMode = ApplyMode.Apply;
-                UndoRecorder.Commit();
+                UndoRecorder.Commit(Summary);
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"Health check fixed {issue.Kind} at {issue.Position}");
                 m_Selected = -1;

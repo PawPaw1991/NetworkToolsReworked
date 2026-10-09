@@ -153,7 +153,7 @@ namespace NetworkToolsReworked.Tools
             else if (emitted && (click || applyRequested))
             {
                 applyMode = ApplyMode.Apply;
-                UndoRecorder.Commit();
+                UndoRecorder.Commit(Summary);
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"Move node applied: {m_Node} by {moved}");
                 Reset();

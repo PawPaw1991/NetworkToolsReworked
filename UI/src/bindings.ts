@@ -56,6 +56,7 @@ export const usingSelection$ = bindValue<boolean>(mod.id, "UsingSelection", fals
 export const healthIssues$ = bindValue<string>(mod.id, "HealthIssues", "");
 export const healthSelected$ = bindValue<number>(mod.id, "HealthSelected", -1);
 export const healthMinLength$ = bindValue<number>(mod.id, "HealthMinLength", 3);
+export const undoHistory$ = bindValue<string>(mod.id, "UndoHistory", "");
 export const helixRadius$ = bindValue<number>(mod.id, "HelixRadius", 30);
 export const helixTurns$ = bindValue<number>(mod.id, "HelixTurns", 1);
 export const helixClimb$ = bindValue<number>(mod.id, "HelixClimb", 8);
@@ -125,6 +126,7 @@ export const deletePreset = (index: number) => trigger(mod.id, "DeletePreset", i
 export const selectIssue = (index: number) => trigger(mod.id, "SelectIssue", index);
 export const rescanHealth = () => trigger(mod.id, "RescanHealth");
 export const setHealthMinLength = (value: number) => trigger(mod.id, "SetHealthMinLength", value);
+export const rollBack = (steps: number) => trigger(mod.id, "RollBack", steps);
 export const setHelixRadius = (value: number) => trigger(mod.id, "SetHelixRadius", value);
 export const setHelixTurns = (value: number) => trigger(mod.id, "SetHelixTurns", value);
 export const setHelixClimb = (value: number) => trigger(mod.id, "SetHelixClimb", value);

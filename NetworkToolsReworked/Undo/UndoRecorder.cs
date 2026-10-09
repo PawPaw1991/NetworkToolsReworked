@@ -25,6 +25,9 @@ namespace NetworkToolsReworked.Undo
     public sealed class UndoStep
     {
         public string Tool;
+
+        /// <summary>What the edit did, for the history list, e.g. "Slope: 5 segments, 240 m, height +6.0 m".</summary>
+        public string Label;
         public readonly List<RoadSnapshot> Originals = new List<RoadSnapshot>();
         public readonly List<Bezier4x3> Results = new List<Bezier4x3>();
     }
@@ -49,11 +52,26 @@ namespace NetworkToolsReworked.Undo
         /// <summary>Stops recording without keeping anything (used while undoing).</summary>
         public static void Suspend() => s_Current = null;
 
-        public static void Commit()
+        /// <param name="description">The tool's description of the edit (its panel summary).</param>
+        public static void Commit(string description)
         {
             if (s_Current != null && (s_Current.Originals.Count > 0 || s_Current.Results.Count > 0))
+            {
+                s_Current.Label = Label(s_Current.Tool, description);
                 UndoHistory.Push(s_Current);
+            }
             s_Current = null;
+        }
+
+        /// <summary>Short tool name ("Slope" from "NetworkToolsReworked.SlopeTool").</summary>
+        public static string ToolName(string toolId) => toolId.Replace("NetworkToolsReworked.", "").Replace("Tool", "");
+
+        private static string Label(string tool, string description)
+        {
+            const int max = 110;
+            var text = string.IsNullOrEmpty(description) ? ToolName(tool) : $"{ToolName(tool)}: {description}";
+            text = text.Replace("\n", " ").Replace("\t", " ");
+            return text.Length > max ? text.Substring(0, max - 1) + "…" : text;
         }
 
         /// <summary>Called for every definition we emit.</summary>
@@ -105,19 +123,31 @@ namespace NetworkToolsReworked.Undo
 
         public static UndoStep Peek() => s_Steps.Count > 0 ? s_Steps[s_Steps.Count - 1] : null;
 
+        /// <summary>All steps, oldest first.</summary>
+        public static IReadOnlyList<UndoStep> Steps => s_Steps;
+
+        /// <summary>Bumped whenever the history changes, so the panel knows when to refresh.</summary>
+        public static int Version { get; private set; }
+
         public static void Push(UndoStep step)
         {
             s_Steps.Add(step);
             if (s_Steps.Count > kMaxSteps)
                 s_Steps.RemoveAt(0);
+            Version++;
         }
 
         public static void Pop()
         {
             if (s_Steps.Count > 0)
                 s_Steps.RemoveAt(s_Steps.Count - 1);
+            Version++;
         }
 
-        public static void Clear() => s_Steps.Clear();
+        public static void Clear()
+        {
+            s_Steps.Clear();
+            Version++;
+        }
     }
 }

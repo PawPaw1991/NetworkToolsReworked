@@ -215,7 +215,7 @@ namespace NetworkToolsReworked.Tools
             else if (click || applyRequested)
             {
                 applyMode = ApplyMode.Apply;
-                UndoRecorder.Commit();
+                UndoRecorder.Commit(Summary);
                 if (settings.DebugLogging)
                     Mod.Log.Info($"Helix applied: radius {helix.Radius}, {helix.Turns} turns, {helix.Climb} m per turn");
                 m_Locked = false;
