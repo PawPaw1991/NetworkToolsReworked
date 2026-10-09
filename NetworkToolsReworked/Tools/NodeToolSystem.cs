@@ -67,7 +67,7 @@ namespace NetworkToolsReworked.Tools
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            if (cancelAction.WasPerformedThisFrame())
+            if (cancelAction.WasPressedThisFrame())
             {
                 m_ToolSystem.activeTool = m_DefaultToolSystem;
                 return inputDeps;
@@ -88,7 +88,7 @@ namespace NetworkToolsReworked.Tools
                 _ => false,
             };
 
-            if (emitted && applyAction.WasPerformedThisFrame())
+            if (emitted && applyAction.WasPressedThisFrame())
             {
                 applyMode = ApplyMode.Apply;
                 if (Mod.Settings.DebugLogging)
