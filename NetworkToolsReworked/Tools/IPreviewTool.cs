@@ -11,6 +11,9 @@ namespace NetworkToolsReworked.Tools
         /// <summary>Start picked; the preview follows the hovered end node.</summary>
         PickEnd,
 
+        /// <summary>A copied group follows the cursor, waiting for a spot to be picked.</summary>
+        Place,
+
         /// <summary>Both ends locked; the preview stays put and follows option changes until applied.</summary>
         Review,
     }

@@ -37,6 +37,7 @@ import { FilletOptions } from "./FilletOptions";
 import { SplitOptions } from "./SplitOptions";
 import { HelixOptions } from "./HelixOptions";
 import { HistoryOptions } from "./HistoryOptions";
+import { DuplicateOptions } from "./DuplicateOptions";
 
 // Default keys; they can be rebound in Options.
 const TOOLS: { id: ToolId; label: string; hint: string; keys: string }[] = [
@@ -53,6 +54,7 @@ const TOOLS: { id: ToolId; label: string; hint: string; keys: string }[] = [
   { id: "Measure", label: "Measure", hint: "Hover a road for its length, grade, curve and height, or pick two nodes to measure between them. Changes nothing.", keys: "Ctrl+Shift+M or Alt+9" },
   { id: "Ramp", label: "Ramp", hint: "Build a ramp leaving or joining a road, climbing to a set height within the road type's grade limit.", keys: "Ctrl+Shift+E or Alt+7" },
   { id: "MatchHeight", label: "Match height", hint: "Move nodes to the same height as another node, or to a height you set.", keys: "Ctrl+Shift+H" },
+  { id: "Duplicate", label: "Copy & mirror", hint: "Copy the road between two nodes (or Move It's selection, or a saved layout) and place it elsewhere, turned or mirrored. Save groups as layouts to use in other cities.", keys: "Ctrl+Shift+C" },
   { id: "Helix", label: "Helix", hint: "Build a spiral ramp, carrying on from the open end of a road or placed on the ground.", keys: "Ctrl+Shift+Y" },
   { id: "Split", label: "Split & simplify", hint: "Add nodes along the road between two nodes, evenly or every so many metres, or take out nodes it doesn't need.", keys: "Ctrl+Shift+L" },
   { id: "Fillet", label: "Round corner", hint: "Round off the corner where two roads meet with a curve of the radius you set.", keys: "Ctrl+Shift+F" },
@@ -65,7 +67,7 @@ const TOOLS: { id: ToolId; label: string; hint: string; keys: string }[] = [
 ];
 
 type Step = { step: string; text: string };
-type Steps = Record<"PickStart" | "PickEnd" | "Review", Step> & { PickSource?: Step };
+type Steps = Record<"PickStart" | "PickEnd" | "Review", Step> & { PickSource?: Step; Place?: Step };
 
 const STEPS: Steps = {
   PickStart: { step: "1/3", text: "Click a start node." },
@@ -106,6 +108,12 @@ const TOOL_STEPS: Partial<Record<ToolId, Steps>> = {
     PickStart: { step: "2/4", text: "Click a start node. Right-click to copy another type." },
     PickEnd: { step: "3/4", text: "Hover an end node to preview, click it to lock the preview. Right-click to pick another start." },
     Review: { step: "4/4", text: "Click or press Apply to change the type, right-click or Back to pick another end." },
+  },
+  Duplicate: {
+    PickStart: { step: "1/4", text: "Click a start node, or use Move It's selection or a saved layout below." },
+    PickEnd: { step: "2/4", text: "Hover an end node and click it to copy the road between them. Right-click to pick another start." },
+    Place: { step: "3/4", text: "Move the cursor to where the copy goes and click to lock it. Right-click to copy something else." },
+    Review: { step: "4/4", text: "Turn or mirror it below. Click or press Apply to build it (you can then place it again), right-click or Back to move it." },
   },
   Helix: {
     PickSource: { step: "", text: "Click a road whose type the helix should use. Right-click to keep the current type." },
@@ -154,7 +162,7 @@ export const ToolPanel = () => {
 
   const current = TOOLS.find((t) => t.id === active);
   const steps = TOOL_STEPS[active] ?? STEPS;
-  const step = phase === "" ? undefined : usingSelection ? SELECTION_STEP : steps[phase];
+  const step = phase === "" ? undefined : usingSelection ? SELECTION_STEP : phase === "Place" ? steps.Place ?? STEPS.Review : steps[phase];
 
   return (
     <div className={styles.panel}>
@@ -195,7 +203,7 @@ export const ToolPanel = () => {
               {phase === "Review" && active !== "Measure" && (
                 <Button variant="flat" className={classNames(styles.choice, styles.active)} onSelect={applyPreview}>Apply</Button>
               )}
-              <Button variant="flat" className={styles.choice} onSelect={cancelPreview}>{active === "Undo" ? "Cancel" : active === "MatchHeight" ? "Take another height" : active === "Measure" ? "Clear" : phase === "Review" ? "Back" : active === "MoveNode" ? "Pick another" : "Clear start"}</Button>
+              <Button variant="flat" className={styles.choice} onSelect={cancelPreview}>{active === "Undo" ? "Cancel" : active === "MatchHeight" ? "Take another height" : active === "Measure" ? "Clear" : phase === "Place" ? "Copy something else" : phase === "Review" ? "Back" : active === "MoveNode" ? "Pick another" : "Clear start"}</Button>
             </div>
           )}
         </div>
@@ -244,6 +252,8 @@ export const ToolPanel = () => {
       {active === "Helix" && <HelixOptions />}
 
       {active === "Undo" && <HistoryOptions />}
+
+      {active === "Duplicate" && <DuplicateOptions />}
 
       <PresetOptions />
 
