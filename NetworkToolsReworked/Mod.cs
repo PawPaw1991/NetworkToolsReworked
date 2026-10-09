@@ -50,6 +50,7 @@ namespace NetworkToolsReworked
             updateSystem.UpdateAt<FilletToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<SplitToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<HelixToolSystem>(SystemUpdatePhase.ToolUpdate);
+            updateSystem.UpdateAt<DuplicateToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<ToolActivationSystem>(SystemUpdatePhase.MainLoop);
             updateSystem.UpdateAt<ToolPanelUISystem>(SystemUpdatePhase.UIUpdate);
         }

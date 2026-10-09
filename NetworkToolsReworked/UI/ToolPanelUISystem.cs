@@ -66,6 +66,12 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<float> m_FilletRadius;
         private ValueBinding<int> m_ParallelTaper;
         private ValueBinding<string> m_UndoHistory;
+        private ValueBinding<int> m_DuplicateMode;
+        private ValueBinding<float> m_DuplicateAngle;
+        private ValueBinding<bool> m_DuplicateHasGroup;
+        private ValueBinding<bool> m_MoveItAvailable;
+        private ValueBinding<string> m_Layouts;
+        private int m_LayoutsVersion = -1;
         private int m_UndoVersion = -1;
         private ValueBinding<float> m_HelixRadius;
         private ValueBinding<float> m_HelixTurns;
@@ -169,6 +175,17 @@ namespace NetworkToolsReworked.UI
             AddBinding(new TriggerBinding<float>(kGroup, "SetHelixStartHeight", v => Save(s => s.HelixStartHeight = v)));
             AddBinding(new TriggerBinding(kGroup, "PickHelixType", () => m_ToolActivationSystem.HelixTool.RequestPickType()));
             AddBinding(new TriggerBinding(kGroup, "HelixUseRoadType", () => m_ToolActivationSystem.HelixTool.UseRoadType()));
+            AddBinding(m_DuplicateMode = new ValueBinding<int>(kGroup, "DuplicateMode", 0));
+            AddBinding(m_DuplicateAngle = new ValueBinding<float>(kGroup, "DuplicateAngle", 0f));
+            AddBinding(m_DuplicateHasGroup = new ValueBinding<bool>(kGroup, "DuplicateHasGroup", false));
+            AddBinding(m_MoveItAvailable = new ValueBinding<bool>(kGroup, "MoveItAvailable", false));
+            AddBinding(m_Layouts = new ValueBinding<string>(kGroup, "Layouts", string.Empty));
+            AddBinding(new TriggerBinding<int>(kGroup, "SetDuplicateMode", v => Save(s => s.DuplicateMode = (DuplicateMode)v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetDuplicateAngle", v => Save(s => s.DuplicateAngle = v)));
+            AddBinding(new TriggerBinding(kGroup, "DuplicateUseSelection", () => m_ToolActivationSystem.DuplicateTool.RequestUseSelection()));
+            AddBinding(new TriggerBinding(kGroup, "SaveLayout", () => m_ToolActivationSystem.DuplicateTool.RequestSave()));
+            AddBinding(new TriggerBinding<int>(kGroup, "LoadLayout", i => m_ToolActivationSystem.DuplicateTool.RequestLoad(i)));
+            AddBinding(new TriggerBinding<int>(kGroup, "DeleteLayout", i => LayoutStore.Delete(i)));
             AddBinding(m_UndoHistory = new ValueBinding<string>(kGroup, "UndoHistory", string.Empty));
             AddBinding(new TriggerBinding<int>(kGroup, "RollBack", steps =>
             {
@@ -325,7 +342,24 @@ namespace NetworkToolsReworked.UI
             m_BridgeClearance.Update(settings.BridgeClearance);
             UpdateHealth();
             UpdateUndoHistory();
+            UpdateDuplicate(settings);
             UpdatePresets();
+        }
+
+        private void UpdateDuplicate(Setting settings)
+        {
+            m_DuplicateMode.Update((int)settings.DuplicateMode);
+            m_DuplicateAngle.Update(settings.DuplicateAngle);
+            m_DuplicateHasGroup.Update(m_ToolActivationSystem.DuplicateTool.HasGroup);
+            var active = m_ToolActivationSystem.Current == ToolId.Duplicate && m_PanelOpen.value;
+            m_MoveItAvailable.Update(active && MoveItSelection.Available);
+            if (!active || LayoutStore.Version == m_LayoutsVersion)
+                return;
+            m_LayoutsVersion = LayoutStore.Version;
+            var names = new System.Collections.Generic.List<string>();
+            foreach (var layout in LayoutStore.All)
+                names.Add(layout.Name);
+            m_Layouts.Update(string.Join("\n", names));
         }
 
         /// <summary>The edits that can be undone, newest first, one per line.</summary>

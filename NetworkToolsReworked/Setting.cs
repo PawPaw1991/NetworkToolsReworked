@@ -167,6 +167,10 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.Y, nameof(HelixTool), ctrl: true, shift: true)]
         public ProxyBinding HelixTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.C, nameof(DuplicateTool), ctrl: true, shift: true)]
+        public ProxyBinding DuplicateTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -295,6 +299,14 @@ namespace NetworkToolsReworked
         [SettingsUIHidden]
         public float HelixStartHeight { get; set; }
 
+        /// <summary>Copy and mirror: turn or mirror the copy.</summary>
+        [SettingsUIHidden]
+        public DuplicateMode DuplicateMode { get; set; }
+
+        /// <summary>Copy and mirror: turn angle, or the mirror axis's angle to the group's main direction, degrees.</summary>
+        [SettingsUIHidden]
+        public float DuplicateAngle { get; set; }
+
         /// <summary>Split and simplify: what to do.</summary>
         [SettingsUIHidden]
         public SplitMode SplitMode { get; set; }
@@ -403,6 +415,8 @@ namespace NetworkToolsReworked
             HelixClockwise = false;
             HelixStartAngle = 0f;
             HelixStartHeight = 0f;
+            DuplicateMode = DuplicateMode.Copy;
+            DuplicateAngle = 0f;
             SplitMode = SplitMode.EqualParts;
             SplitParts = 2f;
             SplitSpacing = 48f;
@@ -573,6 +587,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.HelixTool)), "Helix tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.HelixTool)), "Toggle the Helix tool. Hover the open end of a road to preview a spiral carrying on from it, or the ground to place one there, then set radius, turns, climb and direction and apply." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.HelixTool)), "Helix tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.DuplicateTool)), "Copy and mirror tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.DuplicateTool)), "Toggle the Copy and mirror tool. Pick two nodes (or use the Move It selection, or a saved layout) to copy the road between them, then place the copy under the cursor, turned or mirrored. Groups can be saved as layouts and placed in other cities." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.DuplicateTool)), "Copy and mirror tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },

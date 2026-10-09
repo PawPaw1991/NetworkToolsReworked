@@ -1,7 +1,7 @@
 import { bindValue, trigger } from "cs2/api";
 import mod from "mod.json";
 
-export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Upgrades" | "Measure" | "Ramp" | "MatchHeight" | "Health" | "Bridge" | "Fillet" | "Split" | "Helix" | "Connect" | "Parallel";
+export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Upgrades" | "Measure" | "Ramp" | "MatchHeight" | "Health" | "Bridge" | "Fillet" | "Split" | "Helix" | "Duplicate" | "Connect" | "Parallel";
 
 export const panelOpen$ = bindValue<boolean>(mod.id, "PanelOpen", false);
 export const activeTool$ = bindValue<ToolId>(mod.id, "ActiveTool", "None");
@@ -10,7 +10,7 @@ export const connectMode$ = bindValue<number>(mod.id, "ConnectMode", 0);
 export const parallelOffset$ = bindValue<number>(mod.id, "ParallelOffset", 16);
 export const parallelHeight$ = bindValue<number>(mod.id, "ParallelHeight", 0);
 export const parallelReverse$ = bindValue<boolean>(mod.id, "ParallelReverse", false);
-export type Phase = "" | "PickSource" | "PickStart" | "PickEnd" | "Review";
+export type Phase = "" | "PickSource" | "PickStart" | "PickEnd" | "Place" | "Review";
 export const phase$ = bindValue<Phase>(mod.id, "Phase", "");
 export const summary$ = bindValue<string>(mod.id, "Summary", "");
 export const slopeEase$ = bindValue<number>(mod.id, "SlopeEase", 50);
@@ -56,6 +56,11 @@ export const usingSelection$ = bindValue<boolean>(mod.id, "UsingSelection", fals
 export const healthIssues$ = bindValue<string>(mod.id, "HealthIssues", "");
 export const healthSelected$ = bindValue<number>(mod.id, "HealthSelected", -1);
 export const healthMinLength$ = bindValue<number>(mod.id, "HealthMinLength", 3);
+export const duplicateMode$ = bindValue<number>(mod.id, "DuplicateMode", 0);
+export const duplicateAngle$ = bindValue<number>(mod.id, "DuplicateAngle", 0);
+export const duplicateHasGroup$ = bindValue<boolean>(mod.id, "DuplicateHasGroup", false);
+export const moveItAvailable$ = bindValue<boolean>(mod.id, "MoveItAvailable", false);
+export const layouts$ = bindValue<string>(mod.id, "Layouts", "");
 export const undoHistory$ = bindValue<string>(mod.id, "UndoHistory", "");
 export const helixRadius$ = bindValue<number>(mod.id, "HelixRadius", 30);
 export const helixTurns$ = bindValue<number>(mod.id, "HelixTurns", 1);
@@ -126,6 +131,12 @@ export const deletePreset = (index: number) => trigger(mod.id, "DeletePreset", i
 export const selectIssue = (index: number) => trigger(mod.id, "SelectIssue", index);
 export const rescanHealth = () => trigger(mod.id, "RescanHealth");
 export const setHealthMinLength = (value: number) => trigger(mod.id, "SetHealthMinLength", value);
+export const setDuplicateMode = (value: number) => trigger(mod.id, "SetDuplicateMode", value);
+export const setDuplicateAngle = (value: number) => trigger(mod.id, "SetDuplicateAngle", value);
+export const duplicateUseSelection = () => trigger(mod.id, "DuplicateUseSelection");
+export const saveLayout = () => trigger(mod.id, "SaveLayout");
+export const loadLayout = (index: number) => trigger(mod.id, "LoadLayout", index);
+export const deleteLayout = (index: number) => trigger(mod.id, "DeleteLayout", index);
 export const rollBack = (steps: number) => trigger(mod.id, "RollBack", steps);
 export const setHelixRadius = (value: number) => trigger(mod.id, "SetHelixRadius", value);
 export const setHelixTurns = (value: number) => trigger(mod.id, "SetHelixTurns", value);
