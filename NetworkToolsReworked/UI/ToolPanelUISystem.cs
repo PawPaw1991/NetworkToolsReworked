@@ -64,6 +64,7 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<string> m_PresetNames;
         private ValueBinding<bool> m_SelectionAvailable;
         private ValueBinding<float> m_FilletRadius;
+        private ValueBinding<int> m_ParallelTaper;
         private ValueBinding<int> m_SplitMode;
         private ValueBinding<float> m_SplitParts;
         private ValueBinding<float> m_SplitSpacing;
@@ -144,6 +145,8 @@ namespace NetworkToolsReworked.UI
                 Save(s => s.HealthMinLength = v);
                 m_ToolActivationSystem.HealthTool.RequestRescan();
             }));
+            AddBinding(m_ParallelTaper = new ValueBinding<int>(kGroup, "ParallelTaper", 0));
+            AddBinding(new TriggerBinding<int>(kGroup, "SetParallelTaper", v => Save(s => s.ParallelTaper = (ParallelTaper)v)));
             AddBinding(m_SplitMode = new ValueBinding<int>(kGroup, "SplitMode", 0));
             AddBinding(m_SplitParts = new ValueBinding<float>(kGroup, "SplitParts", 2f));
             AddBinding(m_SplitSpacing = new ValueBinding<float>(kGroup, "SplitSpacing", 48f));
@@ -274,6 +277,7 @@ namespace NetworkToolsReworked.UI
             m_SelectionAvailable.Update(pathTool != null && m_PanelOpen.value && MoveItSelection.Available);
             m_UsingSelection.Update(pathTool != null && pathTool.UsingSelection);
             m_FilletRadius.Update(settings.FilletRadius);
+            m_ParallelTaper.Update((int)settings.ParallelTaper);
             m_SplitMode.Update((int)settings.SplitMode);
             m_SplitParts.Update(settings.SplitParts);
             m_SplitSpacing.Update(settings.SplitSpacing);
