@@ -43,6 +43,7 @@ const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "Roundabout", label: "Roundabout", hint: "Turn a junction into a roundabout. The ring uses the same road type as the junction." },
   { id: "Replace", label: "Change type", hint: "Turn the road between two nodes into another road type, keeping its shape and height." },
   { id: "Upgrades", label: "Copy upgrades", hint: "Give the road between two nodes the same upgrades (trees, sidewalks, walls...) as another road." },
+  { id: "Measure", label: "Measure", hint: "Hover a road for its length, grade, curve and height, or pick two nodes to measure between them. Changes nothing." },
   { id: "Intersect", label: "Intersect", hint: "Join two roads that cross without a junction. Hover near the crossing." },
   { id: "Undo", label: "Undo", hint: "Undo the last edit made with these tools (last 30 this session). Ctrl+Alt+Z." },
   { id: "Connect", label: "Connect", hint: "Build a new road between two nodes. , and . rotate the start direction." },
@@ -67,6 +68,11 @@ const TOOL_STEPS: Partial<Record<ToolId, Steps>> = {
     PickStart: { step: "2/4", text: "Click a start node. Right-click to copy another road." },
     PickEnd: { step: "3/4", text: "Hover an end node to preview, click it to lock the preview. Right-click to pick another start." },
     Review: { step: "4/4", text: "Click or press Apply to change the upgrades, right-click or Back to pick another end." },
+  },
+  Measure: {
+    PickStart: { step: "", text: "Hover a road to measure it. Red parts are steeper than the road type allows. Click a node to measure from it." },
+    PickEnd: { step: "", text: "Hover another node to measure the road between them, click to keep the reading. Right-click to start again." },
+    Review: { step: "", text: "Right-click or Clear to measure something else." },
   },
   Replace: {
     PickSource: { step: "1/4", text: "Click a road of the type you want to use." },
@@ -140,10 +146,10 @@ export const ToolPanel = () => {
           {summary !== "" && <div className={styles.summary}>{summary}</div>}
           {phase !== "PickStart" && phase !== "PickSource" && (
             <div className={styles.row}>
-              {phase === "Review" && (
+              {phase === "Review" && active !== "Measure" && (
                 <Button variant="flat" className={classNames(styles.choice, styles.active)} onSelect={applyPreview}>Apply</Button>
               )}
-              <Button variant="flat" className={styles.choice} onSelect={cancelPreview}>{active === "Undo" ? "Cancel" : phase === "Review" ? "Back" : active === "MoveNode" ? "Pick another" : "Clear start"}</Button>
+              <Button variant="flat" className={styles.choice} onSelect={cancelPreview}>{active === "Undo" ? "Cancel" : active === "Measure" ? "Clear" : phase === "Review" ? "Back" : active === "MoveNode" ? "Pick another" : "Clear start"}</Button>
             </div>
           )}
         </div>

@@ -41,6 +41,7 @@ Click the **Network Tools** button at the top left of the screen to open the too
 | Ctrl+Shift+X | Intersect: hover a road near where another crosses it without a junction, click to preview a junction there, then apply. Roads more than 2 m apart in height are left alone |
 | Ctrl+Shift+T | Change road type: click a road of the type you want, then pick two nodes. The road between them becomes that type, keeping its shape and height. Choose in the panel whether upgrades are kept. Roads aren't swapped for tracks or paths |
 | Ctrl+Shift+U | Copy upgrades: click a road to copy its upgrades (trees, sidewalks, sound walls, lighting...), then pick two nodes to give the road between them the same set. A road without upgrades clears them. Swap left and right in the panel for roads drawn the other way |
+| Ctrl+Shift+M | Measure: hover a road to see its length, grade at the cursor, steepest grade against the road type's limit (steeper parts in red), tightest curve radius and height above ground. Click two nodes to measure between them: length along the road, straight-line distance and bearing, height difference, average and steepest grade, tightest curve and how far the road turns. Changes nothing |
 | Ctrl+J | Connect: click a start node, hover an end node to preview a new road between them, click to build it. `,` and `.` rotate the start direction |
 | Ctrl+Shift+P | Parallel: click a start node, hover an end node to preview a copy of the road between them, click to build it. Side offset, height offset and direction are set in Options |
 
