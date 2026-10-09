@@ -20,6 +20,7 @@ namespace NetworkToolsReworked.Tools
         Roundabout,
         Undo,
         Intersect,
+        Replace,
     }
 
     /// <summary>Turns the tools on and off, from their key bindings or the tool panel.</summary>
@@ -38,6 +39,7 @@ namespace NetworkToolsReworked.Tools
         private RoundaboutToolSystem m_RoundaboutToolSystem;
         private UndoToolSystem m_UndoToolSystem;
         private IntersectToolSystem m_IntersectToolSystem;
+        private ReplaceToolSystem m_ReplaceToolSystem;
         private ProxyAction m_AddNodeAction;
         private ProxyAction m_RemoveNodeAction;
         private ProxyAction m_SlopeAction;
@@ -50,6 +52,7 @@ namespace NetworkToolsReworked.Tools
         private ProxyAction m_RoundaboutAction;
         private ProxyAction m_UndoAction;
         private ProxyAction m_IntersectAction;
+        private ProxyAction m_ReplaceAction;
 
         public ToolId Current
         {
@@ -68,6 +71,7 @@ namespace NetworkToolsReworked.Tools
                 if (active == m_RoundaboutToolSystem) return ToolId.Roundabout;
                 if (active == m_UndoToolSystem) return ToolId.Undo;
                 if (active == m_IntersectToolSystem) return ToolId.Intersect;
+                if (active == m_ReplaceToolSystem) return ToolId.Replace;
                 return ToolId.None;
             }
         }
@@ -78,6 +82,9 @@ namespace NetworkToolsReworked.Tools
         public ConnectToolSystem ConnectTool => m_ConnectToolSystem;
 
         public MoveNodeToolSystem MoveNodeTool => m_MoveNodeToolSystem;
+
+        /// <summary>The active tool if it copies from a picked road first, otherwise null.</summary>
+        public PathToolSystem SourceTool => m_ToolSystem.activeTool as PathToolSystem;
 
         protected override void OnCreate()
         {
@@ -95,6 +102,7 @@ namespace NetworkToolsReworked.Tools
             m_RoundaboutToolSystem = World.GetOrCreateSystemManaged<RoundaboutToolSystem>();
             m_UndoToolSystem = World.GetOrCreateSystemManaged<UndoToolSystem>();
             m_IntersectToolSystem = World.GetOrCreateSystemManaged<IntersectToolSystem>();
+            m_ReplaceToolSystem = World.GetOrCreateSystemManaged<ReplaceToolSystem>();
 
             m_AddNodeAction = Enable(nameof(Setting.AddNodeTool));
             m_RemoveNodeAction = Enable(nameof(Setting.RemoveNodeTool));
@@ -108,6 +116,7 @@ namespace NetworkToolsReworked.Tools
             m_RoundaboutAction = Enable(nameof(Setting.RoundaboutTool));
             m_UndoAction = Enable(nameof(Setting.UndoTool));
             m_IntersectAction = Enable(nameof(Setting.IntersectTool));
+            m_ReplaceAction = Enable(nameof(Setting.ReplaceTool));
         }
 
         protected override void OnUpdate()
@@ -136,6 +145,8 @@ namespace NetworkToolsReworked.Tools
                 Toggle(ToolId.Undo);
             else if (m_IntersectAction.WasPerformedThisFrame())
                 Toggle(ToolId.Intersect);
+            else if (m_ReplaceAction.WasPerformedThisFrame())
+                Toggle(ToolId.Replace);
         }
 
         /// <summary>Activates a tool, or returns to the default tool if it is already active.</summary>
@@ -182,6 +193,9 @@ namespace NetworkToolsReworked.Tools
                     break;
                 case ToolId.Intersect:
                     m_ToolSystem.activeTool = m_IntersectToolSystem;
+                    break;
+                case ToolId.Replace:
+                    m_ToolSystem.activeTool = m_ReplaceToolSystem;
                     break;
                 default:
                     m_ToolSystem.activeTool = m_DefaultToolSystem;

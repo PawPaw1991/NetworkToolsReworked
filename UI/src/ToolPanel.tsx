@@ -30,6 +30,7 @@ import { SmoothOptions } from "./SmoothOptions";
 import { MoveOptions } from "./MoveOptions";
 import { ArrangeOptions } from "./ArrangeOptions";
 import { RoundaboutOptions } from "./RoundaboutOptions";
+import { ReplaceOptions } from "./ReplaceOptions";
 
 const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "AddNode", label: "Add Node", hint: "Click a road to split it with a new node." },
@@ -40,13 +41,15 @@ const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "Arrange", label: "Arrange", hint: "Space the nodes between two nodes evenly, on the current shape, a straight line or an arc." },
   { id: "Reverse", label: "Reverse", hint: "Reverse the direction of the road between two nodes, e.g. a one-way road." },
   { id: "Roundabout", label: "Roundabout", hint: "Turn a junction into a roundabout. The ring uses the same road type as the junction." },
+  { id: "Replace", label: "Change type", hint: "Turn the road between two nodes into another road type, keeping its shape and height." },
   { id: "Intersect", label: "Intersect", hint: "Join two roads that cross without a junction. Hover near the crossing." },
   { id: "Undo", label: "Undo", hint: "Undo the last edit made with these tools (last 30 this session). Ctrl+Alt+Z." },
   { id: "Connect", label: "Connect", hint: "Build a new road between two nodes. , and . rotate the start direction." },
   { id: "Parallel", label: "Parallel", hint: "Build a copy of the road between two nodes, offset to the side." },
 ];
 
-type Steps = Record<Exclude<Phase, "">, { step: string; text: string }>;
+type Step = { step: string; text: string };
+type Steps = Record<"PickStart" | "PickEnd" | "Review", Step> & { PickSource?: Step };
 
 const STEPS: Steps = {
   PickStart: { step: "1/3", text: "Click a start node." },
@@ -58,6 +61,12 @@ const STEPS: Steps = {
 const UNDO_STEP = { step: "", text: "Red roads are removed and green ones restored. Click or press Apply to undo, right-click or Cancel to keep things as they are." };
 
 const TOOL_STEPS: Partial<Record<ToolId, Steps>> = {
+  Replace: {
+    PickSource: { step: "1/4", text: "Click a road of the type you want to use." },
+    PickStart: { step: "2/4", text: "Click a start node. Right-click to copy another type." },
+    PickEnd: { step: "3/4", text: "Hover an end node to preview, click it to lock the preview. Right-click to pick another start." },
+    Review: { step: "4/4", text: "Click or press Apply to change the type, right-click or Back to pick another end." },
+  },
   Undo: { PickStart: UNDO_STEP, PickEnd: UNDO_STEP, Review: UNDO_STEP },
   Intersect: {
     PickStart: { step: "1/2", text: "Hover a road near where another crosses it, click to lock the preview." },
@@ -91,6 +100,7 @@ export const ToolPanel = () => {
 
   const current = TOOLS.find((t) => t.id === active);
   const steps = TOOL_STEPS[active] ?? STEPS;
+  const step = phase === "" ? undefined : steps[phase];
 
   return (
     <div className={styles.panel}>
@@ -114,14 +124,14 @@ export const ToolPanel = () => {
 
       {current && <div className={styles.hint}>{current.hint}</div>}
 
-      {phase !== "" && (
+      {step && (
         <div className={styles.status}>
           <div className={styles.row}>
-            {steps[phase].step !== "" && <span className={styles.stepBadge}>{steps[phase].step}</span>}
-            <span className={styles.label}>{steps[phase].text}</span>
+            {step.step !== "" && <span className={styles.stepBadge}>{step.step}</span>}
+            <span className={styles.label}>{step.text}</span>
           </div>
           {summary !== "" && <div className={styles.summary}>{summary}</div>}
-          {phase !== "PickStart" && (
+          {phase !== "PickStart" && phase !== "PickSource" && (
             <div className={styles.row}>
               {phase === "Review" && (
                 <Button variant="flat" className={classNames(styles.choice, styles.active)} onSelect={applyPreview}>Apply</Button>
@@ -141,6 +151,8 @@ export const ToolPanel = () => {
       {active === "Arrange" && <ArrangeOptions />}
 
       {active === "Roundabout" && <RoundaboutOptions />}
+
+      {active === "Replace" && <ReplaceOptions />}
 
       {active === "Connect" && (
         <>

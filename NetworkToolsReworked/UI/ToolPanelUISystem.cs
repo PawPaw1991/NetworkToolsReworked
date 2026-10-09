@@ -43,6 +43,8 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<bool> m_RoundaboutClockwise;
         private ValueBinding<int> m_MoveSnap;
         private ValueBinding<float> m_MoveGridSize;
+        private ValueBinding<string> m_SourceName;
+        private ValueBinding<bool> m_ReplaceKeepUpgrades;
         private SlopeToolSystem m_SlopeToolSystem;
 
         protected override void OnCreate()
@@ -81,6 +83,8 @@ namespace NetworkToolsReworked.UI
             AddBinding(m_RoundaboutClockwise = new ValueBinding<bool>(kGroup, "RoundaboutClockwise", false));
             AddBinding(m_MoveSnap = new ValueBinding<int>(kGroup, "MoveSnap", 0));
             AddBinding(m_MoveGridSize = new ValueBinding<float>(kGroup, "MoveGridSize", 8f));
+            AddBinding(m_SourceName = new ValueBinding<string>(kGroup, "SourceName", string.Empty));
+            AddBinding(m_ReplaceKeepUpgrades = new ValueBinding<bool>(kGroup, "ReplaceKeepUpgrades", true));
 
             AddBinding(new TriggerBinding(kGroup, "TogglePanel", () => m_PanelOpen.Update(!m_PanelOpen.value)));
             AddBinding(new TriggerBinding<string>(kGroup, "SelectTool", name =>
@@ -113,6 +117,8 @@ namespace NetworkToolsReworked.UI
             AddBinding(new TriggerBinding<bool>(kGroup, "SetRoundaboutClockwise", v => Save(s => s.RoundaboutClockwise = v)));
             AddBinding(new TriggerBinding<int>(kGroup, "SetMoveSnap", v => Save(s => s.MoveSnap = (MoveSnap)v)));
             AddBinding(new TriggerBinding<float>(kGroup, "SetMoveGridSize", v => Save(s => s.MoveGridSize = v)));
+            AddBinding(new TriggerBinding<bool>(kGroup, "SetReplaceKeepUpgrades", v => Save(s => s.ReplaceKeepUpgrades = v)));
+            AddBinding(new TriggerBinding(kGroup, "PickSource", () => m_ToolActivationSystem.SourceTool?.RequestPickSource()));
             AddBinding(new TriggerBinding(kGroup, "ApplyPreview", () => m_ToolActivationSystem.PreviewTool?.RequestApply()));
             AddBinding(new TriggerBinding(kGroup, "CancelPreview", () => m_ToolActivationSystem.PreviewTool?.RequestCancel()));
             AddBinding(new TriggerBinding<int>(kGroup, "RotateConnect", steps => m_ToolActivationSystem.ConnectTool.RequestRotate(steps)));
@@ -154,6 +160,8 @@ namespace NetworkToolsReworked.UI
             m_RoundaboutClockwise.Update(settings.RoundaboutClockwise);
             m_MoveSnap.Update((int)settings.MoveSnap);
             m_MoveGridSize.Update(settings.MoveGridSize);
+            m_SourceName.Update(m_ToolActivationSystem.SourceTool?.SourceName ?? string.Empty);
+            m_ReplaceKeepUpgrades.Update(settings.ReplaceKeepUpgrades);
         }
 
         private static void Save(Action<Setting> change)
