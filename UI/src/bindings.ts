@@ -1,7 +1,7 @@
 import { bindValue, trigger } from "cs2/api";
 import mod from "mod.json";
 
-export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Upgrades" | "Measure" | "Ramp" | "MatchHeight" | "Health" | "Connect" | "Parallel";
+export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Upgrades" | "Measure" | "Ramp" | "MatchHeight" | "Health" | "Bridge" | "Connect" | "Parallel";
 
 export const panelOpen$ = bindValue<boolean>(mod.id, "PanelOpen", false);
 export const activeTool$ = bindValue<ToolId>(mod.id, "ActiveTool", "None");
@@ -56,6 +56,9 @@ export const usingSelection$ = bindValue<boolean>(mod.id, "UsingSelection", fals
 export const healthIssues$ = bindValue<string>(mod.id, "HealthIssues", "");
 export const healthSelected$ = bindValue<number>(mod.id, "HealthSelected", -1);
 export const healthMinLength$ = bindValue<number>(mod.id, "HealthMinLength", 3);
+export const bridgeMode$ = bindValue<number>(mod.id, "BridgeMode", 0);
+export const bridgeHeight$ = bindValue<number>(mod.id, "BridgeHeight", 10);
+export const bridgeClearance$ = bindValue<number>(mod.id, "BridgeClearance", 8);
 export const connectRotation$ = bindValue<number>(mod.id, "ConnectRotation", 0);
 
 export const togglePanel = () => trigger(mod.id, "TogglePanel");
@@ -109,6 +112,9 @@ export const deletePreset = (index: number) => trigger(mod.id, "DeletePreset", i
 export const selectIssue = (index: number) => trigger(mod.id, "SelectIssue", index);
 export const rescanHealth = () => trigger(mod.id, "RescanHealth");
 export const setHealthMinLength = (value: number) => trigger(mod.id, "SetHealthMinLength", value);
+export const setBridgeMode = (value: number) => trigger(mod.id, "SetBridgeMode", value);
+export const setBridgeHeight = (value: number) => trigger(mod.id, "SetBridgeHeight", value);
+export const setBridgeClearance = (value: number) => trigger(mod.id, "SetBridgeClearance", value);
 export const useSelection = () => trigger(mod.id, "UseSelection");
 export const pickSource = () => trigger(mod.id, "PickSource");
 export const setMoveGridSize = (value: number) => trigger(mod.id, "SetMoveGridSize", value);

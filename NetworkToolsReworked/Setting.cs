@@ -151,6 +151,10 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.K, nameof(HealthTool), ctrl: true, shift: true)]
         public ProxyBinding HealthTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.B, nameof(BridgeTool), ctrl: true, shift: true)]
+        public ProxyBinding BridgeTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -254,6 +258,18 @@ namespace NetworkToolsReworked
         [SettingsUIHidden]
         public float RampHeight { get; set; }
 
+        /// <summary>Bridge and tunnel: what sets the height.</summary>
+        [SettingsUIHidden]
+        public LiftMode BridgeMode { get; set; }
+
+        /// <summary>Bridge and tunnel: height to raise or depth to lower, metres.</summary>
+        [SettingsUIHidden]
+        public float BridgeHeight { get; set; }
+
+        /// <summary>Bridge and tunnel, over crossings: height kept above crossing roads, metres.</summary>
+        [SettingsUIHidden]
+        public float BridgeClearance { get; set; }
+
         /// <summary>Network check: segments shorter than this (metres) are reported; 0 turns it off.</summary>
         [SettingsUIHidden]
         public float HealthMinLength { get; set; }
@@ -322,6 +338,9 @@ namespace NetworkToolsReworked
             RampLength = 120f;
             RampHeight = 6f;
             HealthMinLength = 3f;
+            BridgeMode = LiftMode.OverCrossings;
+            BridgeHeight = 10f;
+            BridgeClearance = 8f;
             MoveSnap = MoveSnap.Off;
             MoveGridSize = 8f;
             ClearanceWarning = 6f;
@@ -469,6 +488,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.HealthTool)), "Network check tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.HealthTool)), "Toggle the Network check tool. Scans the city for overlapping roads, loose nodes, tiny segments, ends that nearly meet, grades over the limit and roads cut off from the rest, lists them, jumps to each and fixes the safe ones." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.HealthTool)), "Network check tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.BridgeTool)), "Bridge and tunnel tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.BridgeTool)), "Toggle the Bridge and tunnel tool. Pick two nodes to lift the road between them over the roads crossing it, raise it into a bridge or lower it into a tunnel, with approach slopes within its grade limit." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.BridgeTool)), "Bridge and tunnel tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },
