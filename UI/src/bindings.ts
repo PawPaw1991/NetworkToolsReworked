@@ -1,7 +1,7 @@
 import { bindValue, trigger } from "cs2/api";
 import mod from "mod.json";
 
-export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Upgrades" | "Measure" | "Ramp" | "MatchHeight" | "Health" | "Bridge" | "Fillet" | "Connect" | "Parallel";
+export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Upgrades" | "Measure" | "Ramp" | "MatchHeight" | "Health" | "Bridge" | "Fillet" | "Split" | "Connect" | "Parallel";
 
 export const panelOpen$ = bindValue<boolean>(mod.id, "PanelOpen", false);
 export const activeTool$ = bindValue<ToolId>(mod.id, "ActiveTool", "None");
@@ -56,6 +56,10 @@ export const usingSelection$ = bindValue<boolean>(mod.id, "UsingSelection", fals
 export const healthIssues$ = bindValue<string>(mod.id, "HealthIssues", "");
 export const healthSelected$ = bindValue<number>(mod.id, "HealthSelected", -1);
 export const healthMinLength$ = bindValue<number>(mod.id, "HealthMinLength", 3);
+export const splitMode$ = bindValue<number>(mod.id, "SplitMode", 0);
+export const splitParts$ = bindValue<number>(mod.id, "SplitParts", 2);
+export const splitSpacing$ = bindValue<number>(mod.id, "SplitSpacing", 48);
+export const simplifyTolerance$ = bindValue<number>(mod.id, "SimplifyTolerance", 0.5);
 export const filletRadius$ = bindValue<number>(mod.id, "FilletRadius", 40);
 export const bridgeMode$ = bindValue<number>(mod.id, "BridgeMode", 0);
 export const bridgeHeight$ = bindValue<number>(mod.id, "BridgeHeight", 10);
@@ -113,6 +117,10 @@ export const deletePreset = (index: number) => trigger(mod.id, "DeletePreset", i
 export const selectIssue = (index: number) => trigger(mod.id, "SelectIssue", index);
 export const rescanHealth = () => trigger(mod.id, "RescanHealth");
 export const setHealthMinLength = (value: number) => trigger(mod.id, "SetHealthMinLength", value);
+export const setSplitMode = (value: number) => trigger(mod.id, "SetSplitMode", value);
+export const setSplitParts = (value: number) => trigger(mod.id, "SetSplitParts", value);
+export const setSplitSpacing = (value: number) => trigger(mod.id, "SetSplitSpacing", value);
+export const setSimplifyTolerance = (value: number) => trigger(mod.id, "SetSimplifyTolerance", value);
 export const setFilletRadius = (value: number) => trigger(mod.id, "SetFilletRadius", value);
 export const setBridgeMode = (value: number) => trigger(mod.id, "SetBridgeMode", value);
 export const setBridgeHeight = (value: number) => trigger(mod.id, "SetBridgeHeight", value);
