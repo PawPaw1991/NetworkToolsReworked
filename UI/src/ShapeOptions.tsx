@@ -17,9 +17,10 @@ import {
   slopeProfile$,
   slopeStartOffset$,
 } from "bindings";
+import styles from "./ToolPanel.module.scss";
 import { Choice, Section, Stepper } from "./controls";
 
-// Indices match the C# enums SlopeProfile (Linear, EaseInOut, Keep) and CurveMode (Keep, Smooth, Straighten).
+// Indices match the C# enums SlopeProfile (Linear, EaseInOut, Keep) and CurveMode (Keep, Smooth, Straighten, Transition).
 const PROFILES = [
   { value: 2, label: "Keep" },
   { value: 0, label: "Linear" },
@@ -29,6 +30,7 @@ const CURVES = [
   { value: 0, label: "Keep" },
   { value: 1, label: "Smooth" },
   { value: 2, label: "Straighten" },
+  { value: 3, label: "Transition" },
 ];
 
 export const ShapeOptions = () => {
@@ -52,6 +54,7 @@ export const ShapeOptions = () => {
 
       <Section title="Curve" />
       <Choice options={CURVES} value={curve} onChange={setCurveMode} />
+      {curve === 3 && <div className={styles.hint}>Highway curve: the bend tightens gradually from the road's direction at each end. Inner nodes move along it.</div>}
       {curve !== 0 && <Stepper label="Strength" unit="%" value={strength} step={10} fine={1} min={0} max={100} onChange={setCurveStrength} />}
       {curve === 1 && (
         <Choice
