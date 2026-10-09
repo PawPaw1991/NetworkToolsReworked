@@ -63,6 +63,10 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.D, nameof(MoveNodeTool), ctrl: true, shift: true)]
         public ProxyBinding MoveNodeTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.A, nameof(ArrangeTool), ctrl: true, shift: true)]
+        public ProxyBinding ArrangeTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -101,6 +105,13 @@ namespace NetworkToolsReworked
         [SettingsUIHidden]
         public float SmoothRelax { get; set; }
 
+        [SettingsUIHidden]
+        public ArrangeMode ArrangeMode { get; set; }
+
+        /// <summary>Arrange arc: percent of the road's current bulge to keep; negative flips the side.</summary>
+        [SettingsUIHidden]
+        public float ArrangeBulge { get; set; }
+
         /// <summary>Sideways distance of the Parallel copy in metres; positive is to the right.</summary>
         [SettingsUISection(kSection, kGeneralGroup)]
         [SettingsUISlider(min = -64, max = 64, step = 1)]
@@ -135,6 +146,8 @@ namespace NetworkToolsReworked
             SmoothKeepEnds = true;
             SmoothGrades = true;
             SmoothRelax = 0f;
+            ArrangeMode = ArrangeMode.EvenSpacing;
+            ArrangeBulge = 100f;
             ConnectMode = ConnectMode.SimpleCurve;
             ParallelOffset = 16f;
             ParallelHeight = 0f;
@@ -197,6 +210,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.MoveNodeTool)), "Move Node tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.MoveNodeTool)), "Toggle the Move Node tool. Click a node, drag it with the cursor, click to drop, then fine-tune its position and height in the tool panel." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.MoveNodeTool)), "Move Node tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ArrangeTool)), "Arrange tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ArrangeTool)), "Toggle the Arrange tool. Pick two nodes to space the nodes between them evenly, along the current shape, a straight line or an arc." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.ArrangeTool)), "Arrange tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },

@@ -112,9 +112,9 @@ namespace NetworkToolsReworked.Tools
             Summary = string.Empty;
             m_Overlay.BeginFrame();
 
-            if (m_StartNode != Entity.Null && !EntityManager.Exists(m_StartNode))
+            if (m_StartNode != Entity.Null && !ToolPicks.IsAlive(EntityManager, m_StartNode))
                 Reset();
-            if (m_EndNode != Entity.Null && !EntityManager.Exists(m_EndNode))
+            if (m_EndNode != Entity.Null && !ToolPicks.IsAlive(EntityManager, m_EndNode))
                 m_EndNode = Entity.Null;
 
             var click = applyAction.WasPressedThisFrame();

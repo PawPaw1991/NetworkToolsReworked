@@ -14,6 +14,7 @@ namespace NetworkToolsReworked.Tools
         Parallel,
         Smooth,
         MoveNode,
+        Arrange,
     }
 
     /// <summary>Turns the tools on and off, from their key bindings or the tool panel.</summary>
@@ -27,6 +28,7 @@ namespace NetworkToolsReworked.Tools
         private ParallelToolSystem m_ParallelToolSystem;
         private SmoothToolSystem m_SmoothToolSystem;
         private MoveNodeToolSystem m_MoveNodeToolSystem;
+        private ArrangeToolSystem m_ArrangeToolSystem;
         private ProxyAction m_AddNodeAction;
         private ProxyAction m_RemoveNodeAction;
         private ProxyAction m_SlopeAction;
@@ -34,6 +36,7 @@ namespace NetworkToolsReworked.Tools
         private ProxyAction m_ParallelAction;
         private ProxyAction m_SmoothAction;
         private ProxyAction m_MoveNodeAction;
+        private ProxyAction m_ArrangeAction;
 
         public ToolId Current
         {
@@ -47,6 +50,7 @@ namespace NetworkToolsReworked.Tools
                 if (active == m_ParallelToolSystem) return ToolId.Parallel;
                 if (active == m_SmoothToolSystem) return ToolId.Smooth;
                 if (active == m_MoveNodeToolSystem) return ToolId.MoveNode;
+                if (active == m_ArrangeToolSystem) return ToolId.Arrange;
                 return ToolId.None;
             }
         }
@@ -69,6 +73,7 @@ namespace NetworkToolsReworked.Tools
             m_ParallelToolSystem = World.GetOrCreateSystemManaged<ParallelToolSystem>();
             m_SmoothToolSystem = World.GetOrCreateSystemManaged<SmoothToolSystem>();
             m_MoveNodeToolSystem = World.GetOrCreateSystemManaged<MoveNodeToolSystem>();
+            m_ArrangeToolSystem = World.GetOrCreateSystemManaged<ArrangeToolSystem>();
 
             m_AddNodeAction = Enable(nameof(Setting.AddNodeTool));
             m_RemoveNodeAction = Enable(nameof(Setting.RemoveNodeTool));
@@ -77,6 +82,7 @@ namespace NetworkToolsReworked.Tools
             m_ParallelAction = Enable(nameof(Setting.ParallelTool));
             m_SmoothAction = Enable(nameof(Setting.SmoothTool));
             m_MoveNodeAction = Enable(nameof(Setting.MoveNodeTool));
+            m_ArrangeAction = Enable(nameof(Setting.ArrangeTool));
         }
 
         protected override void OnUpdate()
@@ -95,6 +101,8 @@ namespace NetworkToolsReworked.Tools
                 Toggle(ToolId.Smooth);
             else if (m_MoveNodeAction.WasPerformedThisFrame())
                 Toggle(ToolId.MoveNode);
+            else if (m_ArrangeAction.WasPerformedThisFrame())
+                Toggle(ToolId.Arrange);
         }
 
         /// <summary>Activates a tool, or returns to the default tool if it is already active.</summary>
@@ -126,6 +134,9 @@ namespace NetworkToolsReworked.Tools
                     break;
                 case ToolId.MoveNode:
                     m_ToolSystem.activeTool = m_MoveNodeToolSystem;
+                    break;
+                case ToolId.Arrange:
+                    m_ToolSystem.activeTool = m_ArrangeToolSystem;
                     break;
                 default:
                     m_ToolSystem.activeTool = m_DefaultToolSystem;

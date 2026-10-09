@@ -201,6 +201,22 @@ namespace NetworkToolsReworked.Edits
                 result.MaxGrade = math.max(result.MaxGrade, result.EdgeMaxGrade[i]);
             }
 
+            if (!EmitChain(em, ecb, ref terrain, nodes, edges, curves, original, randomSeed, out var inPlace))
+                return false;
+            result.InPlace = inPlace;
+            return true;
+        }
+
+        /// <summary>
+        /// Replaces the chain's curves with <paramref name="curves"/> (oriented from nodes[0]). Nodes whose
+        /// position changes get the rebuild described on the class; if none moves, edges are edited in
+        /// place. Returns false if nothing changes.
+        /// </summary>
+        internal static bool EmitChain(EntityManager em, EntityCommandBuffer ecb, ref TerrainHeightData terrain, List<Entity> nodes, List<Entity> edges, Bezier4x3[] curves, Bezier4x3[] original, int randomSeed, out bool inPlace)
+        {
+            var count = edges.Count;
+            inPlace = false;
+
             // Nodes that end up somewhere else need the rebuild; the rest keep their entity.
             var newPositions = new Dictionary<Entity, float3>();
             for (var i = 0; i <= count; i++)
@@ -216,8 +232,8 @@ namespace NetworkToolsReworked.Edits
             if (!changed)
                 return false;
 
-            result.InPlace = newPositions.Count == 0;
-            if (result.InPlace)
+            inPlace = newPositions.Count == 0;
+            if (inPlace)
             {
                 for (var i = 0; i < count; i++)
                     EmitInPlace(em, ecb, ref terrain, edges[i], nodes[i], nodes[i + 1], curves[i], randomSeed);
