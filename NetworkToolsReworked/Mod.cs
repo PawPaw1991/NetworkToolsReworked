@@ -41,6 +41,7 @@ namespace NetworkToolsReworked
             updateSystem.UpdateAt<Undo.UndoToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<IntersectToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<ReplaceToolSystem>(SystemUpdatePhase.ToolUpdate);
+            updateSystem.UpdateAt<UpgradesToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<ToolActivationSystem>(SystemUpdatePhase.MainLoop);
             updateSystem.UpdateAt<ToolPanelUISystem>(SystemUpdatePhase.UIUpdate);
         }

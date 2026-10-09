@@ -88,6 +88,10 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.T, nameof(ReplaceTool), ctrl: true, shift: true)]
         public ProxyBinding ReplaceTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.U, nameof(UpgradesTool), ctrl: true, shift: true)]
+        public ProxyBinding UpgradesTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -145,6 +149,10 @@ namespace NetworkToolsReworked
         [SettingsUIHidden]
         public bool ReplaceKeepUpgrades { get; set; }
 
+        /// <summary>Copy upgrades: put left-side upgrades on the right and vice versa (roads drawn the other way).</summary>
+        [SettingsUIHidden]
+        public bool UpgradesSwapSides { get; set; }
+
         [SettingsUIHidden]
         public MoveSnap MoveSnap { get; set; }
 
@@ -196,6 +204,7 @@ namespace NetworkToolsReworked
             RoundaboutRadius = 24f;
             RoundaboutClockwise = false;
             ReplaceKeepUpgrades = true;
+            UpgradesSwapSides = false;
             MoveSnap = MoveSnap.Off;
             MoveGridSize = 8f;
             ClearanceWarning = 6f;
@@ -292,6 +301,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ReplaceTool)), "Change road type tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ReplaceTool)), "Toggle the Change road type tool. Click a road to copy its type, then pick two nodes: the road between them becomes that type, keeping its shape and height." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.ReplaceTool)), "Change road type tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.UpgradesTool)), "Copy upgrades tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.UpgradesTool)), "Toggle the Copy upgrades tool. Click a road to copy its upgrades (trees, sidewalks, sound walls...), then pick two nodes to give the road between them the same upgrades. Copying a road without upgrades clears them." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.UpgradesTool)), "Copy upgrades tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },
