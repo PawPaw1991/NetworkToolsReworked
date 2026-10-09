@@ -31,6 +31,8 @@ export const arrangeMode$ = bindValue<number>(mod.id, "ArrangeMode", 0);
 export const arrangeBulge$ = bindValue<number>(mod.id, "ArrangeBulge", 100);
 export const roundaboutRadius$ = bindValue<number>(mod.id, "RoundaboutRadius", 24);
 export const roundaboutClockwise$ = bindValue<boolean>(mod.id, "RoundaboutClockwise", false);
+export const moveSnap$ = bindValue<number>(mod.id, "MoveSnap", 0);
+export const moveGridSize$ = bindValue<number>(mod.id, "MoveGridSize", 8);
 export const connectRotation$ = bindValue<number>(mod.id, "ConnectRotation", 0);
 
 export const togglePanel = () => trigger(mod.id, "TogglePanel");
@@ -61,3 +63,5 @@ export const setArrangeMode = (value: number) => trigger(mod.id, "SetArrangeMode
 export const setArrangeBulge = (value: number) => trigger(mod.id, "SetArrangeBulge", value);
 export const setRoundaboutRadius = (value: number) => trigger(mod.id, "SetRoundaboutRadius", value);
 export const setRoundaboutClockwise = (value: boolean) => trigger(mod.id, "SetRoundaboutClockwise", value);
+export const setMoveSnap = (value: number) => trigger(mod.id, "SetMoveSnap", value);
+export const setMoveGridSize = (value: number) => trigger(mod.id, "SetMoveGridSize", value);

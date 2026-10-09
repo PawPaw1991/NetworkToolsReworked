@@ -137,6 +137,18 @@ namespace NetworkToolsReworked
         [SettingsUIHidden]
         public bool RoundaboutClockwise { get; set; }
 
+        [SettingsUIHidden]
+        public MoveSnap MoveSnap { get; set; }
+
+        /// <summary>Move Node grid snapping size in metres.</summary>
+        [SettingsUIHidden]
+        public float MoveGridSize { get; set; }
+
+        /// <summary>Warn when a reshaped road passes closer than this (metres) above or below another road; 0 turns it off.</summary>
+        [SettingsUISection(kSection, kGeneralGroup)]
+        [SettingsUISlider(min = 0, max = 15, step = 0.5f)]
+        public float ClearanceWarning { get; set; }
+
         /// <summary>Sideways distance of the Parallel copy in metres; positive is to the right.</summary>
         [SettingsUISection(kSection, kGeneralGroup)]
         [SettingsUISlider(min = -64, max = 64, step = 1)]
@@ -175,6 +187,9 @@ namespace NetworkToolsReworked
             ArrangeBulge = 100f;
             RoundaboutRadius = 24f;
             RoundaboutClockwise = false;
+            MoveSnap = MoveSnap.Off;
+            MoveGridSize = 8f;
+            ClearanceWarning = 6f;
             ConnectMode = ConnectMode.SimpleCurve;
             ParallelOffset = 16f;
             ParallelHeight = 0f;
@@ -182,6 +197,13 @@ namespace NetworkToolsReworked
             Unit = DistanceUnit.Meters;
             DebugLogging = false;
         }
+    }
+
+    public enum MoveSnap
+    {
+        Off,
+        Grid,
+        Angle,
     }
 
     public class LocaleEN : IDictionarySource
@@ -272,6 +294,9 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ParallelHeight)), "Raise or lower the copy, e.g. for a stacked or sunken road." },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ParallelReverse)), "Parallel: opposite direction" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ParallelReverse)), "Build the copy running the other way, for the second carriageway of a one-way pair." },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ClearanceWarning)), "Clearance warning (m)" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ClearanceWarning)), "Slope & Curve and Smooth mark crossings where the reshaped road passes closer than this above or below another road. 0 turns the warning off. The game's own checks still decide what can be built." },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Unit)), "Distance unit" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.Unit)), "Unit used for lengths and offsets in the tool panels. A cell is one 8 m zone grid square." },

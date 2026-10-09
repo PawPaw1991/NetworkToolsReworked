@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using Colossal.Entities;
+using Game.Common;
+using Game.Net;
 using Game.Prefabs;
 using Game.Simulation;
 using NetworkToolsReworked.Edits;
+using Game.Tools;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -18,6 +21,9 @@ namespace NetworkToolsReworked.Tools
         private TerrainSystem m_TerrainSystem;
         private ShapeResult m_Result;
         private bool m_HasResult;
+        private EntityQuery m_EdgeQuery;
+        private readonly List<Clearance.Problem> m_Clearance = new List<Clearance.Problem>();
+        private float m_ClearanceKey = float.NaN;
 
         public override string toolID => "NetworkToolsReworked.SlopeTool";
 
@@ -31,6 +37,7 @@ namespace NetworkToolsReworked.Tools
         {
             base.OnCreate();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
+            m_EdgeQuery = GetEntityQuery(ComponentType.ReadOnly<Edge>(), ComponentType.ReadOnly<Curve>(), ComponentType.Exclude<Deleted>(), ComponentType.Exclude<Temp>());
         }
 
         protected override void OnSelectionCleared()
@@ -38,6 +45,8 @@ namespace NetworkToolsReworked.Tools
             StartOffset = 0f;
             EndOffset = 0f;
             m_HasResult = false;
+            m_Clearance.Clear();
+            m_ClearanceKey = float.NaN;
         }
 
         /// <summary>The shape to apply, from the current options.</summary>
@@ -74,6 +83,10 @@ namespace NetworkToolsReworked.Tools
                 return;
             }
 
+            UpdateClearance(nodes, edges, locked);
+            foreach (var problem in m_Clearance)
+                overlay.Point(problem.Position, 8f, ToolOverlay.Invalid);
+
             for (var i = 0; i < edges.Count; i++)
             {
                 overlay.DashedEdge(edges[i], ToolOverlay.Before);
@@ -87,7 +100,37 @@ namespace NetworkToolsReworked.Tools
             var r = m_Result;
             var grade = r.Length > 0.01f ? r.Rise / r.Length * 100f : 0f;
             var kept = r.InPlace ? ", nodes stay in place" : "";
-            return $"{count}, {PathInfo.Distance(r.Length)}, height {PathInfo.Signed(r.Rise)} m, average {PathInfo.Signed(grade)}%, steepest {r.MaxGrade * 100f:0.0}%{kept}";
+            var clearance = "";
+            if (m_Clearance.Count > 0)
+            {
+                var tightest = float.MaxValue;
+                foreach (var p in m_Clearance)
+                    tightest = math.min(tightest, p.Gap);
+                clearance = $". Warning: {m_Clearance.Count} tight crossing(s) with other roads, closest {tightest:0.0} m apart (marked red)";
+            }
+            return $"{count}, {PathInfo.Distance(r.Length)}, height {PathInfo.Signed(r.Rise)} m, average {PathInfo.Signed(grade)}%, steepest {r.MaxGrade * 100f:0.0}%{kept}{clearance}";
+        }
+
+        /// <summary>
+        /// Checks the new shape against roads it passes over or under. Only while the preview is locked,
+        /// and only when the shape changed, since it looks at every road in the city.
+        /// </summary>
+        private void UpdateClearance(List<Entity> nodes, List<Entity> edges, bool locked)
+        {
+            if (!locked || Mod.Settings.ClearanceWarning <= 0f)
+            {
+                m_Clearance.Clear();
+                m_ClearanceKey = float.NaN;
+                return;
+            }
+
+            var key = Mod.Settings.ClearanceWarning;
+            foreach (var c in m_Result.Curves)
+                key += math.csum(c.a + c.b * 2f + c.c * 3f + c.d * 4f);
+            if (key == m_ClearanceKey)
+                return;
+            m_ClearanceKey = key;
+            Clearance.Check(EntityManager, m_EdgeQuery, m_Result.Curves, Clearance.Neighbourhood(EntityManager, nodes, edges), Mod.Settings.ClearanceWarning, m_Clearance);
         }
 
         private Color GradeColor(Entity edge, float grade)

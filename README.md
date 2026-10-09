@@ -52,6 +52,10 @@ Slope, Connect and Parallel work in three steps, shown in the panel: click a sta
 
 **Smooth options** (tool panel): strength (0 to 100%), keep the direction at both ends or leave them free, smooth the slope too (evens out bumps and dips at the nodes) or curves only, and Relax nodes, which also pulls the inner nodes towards an even line. Without Relax no node moves, so the roads are edited in place. The preview shows the current road as a dashed line under the new shape.
 
+**Move Node snapping** (tool panel): no snap, a world grid (0.5 to 32 m), or 15° steps and whole metres from the node's original spot, lined up with its first road.
+
+**Clearance warning** (Options, default 6 m, 0 turns it off): Slope & Curve and Smooth mark in red any spot where the reshaped road passes closer than this above or below another road, and say so in the panel. The game's own checks still decide what can be built.
+
 Press the key again or right-click to leave the tool. Both keys can be rebound in Options.
 
 ## Building
