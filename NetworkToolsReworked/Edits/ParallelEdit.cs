@@ -87,6 +87,10 @@ namespace NetworkToolsReworked.Edits
                     (e0, e1) = (e1, e0);
                 }
 
+                var startPos = NewEnd(curve, start: true, e0);
+                var endPos = NewEnd(curve, start: false, e1);
+                ClearSharedFlags(ref startPos, ref endPos, i, edges.Count, reverse);
+
                 var definition = NetDefinitions.Emit(ecb, new CreationDefinition
                 {
                     m_Prefab = em.GetComponentData<PrefabRef>(edges[i]).m_Prefab,
@@ -95,8 +99,8 @@ namespace NetworkToolsReworked.Edits
                 }, new NetCourse
                 {
                     m_Curve = curve,
-                    m_StartPosition = NewEnd(curve, start: true, e0),
-                    m_EndPosition = NewEnd(curve, start: false, e1),
+                    m_StartPosition = startPos,
+                    m_EndPosition = endPos,
                     m_Elevation = new float2(e0, e1),
                     m_Length = MathUtils.Length(curve),
                     m_FixedIndex = -1,
@@ -168,6 +172,7 @@ namespace NetworkToolsReworked.Edits
                     curve = MathUtils.Invert(curve);
                     (startPos, endPos) = (Flip(endPos, curve, start: true), Flip(startPos, curve, start: false));
                 }
+                ClearSharedFlags(ref startPos, ref endPos, i, count, reverse);
 
                 var definition = NetDefinitions.Emit(ecb, new CreationDefinition
                 {
@@ -202,6 +207,23 @@ namespace NetworkToolsReworked.Edits
                 m_Flags = start ? CoursePosFlags.IsFirst : CoursePosFlags.IsLast,
                 m_ParentMesh = -1,
             };
+        }
+
+        /// <summary>
+        /// The copy's inner nodes are shared by the courses either side, so they carry no end flags
+        /// (IsFirst/IsLast mark loose road ends; see SlopeEdit.ChainEnd). Only new nodes are cleared;
+        /// ends on an existing node keep theirs.
+        /// </summary>
+        private static void ClearSharedFlags(ref CoursePos startPos, ref CoursePos endPos, int index, int count, bool reverse)
+        {
+            var firstShared = index > 0;
+            var lastShared = index + 1 < count;
+            if (reverse)
+                (firstShared, lastShared) = (lastShared, firstShared);
+            if (firstShared && startPos.m_Entity == Entity.Null)
+                startPos.m_Flags = 0;
+            if (lastShared && endPos.m_Entity == Entity.Null)
+                endPos.m_Flags = 0;
         }
 
         /// <summary>The same end used at the other end of a reversed course.</summary>

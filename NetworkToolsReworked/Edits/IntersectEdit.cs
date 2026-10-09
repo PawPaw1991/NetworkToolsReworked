@@ -82,9 +82,10 @@ namespace NetworkToolsReworked.Edits
                 m_Entity = Entity.Null,
                 m_Position = junction,
                 m_Rotation = NetUtils.GetNodeRotation(tangent),
-                m_Elevation = hasElevation ? new float2(junction.y - TerrainUtils.SampleHeight(ref terrain, junction)) : float2.zero,
+                // The new junction is shared by the pieces of both roads, so every course there carries the
+                // same true height above ground and no end flags (see SlopeEdit.ChainEnd).
+                m_Elevation = new float2(junction.y - TerrainUtils.SampleHeight(ref terrain, junction)),
                 m_CourseDelta = start ? 0f : 1f,
-                m_Flags = start ? CoursePosFlags.IsFirst : CoursePosFlags.IsLast,
                 m_ParentMesh = -1,
             };
         }
