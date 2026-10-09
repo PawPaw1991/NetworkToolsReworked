@@ -59,6 +59,10 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.G, nameof(SmoothTool), ctrl: true, shift: true)]
         public ProxyBinding SmoothTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.D, nameof(MoveNodeTool), ctrl: true, shift: true)]
+        public ProxyBinding MoveNodeTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -189,6 +193,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ConnectMode)), "Simple curve leaves the start node in the chosen direction. Smooth both ends also lines up with the road at the end node." },
                 { m_Setting.GetEnumValueLocaleID(ConnectMode.SimpleCurve), "Simple curve" },
                 { m_Setting.GetEnumValueLocaleID(ConnectMode.SmoothBothEnds), "Smooth both ends" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.MoveNodeTool)), "Move Node tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.MoveNodeTool)), "Toggle the Move Node tool. Click a node, drag it with the cursor, click to drop, then fine-tune its position and height in the tool panel." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.MoveNodeTool)), "Move Node tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },

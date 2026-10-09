@@ -1,7 +1,7 @@
 import { bindValue, trigger } from "cs2/api";
 import mod from "mod.json";
 
-export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "Connect" | "Parallel";
+export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Connect" | "Parallel";
 
 export const panelOpen$ = bindValue<boolean>(mod.id, "PanelOpen", false);
 export const activeTool$ = bindValue<ToolId>(mod.id, "ActiveTool", "None");
@@ -24,6 +24,9 @@ export const smoothStrength$ = bindValue<number>(mod.id, "SmoothStrength", 100);
 export const smoothKeepEnds$ = bindValue<boolean>(mod.id, "SmoothKeepEnds", true);
 export const smoothGrades$ = bindValue<boolean>(mod.id, "SmoothGrades", true);
 export const smoothRelax$ = bindValue<number>(mod.id, "SmoothRelax", 0);
+export const moveNudgeX$ = bindValue<number>(mod.id, "MoveNudgeX", 0);
+export const moveNudgeZ$ = bindValue<number>(mod.id, "MoveNudgeZ", 0);
+export const moveHeight$ = bindValue<number>(mod.id, "MoveHeight", 0);
 export const connectRotation$ = bindValue<number>(mod.id, "ConnectRotation", 0);
 
 export const togglePanel = () => trigger(mod.id, "TogglePanel");
@@ -47,3 +50,6 @@ export const setSmoothStrength = (value: number) => trigger(mod.id, "SetSmoothSt
 export const setSmoothKeepEnds = (value: boolean) => trigger(mod.id, "SetSmoothKeepEnds", value);
 export const setSmoothGrades = (value: boolean) => trigger(mod.id, "SetSmoothGrades", value);
 export const setSmoothRelax = (value: number) => trigger(mod.id, "SetSmoothRelax", value);
+export const setMoveNudgeX = (value: number) => trigger(mod.id, "SetMoveNudgeX", value);
+export const setMoveNudgeZ = (value: number) => trigger(mod.id, "SetMoveNudgeZ", value);
+export const setMoveHeight = (value: number) => trigger(mod.id, "SetMoveHeight", value);
