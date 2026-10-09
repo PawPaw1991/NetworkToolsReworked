@@ -4,7 +4,17 @@ using Game.Tools;
 
 namespace NetworkToolsReworked.Tools
 {
-    /// <summary>Turns the tools on and off from their key bindings.</summary>
+    public enum ToolId
+    {
+        None,
+        AddNode,
+        RemoveNode,
+        Slope,
+        Connect,
+        Parallel,
+    }
+
+    /// <summary>Turns the tools on and off, from their key bindings or the tool panel.</summary>
     public partial class ToolActivationSystem : GameSystemBase
     {
         private ToolSystem m_ToolSystem;
@@ -19,6 +29,20 @@ namespace NetworkToolsReworked.Tools
         private ProxyAction m_ConnectAction;
         private ProxyAction m_ParallelAction;
 
+        public ToolId Current
+        {
+            get
+            {
+                var active = m_ToolSystem.activeTool;
+                if (active == m_NodeToolSystem)
+                    return m_NodeToolSystem.Mode == NodeToolMode.AddNode ? ToolId.AddNode : ToolId.RemoveNode;
+                if (active == m_SlopeToolSystem) return ToolId.Slope;
+                if (active == m_ConnectToolSystem) return ToolId.Connect;
+                if (active == m_ParallelToolSystem) return ToolId.Parallel;
+                return ToolId.None;
+            }
+        }
+
         protected override void OnCreate()
         {
             base.OnCreate();
@@ -29,47 +53,62 @@ namespace NetworkToolsReworked.Tools
             m_ConnectToolSystem = World.GetOrCreateSystemManaged<ConnectToolSystem>();
             m_ParallelToolSystem = World.GetOrCreateSystemManaged<ParallelToolSystem>();
 
-            m_AddNodeAction = Mod.Settings.GetAction(nameof(Setting.AddNodeTool));
-            m_RemoveNodeAction = Mod.Settings.GetAction(nameof(Setting.RemoveNodeTool));
-            m_AddNodeAction.shouldBeEnabled = true;
-            m_RemoveNodeAction.shouldBeEnabled = true;
-            m_SlopeAction = Mod.Settings.GetAction(nameof(Setting.SlopeTool));
-            m_SlopeAction.shouldBeEnabled = true;
-            m_ConnectAction = Mod.Settings.GetAction(nameof(Setting.ConnectTool));
-            m_ConnectAction.shouldBeEnabled = true;
-            m_ParallelAction = Mod.Settings.GetAction(nameof(Setting.ParallelTool));
-            m_ParallelAction.shouldBeEnabled = true;
+            m_AddNodeAction = Enable(nameof(Setting.AddNodeTool));
+            m_RemoveNodeAction = Enable(nameof(Setting.RemoveNodeTool));
+            m_SlopeAction = Enable(nameof(Setting.SlopeTool));
+            m_ConnectAction = Enable(nameof(Setting.ConnectTool));
+            m_ParallelAction = Enable(nameof(Setting.ParallelTool));
         }
 
         protected override void OnUpdate()
         {
             if (m_AddNodeAction.WasPerformedThisFrame())
-                Toggle(NodeToolMode.AddNode);
+                Toggle(ToolId.AddNode);
             else if (m_RemoveNodeAction.WasPerformedThisFrame())
-                Toggle(NodeToolMode.RemoveNode);
+                Toggle(ToolId.RemoveNode);
             else if (m_SlopeAction.WasPerformedThisFrame())
-                ToggleTool(m_SlopeToolSystem);
+                Toggle(ToolId.Slope);
             else if (m_ConnectAction.WasPerformedThisFrame())
-                ToggleTool(m_ConnectToolSystem);
+                Toggle(ToolId.Connect);
             else if (m_ParallelAction.WasPerformedThisFrame())
-                ToggleTool(m_ParallelToolSystem);
+                Toggle(ToolId.Parallel);
         }
 
-        private void ToggleTool(ToolBaseSystem tool)
+        /// <summary>Activates a tool, or returns to the default tool if it is already active.</summary>
+        public void Toggle(ToolId tool)
         {
-            m_ToolSystem.activeTool = m_ToolSystem.activeTool == tool ? m_DefaultToolSystem : tool;
+            Activate(Current == tool ? ToolId.None : tool);
         }
 
-        private void Toggle(NodeToolMode mode)
+        public void Activate(ToolId tool)
         {
-            if (m_ToolSystem.activeTool == m_NodeToolSystem && m_NodeToolSystem.Mode == mode)
+            switch (tool)
             {
-                m_ToolSystem.activeTool = m_DefaultToolSystem;
-                return;
+                case ToolId.AddNode:
+                case ToolId.RemoveNode:
+                    m_NodeToolSystem.Mode = tool == ToolId.AddNode ? NodeToolMode.AddNode : NodeToolMode.RemoveNode;
+                    m_ToolSystem.activeTool = m_NodeToolSystem;
+                    break;
+                case ToolId.Slope:
+                    m_ToolSystem.activeTool = m_SlopeToolSystem;
+                    break;
+                case ToolId.Connect:
+                    m_ToolSystem.activeTool = m_ConnectToolSystem;
+                    break;
+                case ToolId.Parallel:
+                    m_ToolSystem.activeTool = m_ParallelToolSystem;
+                    break;
+                default:
+                    m_ToolSystem.activeTool = m_DefaultToolSystem;
+                    break;
             }
+        }
 
-            m_NodeToolSystem.Mode = mode;
-            m_ToolSystem.activeTool = m_NodeToolSystem;
+        private static ProxyAction Enable(string name)
+        {
+            var action = Mod.Settings.GetAction(name);
+            action.shouldBeEnabled = true;
+            return action;
         }
     }
 }

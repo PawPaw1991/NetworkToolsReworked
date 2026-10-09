@@ -4,6 +4,7 @@ using Game;
 using Game.Modding;
 using Game.SceneFlow;
 using NetworkToolsReworked.Tools;
+using NetworkToolsReworked.UI;
 
 namespace NetworkToolsReworked
 {
@@ -33,6 +34,7 @@ namespace NetworkToolsReworked
             updateSystem.UpdateAt<ConnectToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<ParallelToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<ToolActivationSystem>(SystemUpdatePhase.MainLoop);
+            updateSystem.UpdateAt<ToolPanelUISystem>(SystemUpdatePhase.UIUpdate);
         }
 
         public void OnDispose()

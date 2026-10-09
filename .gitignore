@@ -7,3 +7,4 @@ obj/
 # Never commit decompiled third-party code
 decompiled/
 mod-src/
+node_modules/

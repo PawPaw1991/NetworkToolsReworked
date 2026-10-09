@@ -1,0 +1,69 @@
+.toggle {
+  background-color: var(--accentColorNormal);
+  &:hover { background-color: var(--accentColorNormal-hover); }
+  &.selected {
+    background-color: white;
+    img { background-color: var(--accentColorNormal); }
+  }
+  img {
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    mask-size: contain;
+    mask-position: 50% 50%;
+  }
+}
+
+.panel {
+  position: absolute;
+  top: 70rem;
+  left: 10rem;
+  width: 320rem;
+  padding: 8rem;
+  border-radius: 4rem;
+  background-color: rgba(24, 33, 51, 0.92);
+  color: white;
+  font-size: 14rem;
+  pointer-events: auto;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-bottom: 8rem;
+}
+
+.close { padding: 0 8rem; }
+
+.tools {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.tool, .choice, .step {
+  margin: 2rem;
+  padding: 4rem 8rem;
+  border-radius: 3rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  &.active { background-color: var(--accentColorNormal); }
+}
+
+.hint {
+  margin: 8rem 2rem;
+  opacity: 0.8;
+  font-size: 12rem;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 4rem;
+}
+
+.label { flex: 1; margin-left: 2rem; }
+.value { width: 50rem; text-align: center; }
