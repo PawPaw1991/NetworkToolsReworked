@@ -67,3 +67,24 @@
 
 .label { flex: 1; margin-left: 2rem; }
 .value { width: 50rem; text-align: center; }
+
+.status {
+  margin: 4rem 2rem 8rem 2rem;
+  padding: 6rem;
+  border-radius: 3rem;
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.stepBadge {
+  margin-right: 6rem;
+  padding: 1rem 5rem;
+  border-radius: 3rem;
+  background-color: var(--accentColorNormal);
+  font-size: 12rem;
+}
+
+.summary {
+  margin-top: 4rem;
+  font-size: 12rem;
+  color: rgba(255, 210, 120, 1);
+}

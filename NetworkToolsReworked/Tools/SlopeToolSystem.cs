@@ -23,5 +23,11 @@ namespace NetworkToolsReworked.Tools
             var terrain = m_TerrainSystem.GetHeightData();
             SlopeEdit.Emit(EntityManager, ecb, ref terrain, nodes, edges, Mod.Settings.SlopeProfile, randomSeed);
         }
+
+        protected override string Describe(List<Entity> nodes, List<Entity> edges)
+        {
+            var length = PathInfo.Length(EntityManager, edges);
+            return $"{PathInfo.Describe(EntityManager, nodes, edges)}, {PathInfo.Grade(EntityManager, nodes[0], nodes[nodes.Count - 1], length)}";
+        }
     }
 }

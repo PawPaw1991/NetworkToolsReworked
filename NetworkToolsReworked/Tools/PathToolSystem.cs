@@ -12,30 +12,47 @@ namespace NetworkToolsReworked.Tools
 {
     /// <summary>
     /// Base for tools that act on the road between two picked nodes. Click a start node, hover an end
-    /// node to preview, click again to apply. Right-click clears the start node, or exits if none is
-    /// picked. Subclasses only emit the definitions for the found path.
+    /// node to preview, click it to lock the preview, then adjust the options and click (or press Apply
+    /// in the panel) to apply. Right-click steps back one phase, or exits if nothing is picked.
+    /// Subclasses only emit the definitions for the found path.
     /// </summary>
-    public abstract partial class PathToolSystem : ToolBaseSystem
+    public abstract partial class PathToolSystem : ToolBaseSystem, IPreviewTool
     {
         private ToolOutputBarrier m_ToolOutputBarrier;
+        private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
         private readonly List<Entity> m_PathNodes = new List<Entity>();
         private readonly List<Entity> m_PathEdges = new List<Entity>();
         private Entity m_StartNode;
+        private Entity m_EndNode;
+        private bool m_ApplyRequested;
+        private bool m_CancelRequested;
+
+        public ToolPhase Phase => m_StartNode == Entity.Null ? ToolPhase.PickStart : m_EndNode == Entity.Null ? ToolPhase.PickEnd : ToolPhase.Review;
+
+        public string Summary { get; private set; } = string.Empty;
+
+        public void RequestApply() => m_ApplyRequested = true;
+
+        public void RequestCancel() => m_CancelRequested = true;
 
         protected abstract void EmitPath(EntityCommandBuffer ecb, List<Entity> nodes, List<Entity> edges, int randomSeed);
+
+        /// <summary>One line describing the previewed change, shown in the tool panel.</summary>
+        protected virtual string Describe(List<Entity> nodes, List<Entity> edges) => PathInfo.Describe(EntityManager, nodes, edges);
 
         protected override void OnCreate()
         {
             base.OnCreate();
             m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
+            m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random((uint)toolID.GetHashCode() | 1u);
         }
 
         protected override void OnStartRunning()
         {
             base.OnStartRunning();
-            m_StartNode = Entity.Null;
+            Reset();
             applyAction.shouldBeEnabled = true;
             cancelAction.shouldBeEnabled = true;
         }
@@ -43,7 +60,7 @@ namespace NetworkToolsReworked.Tools
         protected override void OnStopRunning()
         {
             base.OnStopRunning();
-            m_StartNode = Entity.Null;
+            Reset();
             applyAction.shouldBeEnabled = false;
             cancelAction.shouldBeEnabled = false;
         }
@@ -62,48 +79,87 @@ namespace NetworkToolsReworked.Tools
 
         protected override JobHandle OnUpdate(JobHandle inputDeps)
         {
-            if (cancelAction.WasPressedThisFrame())
+            var applyRequested = m_ApplyRequested;
+            var cancelRequested = m_CancelRequested;
+            m_ApplyRequested = m_CancelRequested = false;
+
+            if (cancelAction.WasPressedThisFrame() || cancelRequested)
             {
-                if (m_StartNode != Entity.Null)
+                if (m_EndNode != Entity.Null)
+                    m_EndNode = Entity.Null;
+                else if (m_StartNode != Entity.Null)
                     m_StartNode = Entity.Null;
                 else
                     m_ToolSystem.activeTool = m_DefaultToolSystem;
+                Summary = string.Empty;
                 return inputDeps;
             }
 
             applyMode = ApplyMode.Clear;
+            Summary = string.Empty;
+            m_Overlay.BeginFrame();
 
             if (m_StartNode != Entity.Null && !EntityManager.Exists(m_StartNode))
-                m_StartNode = Entity.Null;
+                Reset();
+            if (m_EndNode != Entity.Null && !EntityManager.Exists(m_EndNode))
+                m_EndNode = Entity.Null;
 
-            if (!GetRaycastResult(out Entity hitEntity, out RaycastHit hit))
-                return inputDeps;
-
-            var hovered = HoveredNode(hitEntity, hit);
-            if (hovered == Entity.Null)
-                return inputDeps;
+            var click = applyAction.WasPressedThisFrame();
+            var hovered = GetRaycastResult(out Entity hitEntity, out RaycastHit hit) ? HoveredNode(hitEntity, hit) : Entity.Null;
 
             if (m_StartNode == Entity.Null)
             {
-                if (applyAction.WasPressedThisFrame())
-                    m_StartNode = hovered;
+                if (hovered != Entity.Null)
+                {
+                    m_Overlay.Node(hovered, ToolOverlay.Hover);
+                    if (click)
+                        m_StartNode = hovered;
+                }
                 return inputDeps;
             }
 
-            if (!SlopeEdit.FindPath(EntityManager, m_StartNode, hovered, m_PathNodes, m_PathEdges))
+            m_Overlay.Node(m_StartNode, ToolOverlay.Start);
+
+            var locked = m_EndNode != Entity.Null;
+            var end = locked ? m_EndNode : hovered;
+            if (end == Entity.Null || end == m_StartNode)
                 return inputDeps;
 
-            EmitPath(m_ToolOutputBarrier.CreateCommandBuffer(), m_PathNodes, m_PathEdges, m_Random.NextInt());
+            if (!SlopeEdit.FindPath(EntityManager, m_StartNode, end, m_PathNodes, m_PathEdges))
+            {
+                m_Overlay.Node(end, ToolOverlay.Invalid);
+                Summary = "No connected road between these nodes.";
+                return inputDeps;
+            }
 
-            if (applyAction.WasPressedThisFrame())
+            foreach (var edge in m_PathEdges)
+                m_Overlay.Edge(edge, locked ? ToolOverlay.Locked : ToolOverlay.Path);
+            m_Overlay.Node(end, locked ? ToolOverlay.End : ToolOverlay.Hover);
+
+            EmitPath(m_ToolOutputBarrier.CreateCommandBuffer(), m_PathNodes, m_PathEdges, m_Random.NextInt());
+            Summary = Describe(m_PathNodes, m_PathEdges);
+
+            if (!locked)
+            {
+                if (click)
+                    m_EndNode = end;
+            }
+            else if (click || applyRequested)
             {
                 applyMode = ApplyMode.Apply;
                 if (Mod.Settings.DebugLogging)
-                    Mod.Log.Info($"{toolID} applied over {m_PathEdges.Count} edges from {m_StartNode} to {hovered}");
-                m_StartNode = Entity.Null;
+                    Mod.Log.Info($"{toolID} applied over {m_PathEdges.Count} edges from {m_StartNode} to {end}");
+                Reset();
             }
 
             return inputDeps;
+        }
+
+        private void Reset()
+        {
+            m_StartNode = Entity.Null;
+            m_EndNode = Entity.Null;
+            Summary = string.Empty;
         }
 
         private Entity HoveredNode(Entity entity, RaycastHit hit)
