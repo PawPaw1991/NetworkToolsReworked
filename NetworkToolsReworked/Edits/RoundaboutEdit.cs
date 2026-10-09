@@ -53,7 +53,8 @@ namespace NetworkToolsReworked.Edits
                 return false;
 
             var centre = em.GetComponentData<Node>(node).m_Position;
-            var hasElevation = em.HasComponent<Elevation>(node);
+            // Same rule as the shortened roads use, so ring and roads carry the same elevation where they meet.
+            var hasElevation = SlopeEdit.IsElevatedNode(em, node);
             var ring = new List<(float angle, float3 point)>();
             Entity ringPrefab = Entity.Null;
 

@@ -616,6 +616,7 @@ namespace NetworkToolsReworked.Edits
                 m_Curve = b,
                 m_StartPosition = startPos,
                 m_EndPosition = endPos,
+                m_Elevation = new float2(startPos.m_Elevation.x, endPos.m_Elevation.x),
                 m_Length = MathUtils.Length(b),
                 m_FixedIndex = -1,
             });
@@ -640,7 +641,9 @@ namespace NetworkToolsReworked.Edits
             {
                 pos.m_Entity = Entity.Null;
                 pos.m_Position = moved;
-                pos.m_Elevation = hasElevation ? new float2(moved.y - TerrainUtils.SampleHeight(ref terrain, moved)) : float2.zero;
+                // Decided per node, not per road: every course meeting at a new node must carry the same
+                // elevation, or the game builds separate nodes and the roads come apart.
+                pos.m_Elevation = hasElevation || IsElevatedNode(em, node) ? new float2(moved.y - TerrainUtils.SampleHeight(ref terrain, moved)) : float2.zero;
             }
             else
             {
@@ -650,6 +653,19 @@ namespace NetworkToolsReworked.Edits
             }
 
             return pos;
+        }
+
+        /// <summary>True if the node, or any road ending at it, is raised or sunk (bridge, tunnel).</summary>
+        internal static bool IsElevatedNode(EntityManager em, Entity node)
+        {
+            if (em.HasComponent<Elevation>(node))
+                return true;
+            if (!em.HasBuffer<ConnectedEdge>(node))
+                return false;
+            foreach (var connected in em.GetBuffer<ConnectedEdge>(node, isReadOnly: true))
+                if (em.HasComponent<Elevation>(connected.m_Edge) && !em.HasComponent<Owner>(connected.m_Edge))
+                    return true;
+            return false;
         }
 
         internal static bool IsEditableNode(EntityManager em, Entity node)
