@@ -47,9 +47,11 @@ namespace NetworkToolsReworked.Tools
                 (upgrades.m_Flags.m_Left, upgrades.m_Flags.m_Right) = (upgrades.m_Flags.m_Right, upgrades.m_Flags.m_Left);
 
             var terrain = m_TerrainSystem.GetHeightData();
-            m_Changed = RestyleEdit.Emit(EntityManager, ecb, ref terrain, edges, Entity.Null, upgrades, randomSeed);
+            m_Changed += RestyleEdit.Emit(EntityManager, ecb, ref terrain, edges, Entity.Null, upgrades, randomSeed);
             return m_Changed > 0;
         }
+
+        protected override void OnBeforeEmit() => m_Changed = 0;
 
         protected override string Describe(List<Entity> nodes, List<Entity> edges)
         {

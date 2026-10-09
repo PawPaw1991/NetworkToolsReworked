@@ -62,6 +62,8 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<float> m_MatchHeight;
         private ValueBinding<bool> m_PresetsAvailable;
         private ValueBinding<string> m_PresetNames;
+        private ValueBinding<bool> m_SelectionAvailable;
+        private ValueBinding<bool> m_UsingSelection;
         private SlopeToolSystem m_SlopeToolSystem;
 
         protected override void OnCreate()
@@ -118,6 +120,9 @@ namespace NetworkToolsReworked.UI
             AddBinding(m_MatchHeight = new ValueBinding<float>(kGroup, "MatchHeight", 0f));
             AddBinding(m_PresetsAvailable = new ValueBinding<bool>(kGroup, "PresetsAvailable", false));
             AddBinding(m_PresetNames = new ValueBinding<string>(kGroup, "PresetNames", string.Empty));
+            AddBinding(m_SelectionAvailable = new ValueBinding<bool>(kGroup, "SelectionAvailable", false));
+            AddBinding(m_UsingSelection = new ValueBinding<bool>(kGroup, "UsingSelection", false));
+            AddBinding(new TriggerBinding(kGroup, "UseSelection", () => m_ToolActivationSystem.SourceTool?.RequestUseSelection()));
 
             AddBinding(new TriggerBinding(kGroup, "TogglePanel", () => m_PanelOpen.Update(!m_PanelOpen.value)));
             AddBinding(new TriggerBinding<string>(kGroup, "SelectTool", name =>
@@ -227,6 +232,9 @@ namespace NetworkToolsReworked.UI
             m_RampHeight.Update(settings.RampHeight);
             m_RampType.Update(m_ToolActivationSystem.RampTool.RampTypeName);
             m_MatchHeight.Update(m_ToolActivationSystem.MatchHeightTool.TargetHeight);
+            var pathTool = m_ToolActivationSystem.SourceTool;
+            m_SelectionAvailable.Update(pathTool != null && m_PanelOpen.value && MoveItSelection.Available);
+            m_UsingSelection.Update(pathTool != null && pathTool.UsingSelection);
             UpdatePresets();
         }
 
