@@ -1,4 +1,5 @@
 using Colossal.Entities;
+using Colossal.Mathematics;
 using Game.Common;
 using Game.Input;
 using Game.Net;
@@ -26,6 +27,7 @@ namespace NetworkToolsReworked.Tools
         private const float kMinSplitDistance = 4f;
 
         private ToolOutputBarrier m_ToolOutputBarrier;
+        private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
 
         public override string toolID => "NetworkToolsReworked.NodeTool";
@@ -36,6 +38,7 @@ namespace NetworkToolsReworked.Tools
         {
             base.OnCreate();
             m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
+            m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0x6E74u);
         }
 
@@ -75,6 +78,7 @@ namespace NetworkToolsReworked.Tools
 
             // Clear last frame's preview; definitions are re-emitted for whatever is hovered now.
             applyMode = ApplyMode.Clear;
+            m_Overlay.BeginFrame();
 
             if (!GetRaycastResult(out Entity hitEntity, out RaycastHit hit))
                 return inputDeps;
@@ -106,7 +110,11 @@ namespace NetworkToolsReworked.Tools
             var curve = EntityManager.GetComponentData<Curve>(entity);
             var t = hit.m_CurvePosition;
             var distanceAlong = t * curve.m_Length;
-            if (distanceAlong < kMinSplitDistance || curve.m_Length - distanceAlong < kMinSplitDistance)
+            var tooClose = distanceAlong < kMinSplitDistance || curve.m_Length - distanceAlong < kMinSplitDistance;
+
+            m_Overlay.Edge(entity, ToolOverlay.Path);
+            m_Overlay.Point(MathUtils.Position(curve.m_Bezier, t), 4f, tooClose ? ToolOverlay.Invalid : ToolOverlay.Start);
+            if (tooClose)
                 return false;
 
             NetDefinitions.SplitEdge(EntityManager, ecb, entity, t, seed);
@@ -119,7 +127,12 @@ namespace NetworkToolsReworked.Tools
             if (EntityManager.TryGetComponent(entity, out Edge edge))
                 entity = hit.m_CurvePosition < 0.5f ? edge.m_Start : edge.m_End;
 
-            return NetDefinitions.MergeAtNode(EntityManager, ecb, entity, seed);
+            if (!EntityManager.HasComponent<Node>(entity) || EntityManager.HasComponent<Owner>(entity))
+                return false;
+
+            var merged = NetDefinitions.MergeAtNode(EntityManager, ecb, entity, seed);
+            m_Overlay.Node(entity, merged ? ToolOverlay.Start : ToolOverlay.Invalid);
+            return merged;
         }
     }
 }

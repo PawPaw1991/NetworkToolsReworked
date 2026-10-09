@@ -10,6 +10,10 @@ export const connectMode$ = bindValue<number>(mod.id, "ConnectMode", 0);
 export const parallelOffset$ = bindValue<number>(mod.id, "ParallelOffset", 16);
 export const parallelHeight$ = bindValue<number>(mod.id, "ParallelHeight", 0);
 export const parallelReverse$ = bindValue<boolean>(mod.id, "ParallelReverse", false);
+export type Phase = "" | "PickStart" | "PickEnd" | "Review";
+export const phase$ = bindValue<Phase>(mod.id, "Phase", "");
+export const summary$ = bindValue<string>(mod.id, "Summary", "");
+export const connectRotation$ = bindValue<number>(mod.id, "ConnectRotation", 0);
 
 export const togglePanel = () => trigger(mod.id, "TogglePanel");
 export const selectTool = (tool: ToolId) => trigger(mod.id, "SelectTool", tool);
@@ -18,3 +22,6 @@ export const setConnectMode = (value: number) => trigger(mod.id, "SetConnectMode
 export const setParallelOffset = (value: number) => trigger(mod.id, "SetParallelOffset", value);
 export const setParallelHeight = (value: number) => trigger(mod.id, "SetParallelHeight", value);
 export const setParallelReverse = (value: boolean) => trigger(mod.id, "SetParallelReverse", value);
+export const applyPreview = () => trigger(mod.id, "ApplyPreview");
+export const cancelPreview = () => trigger(mod.id, "CancelPreview");
+export const rotateConnect = (steps: number) => trigger(mod.id, "RotateConnect", steps);

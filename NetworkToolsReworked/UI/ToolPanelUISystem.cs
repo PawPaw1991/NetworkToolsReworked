@@ -19,6 +19,9 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<float> m_ParallelOffset;
         private ValueBinding<float> m_ParallelHeight;
         private ValueBinding<bool> m_ParallelReverse;
+        private ValueBinding<string> m_Phase;
+        private ValueBinding<string> m_Summary;
+        private ValueBinding<int> m_ConnectRotation;
 
         protected override void OnCreate()
         {
@@ -32,6 +35,9 @@ namespace NetworkToolsReworked.UI
             AddBinding(m_ParallelOffset = new ValueBinding<float>(kGroup, "ParallelOffset", 16f));
             AddBinding(m_ParallelHeight = new ValueBinding<float>(kGroup, "ParallelHeight", 0f));
             AddBinding(m_ParallelReverse = new ValueBinding<bool>(kGroup, "ParallelReverse", false));
+            AddBinding(m_Phase = new ValueBinding<string>(kGroup, "Phase", string.Empty));
+            AddBinding(m_Summary = new ValueBinding<string>(kGroup, "Summary", string.Empty));
+            AddBinding(m_ConnectRotation = new ValueBinding<int>(kGroup, "ConnectRotation", 0));
 
             AddBinding(new TriggerBinding(kGroup, "TogglePanel", () => m_PanelOpen.Update(!m_PanelOpen.value)));
             AddBinding(new TriggerBinding<string>(kGroup, "SelectTool", name =>
@@ -44,6 +50,9 @@ namespace NetworkToolsReworked.UI
             AddBinding(new TriggerBinding<float>(kGroup, "SetParallelOffset", v => Save(s => s.ParallelOffset = v)));
             AddBinding(new TriggerBinding<float>(kGroup, "SetParallelHeight", v => Save(s => s.ParallelHeight = v)));
             AddBinding(new TriggerBinding<bool>(kGroup, "SetParallelReverse", v => Save(s => s.ParallelReverse = v)));
+            AddBinding(new TriggerBinding(kGroup, "ApplyPreview", () => m_ToolActivationSystem.PreviewTool?.RequestApply()));
+            AddBinding(new TriggerBinding(kGroup, "CancelPreview", () => m_ToolActivationSystem.PreviewTool?.RequestCancel()));
+            AddBinding(new TriggerBinding<int>(kGroup, "RotateConnect", steps => m_ToolActivationSystem.ConnectTool.RequestRotate(steps)));
         }
 
         protected override void OnUpdate()
@@ -56,6 +65,11 @@ namespace NetworkToolsReworked.UI
             m_ParallelOffset.Update(settings.ParallelOffset);
             m_ParallelHeight.Update(settings.ParallelHeight);
             m_ParallelReverse.Update(settings.ParallelReverse);
+
+            var preview = m_ToolActivationSystem.PreviewTool;
+            m_Phase.Update(preview?.Phase.ToString() ?? string.Empty);
+            m_Summary.Update(preview?.Summary ?? string.Empty);
+            m_ConnectRotation.Update(m_ToolActivationSystem.ConnectTool.RotationDegrees);
         }
 
         private static void Save(Action<Setting> change)

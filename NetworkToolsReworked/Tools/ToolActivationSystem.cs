@@ -43,6 +43,11 @@ namespace NetworkToolsReworked.Tools
             }
         }
 
+        /// <summary>The active tool if it has a reviewable preview, otherwise null.</summary>
+        public IPreviewTool PreviewTool => m_ToolSystem.activeTool as IPreviewTool;
+
+        public ConnectToolSystem ConnectTool => m_ConnectToolSystem;
+
         protected override void OnCreate()
         {
             base.OnCreate();

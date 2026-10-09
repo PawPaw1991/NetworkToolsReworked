@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NetworkToolsReworked.Edits;
 using Unity.Entities;
+using Unity.Mathematics;
 
 namespace NetworkToolsReworked.Tools
 {
@@ -12,6 +13,14 @@ namespace NetworkToolsReworked.Tools
         protected override void EmitPath(EntityCommandBuffer ecb, List<Entity> nodes, List<Entity> edges, int randomSeed)
         {
             ParallelEdit.Emit(EntityManager, ecb, nodes, edges, Mod.Settings.ParallelOffset, Mod.Settings.ParallelHeight, Mod.Settings.ParallelReverse, randomSeed);
+        }
+
+        protected override string Describe(List<Entity> nodes, List<Entity> edges)
+        {
+            var s = Mod.Settings;
+            var side = s.ParallelOffset >= 0f ? "right" : "left";
+            var direction = s.ParallelReverse ? ", opposite direction" : "";
+            return $"{PathInfo.Describe(EntityManager, nodes, edges)}, {PathInfo.Distance(math.abs(s.ParallelOffset))} to the {side}, {PathInfo.Signed(s.ParallelHeight)} m height{direction}";
         }
     }
 }

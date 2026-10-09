@@ -35,6 +35,8 @@ Click the **Network Tools** button at the top left of the screen to open the too
 | Ctrl+J | Connect: click a start node, hover an end node to preview a new road between them, click to build it. `,` and `.` rotate the start direction |
 | Ctrl+Shift+P | Parallel: click a start node, hover an end node to preview a copy of the road between them, click to build it. Side offset, height offset and direction are set in Options |
 
+Slope, Connect and Parallel work in three steps, shown in the panel: click a start node, hover an end node and click it to lock the preview, then review it. While the preview is locked you can change the tool's options in the panel and the preview updates; click again or press **Apply** to build it, or right-click / **Back** to pick another end. The picked nodes and the affected roads are highlighted (green start, orange end, red when the target can't be used), and the panel shows length, height change and grade.
+
 Press the key again or right-click to leave the tool. Both keys can be rebound in Options.
 
 ## Building
