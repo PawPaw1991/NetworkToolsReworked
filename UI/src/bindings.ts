@@ -1,7 +1,7 @@
 import { bindValue, trigger } from "cs2/api";
 import mod from "mod.json";
 
-export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Connect" | "Parallel";
+export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Connect" | "Parallel";
 
 export const panelOpen$ = bindValue<boolean>(mod.id, "PanelOpen", false);
 export const activeTool$ = bindValue<ToolId>(mod.id, "ActiveTool", "None");
@@ -27,6 +27,8 @@ export const smoothRelax$ = bindValue<number>(mod.id, "SmoothRelax", 0);
 export const moveNudgeX$ = bindValue<number>(mod.id, "MoveNudgeX", 0);
 export const moveNudgeZ$ = bindValue<number>(mod.id, "MoveNudgeZ", 0);
 export const moveHeight$ = bindValue<number>(mod.id, "MoveHeight", 0);
+export const arrangeMode$ = bindValue<number>(mod.id, "ArrangeMode", 0);
+export const arrangeBulge$ = bindValue<number>(mod.id, "ArrangeBulge", 100);
 export const connectRotation$ = bindValue<number>(mod.id, "ConnectRotation", 0);
 
 export const togglePanel = () => trigger(mod.id, "TogglePanel");
@@ -53,3 +55,5 @@ export const setSmoothRelax = (value: number) => trigger(mod.id, "SetSmoothRelax
 export const setMoveNudgeX = (value: number) => trigger(mod.id, "SetMoveNudgeX", value);
 export const setMoveNudgeZ = (value: number) => trigger(mod.id, "SetMoveNudgeZ", value);
 export const setMoveHeight = (value: number) => trigger(mod.id, "SetMoveHeight", value);
+export const setArrangeMode = (value: number) => trigger(mod.id, "SetArrangeMode", value);
+export const setArrangeBulge = (value: number) => trigger(mod.id, "SetArrangeBulge", value);

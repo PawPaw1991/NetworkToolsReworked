@@ -37,6 +37,8 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<float> m_MoveNudgeX;
         private ValueBinding<float> m_MoveNudgeZ;
         private ValueBinding<float> m_MoveHeight;
+        private ValueBinding<int> m_ArrangeMode;
+        private ValueBinding<float> m_ArrangeBulge;
         private SlopeToolSystem m_SlopeToolSystem;
 
         protected override void OnCreate()
@@ -69,6 +71,8 @@ namespace NetworkToolsReworked.UI
             AddBinding(m_MoveNudgeX = new ValueBinding<float>(kGroup, "MoveNudgeX", 0f));
             AddBinding(m_MoveNudgeZ = new ValueBinding<float>(kGroup, "MoveNudgeZ", 0f));
             AddBinding(m_MoveHeight = new ValueBinding<float>(kGroup, "MoveHeight", 0f));
+            AddBinding(m_ArrangeMode = new ValueBinding<int>(kGroup, "ArrangeMode", 0));
+            AddBinding(m_ArrangeBulge = new ValueBinding<float>(kGroup, "ArrangeBulge", 100f));
 
             AddBinding(new TriggerBinding(kGroup, "TogglePanel", () => m_PanelOpen.Update(!m_PanelOpen.value)));
             AddBinding(new TriggerBinding<string>(kGroup, "SelectTool", name =>
@@ -95,6 +99,8 @@ namespace NetworkToolsReworked.UI
             AddBinding(new TriggerBinding<float>(kGroup, "SetMoveNudgeX", v => m_ToolActivationSystem.MoveNodeTool.Nudge = new float2(v, m_ToolActivationSystem.MoveNodeTool.Nudge.y)));
             AddBinding(new TriggerBinding<float>(kGroup, "SetMoveNudgeZ", v => m_ToolActivationSystem.MoveNodeTool.Nudge = new float2(m_ToolActivationSystem.MoveNodeTool.Nudge.x, v)));
             AddBinding(new TriggerBinding<float>(kGroup, "SetMoveHeight", v => m_ToolActivationSystem.MoveNodeTool.HeightOffset = v));
+            AddBinding(new TriggerBinding<int>(kGroup, "SetArrangeMode", v => Save(s => s.ArrangeMode = (ArrangeMode)v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetArrangeBulge", v => Save(s => s.ArrangeBulge = v)));
             AddBinding(new TriggerBinding(kGroup, "ApplyPreview", () => m_ToolActivationSystem.PreviewTool?.RequestApply()));
             AddBinding(new TriggerBinding(kGroup, "CancelPreview", () => m_ToolActivationSystem.PreviewTool?.RequestCancel()));
             AddBinding(new TriggerBinding<int>(kGroup, "RotateConnect", steps => m_ToolActivationSystem.ConnectTool.RequestRotate(steps)));
@@ -130,6 +136,8 @@ namespace NetworkToolsReworked.UI
             m_MoveNudgeX.Update(move.Nudge.x);
             m_MoveNudgeZ.Update(move.Nudge.y);
             m_MoveHeight.Update(move.HeightOffset);
+            m_ArrangeMode.Update((int)settings.ArrangeMode);
+            m_ArrangeBulge.Update(settings.ArrangeBulge);
         }
 
         private static void Save(Action<Setting> change)

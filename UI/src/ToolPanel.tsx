@@ -28,6 +28,7 @@ import { Choice, Stepper, indexed } from "./controls";
 import { ShapeOptions } from "./ShapeOptions";
 import { SmoothOptions } from "./SmoothOptions";
 import { MoveOptions } from "./MoveOptions";
+import { ArrangeOptions } from "./ArrangeOptions";
 
 const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "AddNode", label: "Add Node", hint: "Click a road to split it with a new node." },
@@ -35,6 +36,7 @@ const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "Slope", label: "Slope & Curve", hint: "Re-grade, smooth or straighten the road between two nodes." },
   { id: "Smooth", label: "Smooth", hint: "Smooth out kinks in the road between two nodes. Nodes stay put unless you relax them." },
   { id: "MoveNode", label: "Move Node", hint: "Move a node; the roads attached to it follow." },
+  { id: "Arrange", label: "Arrange", hint: "Space the nodes between two nodes evenly, on the current shape, a straight line or an arc." },
   { id: "Connect", label: "Connect", hint: "Build a new road between two nodes. , and . rotate the start direction." },
   { id: "Parallel", label: "Parallel", hint: "Build a copy of the road between two nodes, offset to the side." },
 ];
@@ -117,6 +119,8 @@ export const ToolPanel = () => {
       {active === "Smooth" && <SmoothOptions />}
 
       {active === "MoveNode" && <MoveOptions />}
+
+      {active === "Arrange" && <ArrangeOptions />}
 
       {active === "Connect" && (
         <>

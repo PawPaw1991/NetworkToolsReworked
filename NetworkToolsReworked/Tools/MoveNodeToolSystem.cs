@@ -107,7 +107,7 @@ namespace NetworkToolsReworked.Tools
             Summary = string.Empty;
             m_Overlay.BeginFrame();
 
-            if (m_Node != Entity.Null && !EntityManager.Exists(m_Node))
+            if (m_Node != Entity.Null && !ToolPicks.IsAlive(EntityManager, m_Node))
                 Reset();
 
             var click = applyAction.WasPressedThisFrame();
