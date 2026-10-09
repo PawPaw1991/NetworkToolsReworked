@@ -16,6 +16,7 @@ import {
   setConnectMode,
   summary$,
   togglePanel,
+  usingSelection$,
 } from "bindings";
 import styles from "./ToolPanel.module.scss";
 import { Choice, indexed } from "./controls";
@@ -29,6 +30,7 @@ import { ParallelOptions } from "./ParallelOptions";
 import { RampOptions } from "./RampOptions";
 import { MatchHeightOptions } from "./MatchHeightOptions";
 import { PresetOptions } from "./PresetOptions";
+import { SelectionRow } from "./SelectionOptions";
 
 // Default keys; they can be rebound in Options.
 const TOOLS: { id: ToolId; label: string; hint: string; keys: string }[] = [
@@ -59,6 +61,8 @@ const STEPS: Steps = {
   PickEnd: { step: "2/3", text: "Hover an end node to preview, click it to lock the preview. Right-click to pick another start." },
   Review: { step: "3/3", text: "Check the preview and adjust the options below. Click or press Apply to build it, right-click or Back to pick another end." },
 };
+
+const SELECTION_STEP: Step = { step: "", text: "Previewing on the roads selected in Move It. Adjust the options below, click or press Apply to apply, right-click or Back to go back to picking nodes." };
 
 // Tools whose steps read differently from the two-node tools.
 const UNDO_STEP = { step: "", text: "Red roads are removed and green ones restored. Click or press Apply to undo, right-click or Cancel to keep things as they are." };
@@ -117,12 +121,13 @@ export const ToolPanel = () => {
   const phase = useValue(phase$);
   const summary = useValue(summary$);
   const rotation = useValue(connectRotation$);
+  const usingSelection = useValue(usingSelection$);
 
   if (!open) return null;
 
   const current = TOOLS.find((t) => t.id === active);
   const steps = TOOL_STEPS[active] ?? STEPS;
-  const step = phase === "" ? undefined : steps[phase];
+  const step = phase === "" ? undefined : usingSelection ? SELECTION_STEP : steps[phase];
 
   return (
     <div className={styles.panel}>
@@ -157,6 +162,7 @@ export const ToolPanel = () => {
             <span className={styles.label}>{step.text}</span>
           </div>
           {summary !== "" && <div className={styles.summary}>{summary}</div>}
+          <SelectionRow />
           {phase !== "PickStart" && phase !== "PickSource" && (
             <div className={styles.row}>
               {phase === "Review" && active !== "Measure" && (

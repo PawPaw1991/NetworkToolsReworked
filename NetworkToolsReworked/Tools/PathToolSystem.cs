@@ -31,14 +31,24 @@ namespace NetworkToolsReworked.Tools
         private bool m_CancelRequested;
         private bool m_PickSourceRequested;
         private bool m_HasSource;
+        private bool m_UseSelectionRequested;
+        private List<Chain> m_Selection = new List<Chain>();
+        private readonly HashSet<Entity> m_SelectedEdges = new HashSet<Entity>();
+        private string m_Notice = string.Empty;
 
-        public ToolPhase Phase => UsesSource && !m_HasSource ? ToolPhase.PickSource : m_StartNode == Entity.Null ? ToolPhase.PickStart : m_EndNode == Entity.Null ? ToolPhase.PickEnd : ToolPhase.Review;
+        public ToolPhase Phase => UsesSource && !m_HasSource ? ToolPhase.PickSource : m_Selection.Count > 0 ? ToolPhase.Review : m_StartNode == Entity.Null ? ToolPhase.PickStart : m_EndNode == Entity.Null ? ToolPhase.PickEnd : ToolPhase.Review;
 
         public string Summary { get; private set; } = string.Empty;
 
         public void RequestApply() => m_ApplyRequested = true;
 
         public void RequestCancel() => m_CancelRequested = true;
+
+        /// <summary>Works on the roads selected in Move It instead of a picked stretch (next update).</summary>
+        public void RequestUseSelection() => m_UseSelectionRequested = true;
+
+        /// <summary>True while the tool is working on a Move It selection.</summary>
+        public bool UsingSelection => m_Selection.Count > 0;
 
         /// <summary>Drops the copied road so the next click picks another one.</summary>
         public void RequestPickSource() => m_PickSourceRequested = true;
@@ -75,6 +85,11 @@ namespace NetworkToolsReworked.Tools
                 overlay.Edge(edge, locked ? ToolOverlay.Locked : ToolOverlay.Path);
         }
 
+        /// <summary>Called every update before the stretches are emitted, so tools can total over several.</summary>
+        protected virtual void OnBeforeEmit()
+        {
+        }
+
         /// <summary>Called when the start node is cleared, to reset per-selection options.</summary>
         protected virtual void OnSelectionCleared()
         {
@@ -98,6 +113,7 @@ namespace NetworkToolsReworked.Tools
         {
             base.OnStartRunning();
             Reset();
+            m_Notice = string.Empty;
             applyAction.shouldBeEnabled = true;
             cancelAction.shouldBeEnabled = true;
         }
@@ -137,7 +153,9 @@ namespace NetworkToolsReworked.Tools
 
             if (cancelAction.WasPressedThisFrame() || cancelRequested)
             {
-                if (m_EndNode != Entity.Null)
+                if (m_Selection.Count > 0)
+                    Reset();
+                else if (m_EndNode != Entity.Null)
                     m_EndNode = Entity.Null;
                 else if (m_StartNode != Entity.Null)
                     Reset();
@@ -174,15 +192,27 @@ namespace NetworkToolsReworked.Tools
                 return inputDeps;
             }
 
+            if (m_UseSelectionRequested)
+            {
+                m_UseSelectionRequested = false;
+                TakeSelection();
+            }
+            if (m_Selection.Count > 0)
+                return UpdateSelection(click || applyRequested, inputDeps);
+
             var hovered = hasHit ? HoveredNode(hitEntity, hit) : Entity.Null;
 
             if (m_StartNode == Entity.Null)
             {
+                Summary = m_Notice;
                 if (hovered != Entity.Null)
                 {
                     m_Overlay.Node(hovered, ToolOverlay.Hover);
                     if (click)
+                    {
                         m_StartNode = hovered;
+                        m_Notice = string.Empty;
+                    }
                 }
                 return inputDeps;
             }
@@ -201,6 +231,7 @@ namespace NetworkToolsReworked.Tools
                 return inputDeps;
             }
 
+            OnBeforeEmit();
             var emitted = EmitPath(m_ToolOutputBarrier.CreateCommandBuffer(), m_PathNodes, m_PathEdges, m_Random.NextInt());
             DrawPath(m_Overlay, m_PathNodes, m_PathEdges, locked);
             m_Overlay.Node(end, locked ? ToolOverlay.End : ToolOverlay.Hover);
@@ -223,8 +254,89 @@ namespace NetworkToolsReworked.Tools
             return inputDeps;
         }
 
+        /// <summary>Loads the Move It selection as the stretches to work on.</summary>
+        private void TakeSelection()
+        {
+            Reset();
+            if (!MoveItSelection.Collect(EntityManager, World, m_SelectedEdges))
+            {
+                m_Notice = "Move It isn't installed or its selection can't be read.";
+                return;
+            }
+            if (m_SelectedEdges.Count == 0)
+            {
+                m_Notice = "Nothing usable is selected in Move It: select roads (or the nodes at both ends of them) first.";
+                return;
+            }
+            m_Selection = Chains.Build(EntityManager, m_SelectedEdges);
+            if (m_Selection.Count == 0)
+                m_Notice = "The selected roads belong to buildings or other objects, so they can't be edited here.";
+        }
+
+        /// <summary>
+        /// Previews (and on apply, applies) the tool on every stretch of the Move It selection. The
+        /// selection is checked every update, since Move It may move or replace those roads at any time.
+        /// </summary>
+        private JobHandle UpdateSelection(bool apply, JobHandle inputDeps)
+        {
+            foreach (var chain in m_Selection)
+            {
+                if (!ChainIsLive(chain))
+                {
+                    Reset();
+                    m_Notice = "The selected roads changed. Press Use Move It selection again.";
+                    return inputDeps;
+                }
+            }
+
+            var ecb = m_ToolOutputBarrier.CreateCommandBuffer();
+            var seed = m_Random.NextInt();
+            var emitted = false;
+            var roads = 0;
+            OnBeforeEmit();
+            foreach (var chain in m_Selection)
+            {
+                emitted |= EmitPath(ecb, chain.Nodes, chain.Edges, seed);
+                DrawPath(m_Overlay, chain.Nodes, chain.Edges, true);
+                roads += chain.Edges.Count;
+            }
+
+            var last = m_Selection[m_Selection.Count - 1];
+            var stretches = m_Selection.Count == 1 ? "1 stretch" : $"{m_Selection.Count} stretches";
+            Summary = $"Move It selection: {roads} roads in {stretches}. " + (emitted ? Describe(last.Nodes, last.Edges) : NothingToChange);
+
+            if (emitted && apply)
+            {
+                applyMode = ApplyMode.Apply;
+                UndoRecorder.Commit();
+                if (Mod.Settings.DebugLogging)
+                    Mod.Log.Info($"{toolID} applied to the Move It selection: {roads} roads");
+                Reset();
+            }
+            return inputDeps;
+        }
+
+        private bool ChainIsLive(Chain chain)
+        {
+            foreach (var node in chain.Nodes)
+                if (!ToolPicks.IsAlive(EntityManager, node))
+                    return false;
+            for (var i = 0; i < chain.Edges.Count; i++)
+            {
+                var edge = chain.Edges[i];
+                if (!EntityManager.Exists(edge) || EntityManager.HasComponent<Deleted>(edge) || !EntityManager.TryGetComponent(edge, out Edge e))
+                    return false;
+                var a = chain.Nodes[i];
+                var b = chain.Nodes[i + 1];
+                if (!((e.m_Start == a && e.m_End == b) || (e.m_Start == b && e.m_End == a)))
+                    return false;
+            }
+            return true;
+        }
+
         private void Reset()
         {
+            m_Selection.Clear();
             m_StartNode = Entity.Null;
             m_EndNode = Entity.Null;
             Summary = string.Empty;
