@@ -19,10 +19,13 @@ namespace NetworkToolsReworked.Undo
     /// Previews undoing the last edit made with these tools, applied on click or Apply. Undo goes through
     /// definitions like every other edit: the roads the edit left are removed and the roads it replaced
     /// are built again from their snapshots. Roads changed since by something else are left alone.
+    /// Rolling back several edits undoes them one after another, waiting a few frames between them so
+    /// each undo has landed before the next one looks for its roads.
     /// </summary>
     public partial class UndoToolSystem : ToolBaseSystem, IPreviewTool
     {
         private const float kMatchDistance = 0.1f;
+        private const int kFramesBetweenSteps = 5;
 
         private ToolOutputBarrier m_ToolOutputBarrier;
         private ToolOverlay m_Overlay;
@@ -35,6 +38,8 @@ namespace NetworkToolsReworked.Undo
         private int m_Missing;
         private bool m_ApplyRequested;
         private bool m_CancelRequested;
+        private int m_Remaining;
+        private int m_Wait;
 
         public override string toolID => "NetworkToolsReworked.UndoTool";
 
@@ -45,6 +50,13 @@ namespace NetworkToolsReworked.Undo
         public void RequestApply() => m_ApplyRequested = true;
 
         public void RequestCancel() => m_CancelRequested = true;
+
+        /// <summary>Undoes the last <paramref name="steps"/> edits in a row, without a click for each.</summary>
+        public void RollBack(int steps)
+        {
+            m_Remaining = math.clamp(steps, 0, UndoHistory.Count);
+            m_Wait = 0;
+        }
 
         protected override void OnCreate()
         {
@@ -76,6 +88,7 @@ namespace NetworkToolsReworked.Undo
         {
             base.OnStopRunning();
             m_PlannedStep = null;
+            m_Remaining = 0;
             applyAction.shouldBeEnabled = false;
             cancelAction.shouldBeEnabled = false;
         }
@@ -98,6 +111,7 @@ namespace NetworkToolsReworked.Undo
 
             if (cancelAction.WasPressedThisFrame() || cancelRequested)
             {
+                m_Remaining = 0;
                 m_ToolSystem.activeTool = m_DefaultToolSystem;
                 return inputDeps;
             }
@@ -106,10 +120,19 @@ namespace NetworkToolsReworked.Undo
             UndoRecorder.Suspend();
             m_Overlay.BeginFrame();
 
+            if (m_Wait > 0)
+            {
+                m_Wait--;
+                Summary = $"Rolling back: {m_Remaining} more to undo.";
+                return inputDeps;
+            }
+            var auto = m_Remaining > 0;
+
             var step = UndoHistory.Peek();
             if (step == null)
             {
                 Summary = "Nothing to undo.";
+                m_Remaining = 0;
                 return inputDeps;
             }
 
@@ -121,6 +144,11 @@ namespace NetworkToolsReworked.Undo
             if (step.Results.Count > 0 && m_ToRemove.Count == 0)
             {
                 Summary = "The last edit's roads were changed since, so it can't be undone. Press Apply to drop it from the history.";
+                if (auto)
+                {
+                    m_Remaining = 0;
+                    Summary = "Rolling back stopped: " + Summary;
+                }
                 if (applyAction.WasPressedThisFrame() || applyRequested)
                 {
                     UndoHistory.Pop();
@@ -145,18 +173,25 @@ namespace NetworkToolsReworked.Undo
                 Rebuild(ecb, road, m_Ends[i].start, m_Ends[i].end, seed);
             }
 
-            var name = step.Tool.Replace("NetworkToolsReworked.", "").Replace("Tool", "");
+            var name = string.IsNullOrEmpty(step.Label) ? UndoRecorder.ToolName(step.Tool) : step.Label;
             var more = UndoHistory.Count > 1 ? $", {UndoHistory.Count - 1} more after this" : "";
             var missing = m_Missing > 0 ? $". {m_Missing} road(s) changed since and are left as they are" : "";
-            Summary = $"Undo {name}: remove {m_ToRemove.Count}, restore {step.Originals.Count} road(s){more}{missing}";
+            Summary = $"Undo \"{name}\": remove {m_ToRemove.Count}, restore {step.Originals.Count} road(s){more}{missing}";
+            if (auto)
+                Summary = $"Rolling back ({m_Remaining} left). " + Summary;
 
-            if (applyAction.WasPressedThisFrame() || applyRequested)
+            if (applyAction.WasPressedThisFrame() || applyRequested || auto)
             {
                 applyMode = ApplyMode.Apply;
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"Undo applied for {step.Tool}: removed {m_ToRemove.Count}, restored {step.Originals.Count}");
                 UndoHistory.Pop();
-                m_ToolSystem.activeTool = m_DefaultToolSystem;
+                if (m_Remaining > 0)
+                    m_Remaining--;
+                if (m_Remaining > 0)
+                    m_Wait = kFramesBetweenSteps;
+                else
+                    m_ToolSystem.activeTool = m_DefaultToolSystem;
             }
 
             return inputDeps;

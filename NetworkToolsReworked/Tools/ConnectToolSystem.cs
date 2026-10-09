@@ -177,7 +177,7 @@ namespace NetworkToolsReworked.Tools
             else if (click || applyRequested)
             {
                 applyMode = ApplyMode.Apply;
-                UndoRecorder.Commit();
+                UndoRecorder.Commit(Summary);
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"Connect applied from {m_StartNode} to {end}");
                 Reset();

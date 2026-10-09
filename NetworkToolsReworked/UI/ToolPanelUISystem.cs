@@ -65,6 +65,8 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<bool> m_SelectionAvailable;
         private ValueBinding<float> m_FilletRadius;
         private ValueBinding<int> m_ParallelTaper;
+        private ValueBinding<string> m_UndoHistory;
+        private int m_UndoVersion = -1;
         private ValueBinding<float> m_HelixRadius;
         private ValueBinding<float> m_HelixTurns;
         private ValueBinding<float> m_HelixClimb;
@@ -167,6 +169,13 @@ namespace NetworkToolsReworked.UI
             AddBinding(new TriggerBinding<float>(kGroup, "SetHelixStartHeight", v => Save(s => s.HelixStartHeight = v)));
             AddBinding(new TriggerBinding(kGroup, "PickHelixType", () => m_ToolActivationSystem.HelixTool.RequestPickType()));
             AddBinding(new TriggerBinding(kGroup, "HelixUseRoadType", () => m_ToolActivationSystem.HelixTool.UseRoadType()));
+            AddBinding(m_UndoHistory = new ValueBinding<string>(kGroup, "UndoHistory", string.Empty));
+            AddBinding(new TriggerBinding<int>(kGroup, "RollBack", steps =>
+            {
+                m_ToolActivationSystem.UndoTool.RollBack(steps);
+                if (m_ToolActivationSystem.Current != ToolId.Undo)
+                    m_ToolActivationSystem.Activate(ToolId.Undo);
+            }));
             AddBinding(m_ParallelTaper = new ValueBinding<int>(kGroup, "ParallelTaper", 0));
             AddBinding(new TriggerBinding<int>(kGroup, "SetParallelTaper", v => Save(s => s.ParallelTaper = (ParallelTaper)v)));
             AddBinding(m_SplitMode = new ValueBinding<int>(kGroup, "SplitMode", 0));
@@ -315,7 +324,21 @@ namespace NetworkToolsReworked.UI
             m_BridgeHeight.Update(settings.BridgeHeight);
             m_BridgeClearance.Update(settings.BridgeClearance);
             UpdateHealth();
+            UpdateUndoHistory();
             UpdatePresets();
+        }
+
+        /// <summary>The edits that can be undone, newest first, one per line.</summary>
+        private void UpdateUndoHistory()
+        {
+            if (Undo.UndoHistory.Version == m_UndoVersion)
+                return;
+            m_UndoVersion = Undo.UndoHistory.Version;
+            var steps = Undo.UndoHistory.Steps;
+            var lines = new System.Collections.Generic.List<string>();
+            for (var i = steps.Count - 1; i >= 0; i--)
+                lines.Add(steps[i].Label ?? Undo.UndoRecorder.ToolName(steps[i].Tool));
+            m_UndoHistory.Update(string.Join("\n", lines));
         }
 
         /// <summary>One line per issue: "fix" or "info", the kind, then the description, tab separated.</summary>

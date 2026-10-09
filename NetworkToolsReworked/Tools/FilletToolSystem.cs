@@ -136,7 +136,7 @@ namespace NetworkToolsReworked.Tools
             else if (click || applyRequested)
             {
                 applyMode = ApplyMode.Apply;
-                UndoRecorder.Commit();
+                UndoRecorder.Commit(Summary);
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"Fillet applied at {m_Node}, radius {result.Radius}");
                 m_Node = Entity.Null;

@@ -97,7 +97,7 @@ namespace NetworkToolsReworked.Tools
             if (emitted && applyAction.WasPressedThisFrame())
             {
                 applyMode = ApplyMode.Apply;
-                UndoRecorder.Commit();
+                UndoRecorder.Commit(Mode == NodeToolMode.AddNode ? "node added" : "node removed");
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"{Mode} applied on {hitEntity}");
             }

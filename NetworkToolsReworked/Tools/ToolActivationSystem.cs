@@ -132,6 +132,8 @@ namespace NetworkToolsReworked.Tools
 
         public HelixToolSystem HelixTool => m_HelixToolSystem;
 
+        public UndoToolSystem UndoTool => m_UndoToolSystem;
+
         /// <summary>The active tool if it copies from a picked road first, otherwise null.</summary>
         public PathToolSystem SourceTool => m_ToolSystem.activeTool as PathToolSystem;
 

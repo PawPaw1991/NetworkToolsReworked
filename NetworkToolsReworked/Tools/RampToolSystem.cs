@@ -198,7 +198,7 @@ namespace NetworkToolsReworked.Tools
             else if (click || applyRequested)
             {
                 applyMode = ApplyMode.Apply;
-                UndoRecorder.Commit();
+                UndoRecorder.Commit(Summary);
                 if (settings.DebugLogging)
                     Mod.Log.Info($"Ramp applied on {edge} at {t:0.000}");
                 m_LockedEdge = Entity.Null;
