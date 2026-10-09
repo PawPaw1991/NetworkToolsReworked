@@ -29,6 +29,7 @@ namespace NetworkToolsReworked
 
             // Tools only emit CreationDefinition + NetCourse entities; see Edits/NetDefinitions.cs.
             updateSystem.UpdateAt<NodeToolSystem>(SystemUpdatePhase.ToolUpdate);
+            updateSystem.UpdateAt<SlopeToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<ToolActivationSystem>(SystemUpdatePhase.MainLoop);
         }
 

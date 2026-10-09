@@ -4,6 +4,7 @@ using Colossal.IO.AssetDatabase;
 using Game.Input;
 using Game.Modding;
 using Game.Settings;
+using NetworkToolsReworked.Edits;
 
 namespace NetworkToolsReworked
 {
@@ -34,6 +35,13 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.N, nameof(RemoveNodeTool), ctrl: true, shift: true)]
         public ProxyBinding RemoveNodeTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.G, nameof(SlopeTool), ctrl: true)]
+        public ProxyBinding SlopeTool { get; set; }
+
+        [SettingsUISection(kSection, kGeneralGroup)]
+        public SlopeProfile SlopeProfile { get; set; }
+
         /// <summary>Unit for lengths and offsets in tool panels. A cell is the 8 m zone grid.</summary>
         [SettingsUISection(kSection, kGeneralGroup)]
         public DistanceUnit Unit { get; set; }
@@ -43,6 +51,7 @@ namespace NetworkToolsReworked
 
         public override void SetDefaults()
         {
+            SlopeProfile = SlopeProfile.Linear;
             Unit = DistanceUnit.Meters;
             DebugLogging = false;
         }
@@ -72,6 +81,15 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RemoveNodeTool)), "Remove Node tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.RemoveNodeTool)), "Toggle the Remove Node tool. Click a node between two segments of the same road to merge them." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.RemoveNodeTool)), "Remove Node tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SlopeTool)), "Slope tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.SlopeTool)), "Toggle the Slope tool. Click a start node, hover an end node to preview, click to re-grade the road between them." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.SlopeTool)), "Slope tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SlopeProfile)), "Slope shape" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.SlopeProfile)), "Linear keeps one constant grade. Ease in/out starts and ends flat and is steepest in the middle." },
+                { m_Setting.GetEnumValueLocaleID(SlopeProfile.Linear), "Linear" },
+                { m_Setting.GetEnumValueLocaleID(SlopeProfile.EaseInOut), "Ease in/out" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Unit)), "Distance unit" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.Unit)), "Unit used for lengths and offsets in the tool panels. A cell is one 8 m zone grid square." },
