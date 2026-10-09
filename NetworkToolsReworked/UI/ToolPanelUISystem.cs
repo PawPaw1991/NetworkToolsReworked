@@ -3,6 +3,7 @@ using Colossal.UI.Binding;
 using Game.UI;
 using NetworkToolsReworked.Edits;
 using NetworkToolsReworked.Tools;
+using Unity.Mathematics;
 
 namespace NetworkToolsReworked.UI
 {
@@ -33,6 +34,9 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<bool> m_SmoothKeepEnds;
         private ValueBinding<bool> m_SmoothGrades;
         private ValueBinding<float> m_SmoothRelax;
+        private ValueBinding<float> m_MoveNudgeX;
+        private ValueBinding<float> m_MoveNudgeZ;
+        private ValueBinding<float> m_MoveHeight;
         private SlopeToolSystem m_SlopeToolSystem;
 
         protected override void OnCreate()
@@ -62,6 +66,9 @@ namespace NetworkToolsReworked.UI
             AddBinding(m_SmoothKeepEnds = new ValueBinding<bool>(kGroup, "SmoothKeepEnds", true));
             AddBinding(m_SmoothGrades = new ValueBinding<bool>(kGroup, "SmoothGrades", true));
             AddBinding(m_SmoothRelax = new ValueBinding<float>(kGroup, "SmoothRelax", 0f));
+            AddBinding(m_MoveNudgeX = new ValueBinding<float>(kGroup, "MoveNudgeX", 0f));
+            AddBinding(m_MoveNudgeZ = new ValueBinding<float>(kGroup, "MoveNudgeZ", 0f));
+            AddBinding(m_MoveHeight = new ValueBinding<float>(kGroup, "MoveHeight", 0f));
 
             AddBinding(new TriggerBinding(kGroup, "TogglePanel", () => m_PanelOpen.Update(!m_PanelOpen.value)));
             AddBinding(new TriggerBinding<string>(kGroup, "SelectTool", name =>
@@ -85,6 +92,9 @@ namespace NetworkToolsReworked.UI
             AddBinding(new TriggerBinding<bool>(kGroup, "SetSmoothKeepEnds", v => Save(s => s.SmoothKeepEnds = v)));
             AddBinding(new TriggerBinding<bool>(kGroup, "SetSmoothGrades", v => Save(s => s.SmoothGrades = v)));
             AddBinding(new TriggerBinding<float>(kGroup, "SetSmoothRelax", v => Save(s => s.SmoothRelax = v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetMoveNudgeX", v => m_ToolActivationSystem.MoveNodeTool.Nudge = new float2(v, m_ToolActivationSystem.MoveNodeTool.Nudge.y)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetMoveNudgeZ", v => m_ToolActivationSystem.MoveNodeTool.Nudge = new float2(m_ToolActivationSystem.MoveNodeTool.Nudge.x, v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetMoveHeight", v => m_ToolActivationSystem.MoveNodeTool.HeightOffset = v));
             AddBinding(new TriggerBinding(kGroup, "ApplyPreview", () => m_ToolActivationSystem.PreviewTool?.RequestApply()));
             AddBinding(new TriggerBinding(kGroup, "CancelPreview", () => m_ToolActivationSystem.PreviewTool?.RequestCancel()));
             AddBinding(new TriggerBinding<int>(kGroup, "RotateConnect", steps => m_ToolActivationSystem.ConnectTool.RequestRotate(steps)));
@@ -116,6 +126,10 @@ namespace NetworkToolsReworked.UI
             m_SmoothKeepEnds.Update(settings.SmoothKeepEnds);
             m_SmoothGrades.Update(settings.SmoothGrades);
             m_SmoothRelax.Update(settings.SmoothRelax);
+            var move = m_ToolActivationSystem.MoveNodeTool;
+            m_MoveNudgeX.Update(move.Nudge.x);
+            m_MoveNudgeZ.Update(move.Nudge.y);
+            m_MoveHeight.Update(move.HeightOffset);
         }
 
         private static void Save(Action<Setting> change)

@@ -13,6 +13,7 @@ namespace NetworkToolsReworked.Tools
         Connect,
         Parallel,
         Smooth,
+        MoveNode,
     }
 
     /// <summary>Turns the tools on and off, from their key bindings or the tool panel.</summary>
@@ -25,12 +26,14 @@ namespace NetworkToolsReworked.Tools
         private ConnectToolSystem m_ConnectToolSystem;
         private ParallelToolSystem m_ParallelToolSystem;
         private SmoothToolSystem m_SmoothToolSystem;
+        private MoveNodeToolSystem m_MoveNodeToolSystem;
         private ProxyAction m_AddNodeAction;
         private ProxyAction m_RemoveNodeAction;
         private ProxyAction m_SlopeAction;
         private ProxyAction m_ConnectAction;
         private ProxyAction m_ParallelAction;
         private ProxyAction m_SmoothAction;
+        private ProxyAction m_MoveNodeAction;
 
         public ToolId Current
         {
@@ -43,6 +46,7 @@ namespace NetworkToolsReworked.Tools
                 if (active == m_ConnectToolSystem) return ToolId.Connect;
                 if (active == m_ParallelToolSystem) return ToolId.Parallel;
                 if (active == m_SmoothToolSystem) return ToolId.Smooth;
+                if (active == m_MoveNodeToolSystem) return ToolId.MoveNode;
                 return ToolId.None;
             }
         }
@@ -51,6 +55,8 @@ namespace NetworkToolsReworked.Tools
         public IPreviewTool PreviewTool => m_ToolSystem.activeTool as IPreviewTool;
 
         public ConnectToolSystem ConnectTool => m_ConnectToolSystem;
+
+        public MoveNodeToolSystem MoveNodeTool => m_MoveNodeToolSystem;
 
         protected override void OnCreate()
         {
@@ -62,6 +68,7 @@ namespace NetworkToolsReworked.Tools
             m_ConnectToolSystem = World.GetOrCreateSystemManaged<ConnectToolSystem>();
             m_ParallelToolSystem = World.GetOrCreateSystemManaged<ParallelToolSystem>();
             m_SmoothToolSystem = World.GetOrCreateSystemManaged<SmoothToolSystem>();
+            m_MoveNodeToolSystem = World.GetOrCreateSystemManaged<MoveNodeToolSystem>();
 
             m_AddNodeAction = Enable(nameof(Setting.AddNodeTool));
             m_RemoveNodeAction = Enable(nameof(Setting.RemoveNodeTool));
@@ -69,6 +76,7 @@ namespace NetworkToolsReworked.Tools
             m_ConnectAction = Enable(nameof(Setting.ConnectTool));
             m_ParallelAction = Enable(nameof(Setting.ParallelTool));
             m_SmoothAction = Enable(nameof(Setting.SmoothTool));
+            m_MoveNodeAction = Enable(nameof(Setting.MoveNodeTool));
         }
 
         protected override void OnUpdate()
@@ -85,6 +93,8 @@ namespace NetworkToolsReworked.Tools
                 Toggle(ToolId.Parallel);
             else if (m_SmoothAction.WasPerformedThisFrame())
                 Toggle(ToolId.Smooth);
+            else if (m_MoveNodeAction.WasPerformedThisFrame())
+                Toggle(ToolId.MoveNode);
         }
 
         /// <summary>Activates a tool, or returns to the default tool if it is already active.</summary>
@@ -113,6 +123,9 @@ namespace NetworkToolsReworked.Tools
                     break;
                 case ToolId.Smooth:
                     m_ToolSystem.activeTool = m_SmoothToolSystem;
+                    break;
+                case ToolId.MoveNode:
+                    m_ToolSystem.activeTool = m_MoveNodeToolSystem;
                     break;
                 default:
                     m_ToolSystem.activeTool = m_DefaultToolSystem;

@@ -495,7 +495,7 @@ namespace NetworkToolsReworked.Edits
             });
         }
 
-        private static void EmitSideEdge(EntityManager em, EntityCommandBuffer ecb, ref TerrainHeightData terrain, Entity side, Edge e, Dictionary<Entity, float3> newPositions, int randomSeed)
+        internal static void EmitSideEdge(EntityManager em, EntityCommandBuffer ecb, ref TerrainHeightData terrain, Entity side, Edge e, Dictionary<Entity, float3> newPositions, int randomSeed)
         {
             var b = em.GetComponentData<Curve>(side).m_Bezier;
             var hasElevation = em.HasComponent<Elevation>(side);
@@ -563,7 +563,7 @@ namespace NetworkToolsReworked.Edits
             return pos;
         }
 
-        private static bool IsEditableNode(EntityManager em, Entity node)
+        internal static bool IsEditableNode(EntityManager em, Entity node)
         {
             return em.HasComponent<Node>(node) && !em.HasComponent<Owner>(node) && em.HasBuffer<ConnectedEdge>(node);
         }
