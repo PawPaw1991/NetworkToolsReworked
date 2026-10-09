@@ -166,3 +166,6 @@ export const roadTypes$ = bindValue<string>(mod.id, "RoadTypes", "");
 /** Prefab name of the shared road type for new roads, or "" for each road's own type. */
 export const buildType$ = bindValue<string>(mod.id, "BuildType", "");
 export const setBuildType = (name: string) => trigger(mod.id, "SetBuildType", name);
+export const roundaboutIslands$ = bindValue<string>(mod.id, "RoundaboutIslands", "");
+export const roundaboutIsland$ = bindValue<string>(mod.id, "RoundaboutIsland", "");
+export const setRoundaboutIsland = (name: string) => trigger(mod.id, "SetRoundaboutIsland", name);

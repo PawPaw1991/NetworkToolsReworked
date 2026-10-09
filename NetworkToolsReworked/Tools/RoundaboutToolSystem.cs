@@ -20,6 +20,10 @@ namespace NetworkToolsReworked.Tools
     public partial class RoundaboutToolSystem : NetEditToolSystem, IPreviewTool
     {
         private TerrainSystem m_TerrainSystem;
+        private PrefabSystem m_PrefabSystem;
+        private EntityQuery m_IslandQuery;
+        private List<Islands.Island> m_Islands = new List<Islands.Island>();
+        private int m_IslandPrefabCount = -1;
         private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
         private readonly List<float3> m_Ring = new List<float3>();
@@ -41,6 +45,8 @@ namespace NetworkToolsReworked.Tools
         {
             base.OnCreate();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
+            m_PrefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
+            m_IslandQuery = GetEntityQuery(Islands.QueryTypes);
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0x60DAu);
         }
@@ -143,8 +149,9 @@ namespace NetworkToolsReworked.Tools
         }
 
         /// <summary>
-        /// The game's own roundabout: hover a junction to preview it, click to lock, click or Apply to
-        /// build. On a junction that already has one, the same steps remove it.
+        /// The game's own roundabout: one of its central islands placed on the junction. Hover a junction
+        /// to preview it, click to lock, click or Apply to build. On a junction that already has the
+        /// chosen island, the same steps remove it.
         /// </summary>
         private JobHandle UpdateGame(bool click, bool applyRequested, JobHandle inputDeps)
         {
@@ -164,12 +171,27 @@ namespace NetworkToolsReworked.Tools
                 return inputDeps;
             }
 
-            var remove = RoundaboutEdit.HasGameRoundabout(EntityManager, target);
-            RoundaboutEdit.EmitGame(EntityManager, DefinitionBuffer(), target, add: !remove, m_Random.NextInt());
-            var size = EntityManager.TryGetComponent(target, out Game.Net.Roundabout roundabout) ? $", radius {PathInfo.Distance(roundabout.m_Radius)}" : string.Empty;
-            Summary = remove
-                ? $"Remove the roundabout here{size}."
-                : "Game roundabout, sized to fit the roads here.";
+            // Rebuilt only when prefabs load.
+            var count = m_IslandQuery.CalculateEntityCount();
+            if (count != m_IslandPrefabCount)
+            {
+                m_IslandPrefabCount = count;
+                m_Islands = Islands.List(EntityManager, m_PrefabSystem, m_IslandQuery);
+            }
+            var chosen = Islands.Pick(m_Islands, Mod.Settings.RoundaboutIsland);
+            if (chosen == Entity.Null)
+            {
+                Summary = "No roundabout islands are loaded. Try Custom ring.";
+                return inputDeps;
+            }
+
+            // Same island again removes it; another island swaps it.
+            var existing = RoundaboutEdit.FindIsland(EntityManager, target);
+            var existingPrefab = existing != Entity.Null ? EntityManager.GetComponentData<PrefabRef>(existing).m_Prefab : Entity.Null;
+            var remove = existingPrefab == chosen;
+            RoundaboutEdit.EmitIsland(EntityManager, DefinitionBuffer(), target, remove ? Entity.Null : chosen, m_Random.NextInt());
+            var name = m_PrefabSystem.GetPrefab<PrefabBase>(chosen).name;
+            Summary = remove ? $"Remove the {name} here." : existing != Entity.Null ? $"Swap the island here for {name}." : $"{name}, sized to fit the roads here.";
 
             if (m_Node == Entity.Null)
             {
@@ -180,7 +202,7 @@ namespace NetworkToolsReworked.Tools
             {
                 applyMode = ApplyMode.Apply;
                 if (Mod.Settings.DebugLogging)
-                    Mod.Log.Info($"Game roundabout {(remove ? "removed" : "added")} at {m_Node}");
+                    Mod.Log.Info($"Roundabout island {(remove ? "removed" : name)} at {m_Node} (had {existing})");
                 m_Node = Entity.Null;
             }
             return inputDeps;

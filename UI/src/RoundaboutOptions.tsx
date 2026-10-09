@@ -9,6 +9,7 @@ import {
 } from "bindings";
 import { Choice, Stepper, indexed } from "./controls";
 import { RoadTypePicker } from "./RoadTypePicker";
+import { IslandPicker } from "./IslandPicker";
 
 export const RoundaboutOptions = () => {
   const radius = useValue(roundaboutRadius$);
@@ -18,6 +19,7 @@ export const RoundaboutOptions = () => {
   return (
     <>
       <Choice options={indexed(["Game roundabout", "Custom ring"])} value={customRing ? 1 : 0} onChange={(v) => setRoundaboutCustomRing(v === 1)} />
+      {!customRing && <IslandPicker />}
       {customRing && (
         <>
           <Stepper label="Radius" unit="m" value={radius} step={4} fine={0.5} min={8} max={200} onChange={setRoundaboutRadius} />

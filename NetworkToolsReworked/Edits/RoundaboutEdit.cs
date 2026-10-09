@@ -46,55 +46,121 @@ namespace NetworkToolsReworked.Edits
             return roads > 0 ? GameProblem.None : GameProblem.NotANode;
         }
 
-        public static bool HasGameRoundabout(EntityManager em, Entity node)
+        /// <summary>True if the prefab is one of the game's roundabout central islands (or a modded one).</summary>
+        public static bool IsIslandPrefab(EntityManager em, Entity prefab)
         {
-            return em.TryGetComponent(node, out Upgraded upgraded) && (upgraded.m_Flags.m_General & CompositionFlags.General.Roundabout) != 0;
+            return em.TryGetComponent(prefab, out NetObjectData data) && (data.m_CompositionFlags.m_General & CompositionFlags.General.Roundabout) != 0;
+        }
+
+        /// <summary>The roundabout island already on this junction, if any.</summary>
+        public static Entity FindIsland(EntityManager em, Entity node)
+        {
+            if (!em.TryGetBuffer(node, true, out DynamicBuffer<Game.Objects.SubObject> subObjects))
+                return Entity.Null;
+            foreach (var sub in subObjects)
+            {
+                if (em.HasComponent<Deleted>(sub.m_SubObject) || !em.TryGetComponent(sub.m_SubObject, out PrefabRef prefabRef))
+                    continue;
+                if (IsIslandPrefab(em, prefabRef.m_Prefab))
+                    return sub.m_SubObject;
+            }
+            return Entity.Null;
         }
 
         /// <summary>
-        /// The game's own roundabout: a junction upgrade, the same definition the game's roundabout tool
-        /// writes. The ring is part of the junction and sized by the roads meeting there; no roads are
-        /// added, cut or moved. <paramref name="add"/> false removes it again.
+        /// Left over from an earlier version of this tool, which set the roundabout flag on the junction
+        /// itself. The game doesn't use that, so it's cleared whenever the junction is edited.
         /// </summary>
-        public static void EmitGame(EntityManager em, EntityCommandBuffer ecb, Entity node, bool add, int randomSeed)
+        private static bool HasStrayFlag(EntityManager em, Entity node, out Upgraded upgraded)
+        {
+            return em.TryGetComponent(node, out upgraded) && (upgraded.m_Flags.m_General & CompositionFlags.General.Roundabout) != 0;
+        }
+
+        /// <summary>
+        /// The game's own roundabout: a central island object placed on the junction, as the game's
+        /// roundabout tool does. The island turns the junction into a roundabout sized by the island and the
+        /// roads. <paramref name="island"/> Entity.Null removes the one that is there.
+        /// </summary>
+        public static void EmitIsland(EntityManager em, EntityCommandBuffer ecb, Entity node, Entity island, int randomSeed)
         {
             var n = em.GetComponentData<Node>(node);
-            em.TryGetComponent(node, out Upgraded upgraded);
-            if (add)
-                upgraded.m_Flags.m_General |= CompositionFlags.General.Roundabout;
-            else
-                upgraded.m_Flags.m_General &= ~CompositionFlags.General.Roundabout;
+            var existing = FindIsland(em, node);
+            var elevated = em.TryGetComponent(node, out Elevation nodeElevation);
 
-            var elevation = em.TryGetComponent(node, out Elevation e) ? e.m_Elevation : float2.zero;
+            if (existing != Entity.Null)
+            {
+                var transform = em.GetComponentData<Game.Objects.Transform>(existing);
+                // Delete it, or swap it for the chosen island in place.
+                var definition = ecb.CreateEntity();
+                ecb.AddComponent(definition, new CreationDefinition
+                {
+                    m_Original = existing,
+                    m_Prefab = island != Entity.Null ? island : em.GetComponentData<PrefabRef>(existing).m_Prefab,
+                    m_RandomSeed = randomSeed,
+                    m_Flags = island != Entity.Null ? CreationFlags.Upgrade | CreationFlags.Parent : CreationFlags.Delete,
+                });
+                ecb.AddComponent(definition, Placement(transform.m_Position, transform.m_Rotation, elevated, nodeElevation));
+                ecb.AddComponent(definition, default(Updated));
+            }
+            else if (island != Entity.Null)
+            {
+                var definition = ecb.CreateEntity();
+                ecb.AddComponent(definition, new CreationDefinition
+                {
+                    m_Prefab = island,
+                    m_RandomSeed = randomSeed,
+                    m_Flags = CreationFlags.Attach,
+                });
+                ecb.AddComponent(definition, Placement(n.m_Position, n.m_Rotation, elevated, nodeElevation));
+                ecb.AddComponent(definition, default(Updated));
+            }
+
+            // Refresh the junction so it picks up (or drops) the roundabout.
             var pos = new CoursePos
             {
                 m_Entity = node,
                 m_Position = n.m_Position,
                 m_Rotation = n.m_Rotation,
-                m_Elevation = elevation,
+                m_Elevation = elevated ? nodeElevation.m_Elevation : float2.zero,
                 m_CourseDelta = 0f,
-                m_Flags = CoursePosFlags.IsFirst | CoursePosFlags.IsLast,
                 m_ParentMesh = -1,
             };
             var endPos = pos;
             endPos.m_CourseDelta = 1f;
-
-            var definition = NetDefinitions.Emit(ecb, new CreationDefinition
+            var refresh = NetDefinitions.Emit(ecb, new CreationDefinition
             {
                 m_Original = node,
                 m_Prefab = em.GetComponentData<PrefabRef>(node).m_Prefab,
                 m_RandomSeed = randomSeed,
-                m_Flags = CreationFlags.Align | CreationFlags.SubElevation | CreationFlags.Upgrade | CreationFlags.Parent,
             }, new NetCourse
             {
                 m_Curve = new Bezier4x3(n.m_Position, n.m_Position, n.m_Position, n.m_Position),
                 m_StartPosition = pos,
                 m_EndPosition = endPos,
-                m_Elevation = elevation,
                 m_Length = 0f,
                 m_FixedIndex = -1,
             });
-            ecb.AddComponent(definition, upgraded);
+            if (HasStrayFlag(em, node, out var upgraded))
+            {
+                upgraded.m_Flags.m_General &= ~CompositionFlags.General.Roundabout;
+                ecb.AddComponent(refresh, upgraded);
+            }
+        }
+
+        private static ObjectDefinition Placement(float3 position, quaternion rotation, bool elevated, Elevation nodeElevation)
+        {
+            return new ObjectDefinition
+            {
+                m_Position = position,
+                m_Rotation = rotation,
+                m_LocalPosition = position,
+                m_LocalRotation = rotation,
+                m_Scale = new float3(1f),
+                m_Probability = 100,
+                m_PrefabSubIndex = -1,
+                m_ParentMesh = elevated ? 0 : -1,
+                m_Elevation = elevated ? (nodeElevation.m_Elevation.x + nodeElevation.m_Elevation.y) * 0.5f : 0f,
+            };
         }
 
         private const float kMaxArcStep = math.PI / 2f;
