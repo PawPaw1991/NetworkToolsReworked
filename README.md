@@ -25,6 +25,8 @@ Tools never write `Game.Net.Node`, `Edge`, `Curve`, `Composition` or `Elevation`
 
 ## Using it (current build)
 
+Click the **Network Tools** button at the top left of the screen to open the tool panel. Pick a tool there and set its options. The keys below do the same.
+
 | Key | Tool |
 |---|---|
 | Ctrl+N | Add Node: hover a road, path or track and click to split it with a new node |
@@ -43,4 +45,4 @@ Requires the official Cities: Skylines II modding toolchain (set up from the gam
 dotnet build NetworkToolsReworked/NetworkToolsReworked.csproj -c Release
 ```
 
-The build deploys the mod to the local mods folder.
+The build also builds the UI panel in `UI/` with npm (installing its packages the first time) and deploys both to the local mods folder.
