@@ -133,21 +133,6 @@ namespace NetworkToolsReworked.Tools
             Clearance.Check(EntityManager, m_EdgeQuery, m_Result.Curves, Clearance.Neighbourhood(EntityManager, nodes, edges), Mod.Settings.ClearanceWarning, m_Clearance);
         }
 
-        private Color GradeColor(Entity edge, float grade)
-        {
-            var max = 0.12f;
-            if (EntityManager.TryGetComponent(edge, out PrefabRef prefab) &&
-                EntityManager.TryGetComponent(prefab.m_Prefab, out NetGeometryData geometry) &&
-                geometry.m_MaxSlopeSteepness > 0f)
-                max = geometry.m_MaxSlopeSteepness;
-
-            // Green when gentle, yellow at two thirds of the road's limit, red at the limit.
-            var ratio = math.saturate(grade / max);
-            var color = ratio < 0.67f
-                ? Color.Lerp(new Color(0.25f, 0.9f, 0.4f), new Color(1f, 0.85f, 0.2f), ratio / 0.67f)
-                : Color.Lerp(new Color(1f, 0.85f, 0.2f), new Color(1f, 0.25f, 0.2f), (ratio - 0.67f) / 0.33f);
-            color.a = 0.45f;
-            return color;
-        }
+        private Color GradeColor(Entity edge, float grade) => Grades.ColorFor(grade, Grades.Limit(EntityManager, edge));
     }
 }

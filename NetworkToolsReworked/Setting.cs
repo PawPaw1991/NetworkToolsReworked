@@ -92,6 +92,10 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.U, nameof(UpgradesTool), ctrl: true, shift: true)]
         public ProxyBinding UpgradesTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.M, nameof(MeasureTool), ctrl: true, shift: true)]
+        public ProxyBinding MeasureTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -305,6 +309,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.UpgradesTool)), "Copy upgrades tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.UpgradesTool)), "Toggle the Copy upgrades tool. Click a road to copy its upgrades (trees, sidewalks, sound walls...), then pick two nodes to give the road between them the same upgrades. Copying a road without upgrades clears them." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.UpgradesTool)), "Copy upgrades tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.MeasureTool)), "Measure tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.MeasureTool)), "Toggle the Measure tool. Hover a road to see its length, grade, tightest curve and height above ground; click two nodes to measure the road between them. Changes nothing." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.MeasureTool)), "Measure tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },
