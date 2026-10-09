@@ -3,6 +3,7 @@ using Colossal.Logging;
 using Game;
 using Game.Modding;
 using Game.SceneFlow;
+using NetworkToolsReworked.Tools;
 
 namespace NetworkToolsReworked
 {
@@ -24,8 +25,11 @@ namespace NetworkToolsReworked
             GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(Settings));
             AssetDatabase.global.LoadSettings(nameof(NetworkToolsReworked), Settings, new Setting(this));
 
-            // Tool systems are registered here as they are implemented. Each one runs in
-            // SystemUpdatePhase.ToolUpdate and only emits CreationDefinition + NetCourse entities.
+            Settings.RegisterKeyBindings();
+
+            // Tools only emit CreationDefinition + NetCourse entities; see Edits/NetDefinitions.cs.
+            updateSystem.UpdateAt<NodeToolSystem>(SystemUpdatePhase.ToolUpdate);
+            updateSystem.UpdateAt<ToolActivationSystem>(SystemUpdatePhase.MainLoop);
         }
 
         public void OnDispose()

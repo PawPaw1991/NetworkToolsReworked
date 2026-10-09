@@ -23,6 +23,15 @@ Tools never write `Game.Net.Node`, `Edge`, `Curve`, `Composition` or `Elevation`
 | Generate | Grid, circle, oval |
 | Undo | Snapshot of originals touched by the last apply |
 
+## Using it (current build)
+
+| Key | Tool |
+|---|---|
+| Ctrl+N | Add Node: hover a road, path or track and click to split it with a new node |
+| Ctrl+Shift+N | Remove Node: hover a node joining two segments of the same type and click to merge them |
+
+Press the key again or right-click to leave the tool. Both keys can be rebound in Options.
+
 ## Building
 
 Requires the official Cities: Skylines II modding toolchain (set up from the game's Options > Modding), which provides `CSII_TOOLPATH`, `Mod.props` and `Mod.targets`.
