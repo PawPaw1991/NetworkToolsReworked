@@ -147,6 +147,10 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.Digit9, nameof(QuickTool9), alt: true)]
         public ProxyBinding QuickTool9 { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.K, nameof(HealthTool), ctrl: true, shift: true)]
+        public ProxyBinding HealthTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -250,6 +254,10 @@ namespace NetworkToolsReworked
         [SettingsUIHidden]
         public float RampHeight { get; set; }
 
+        /// <summary>Network check: segments shorter than this (metres) are reported; 0 turns it off.</summary>
+        [SettingsUIHidden]
+        public float HealthMinLength { get; set; }
+
         [SettingsUIHidden]
         public MoveSnap MoveSnap { get; set; }
 
@@ -313,6 +321,7 @@ namespace NetworkToolsReworked
             RampTurn = 0f;
             RampLength = 120f;
             RampHeight = 6f;
+            HealthMinLength = 3f;
             MoveSnap = MoveSnap.Off;
             MoveGridSize = 8f;
             ClearanceWarning = 6f;
@@ -456,6 +465,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.MatchHeightTool)), "Match height tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.MatchHeightTool)), "Toggle the Match height tool. Click a node to take its height (or set one in the tool panel), then click other nodes to move them to that height." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.MatchHeightTool)), "Match height tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.HealthTool)), "Network check tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.HealthTool)), "Toggle the Network check tool. Scans the city for overlapping roads, loose nodes, tiny segments, ends that nearly meet, grades over the limit and roads cut off from the rest, lists them, jumps to each and fixes the safe ones." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.HealthTool)), "Network check tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },

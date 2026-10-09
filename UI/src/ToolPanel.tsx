@@ -31,6 +31,7 @@ import { RampOptions } from "./RampOptions";
 import { MatchHeightOptions } from "./MatchHeightOptions";
 import { PresetOptions } from "./PresetOptions";
 import { SelectionRow } from "./SelectionOptions";
+import { HealthOptions } from "./HealthOptions";
 
 // Default keys; they can be rebound in Options.
 const TOOLS: { id: ToolId; label: string; hint: string; keys: string }[] = [
@@ -47,6 +48,7 @@ const TOOLS: { id: ToolId; label: string; hint: string; keys: string }[] = [
   { id: "Measure", label: "Measure", hint: "Hover a road for its length, grade, curve and height, or pick two nodes to measure between them. Changes nothing.", keys: "Ctrl+Shift+M or Alt+9" },
   { id: "Ramp", label: "Ramp", hint: "Build a ramp leaving or joining a road, climbing to a set height within the road type's grade limit.", keys: "Ctrl+Shift+E or Alt+7" },
   { id: "MatchHeight", label: "Match height", hint: "Move nodes to the same height as another node, or to a height you set.", keys: "Ctrl+Shift+H" },
+  { id: "Health", label: "Network check", hint: "Scan the city for overlapping roads, loose nodes, tiny segments, ends that don't join, grades over the limit and roads cut off from the rest.", keys: "Ctrl+Shift+K" },
   { id: "Intersect", label: "Intersect", hint: "Join two roads that cross without a junction. Hover near the crossing.", keys: "Ctrl+Shift+X" },
   { id: "Undo", label: "Undo", hint: "Undo the last edit made with these tools (last 30 this session).", keys: "Ctrl+Alt+Z" },
   { id: "Connect", label: "Connect", hint: "Build a new road between two nodes. , and . rotate the start direction.", keys: "Ctrl+J or Alt+5" },
@@ -95,6 +97,11 @@ const TOOL_STEPS: Partial<Record<ToolId, Steps>> = {
     PickStart: { step: "2/4", text: "Click a start node. Right-click to copy another type." },
     PickEnd: { step: "3/4", text: "Hover an end node to preview, click it to lock the preview. Right-click to pick another start." },
     Review: { step: "4/4", text: "Click or press Apply to change the type, right-click or Back to pick another end." },
+  },
+  Health: {
+    PickStart: { step: "", text: "Click an item to jump to it. Orange items (and markers) can be fixed here; red ones need another tool." },
+    PickEnd: { step: "", text: "Click an item to jump to it." },
+    Review: { step: "", text: "If a fix is offered, click or press Apply to make it. Right-click or Back returns to the list." },
   },
   Undo: { PickStart: UNDO_STEP, PickEnd: UNDO_STEP, Review: UNDO_STEP },
   Intersect: {
@@ -205,6 +212,8 @@ export const ToolPanel = () => {
       {active === "Ramp" && <RampOptions />}
 
       {active === "MatchHeight" && <MatchHeightOptions />}
+
+      {active === "Health" && <HealthOptions />}
 
       <PresetOptions />
 
