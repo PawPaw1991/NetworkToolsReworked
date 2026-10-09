@@ -35,6 +35,7 @@ Click the **Network Tools** button at the top left of the screen to open the too
 | Ctrl+Shift+G | Smooth: pick two nodes to smooth the road between them. Options are in the tool panel |
 | Ctrl+Shift+D | Move Node: click a node, drag it with the cursor, click to drop, then nudge its position and height in the panel and apply. The roads attached to it follow |
 | Ctrl+Shift+A | Arrange: pick two nodes to space the nodes between them evenly, along the current shape, on a straight line, or on an arc (with adjustable bulge) |
+| Ctrl+Shift+R | Reverse: pick two nodes to reverse the direction of the road between them (one-way roads, tracks). Side-specific upgrades stay on the same side |
 | Ctrl+J | Connect: click a start node, hover an end node to preview a new road between them, click to build it. `,` and `.` rotate the start direction |
 | Ctrl+Shift+P | Parallel: click a start node, hover an end node to preview a copy of the road between them, click to build it. Side offset, height offset and direction are set in Options |
 

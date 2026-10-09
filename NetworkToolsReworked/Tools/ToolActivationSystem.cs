@@ -15,6 +15,7 @@ namespace NetworkToolsReworked.Tools
         Smooth,
         MoveNode,
         Arrange,
+        Reverse,
     }
 
     /// <summary>Turns the tools on and off, from their key bindings or the tool panel.</summary>
@@ -29,6 +30,7 @@ namespace NetworkToolsReworked.Tools
         private SmoothToolSystem m_SmoothToolSystem;
         private MoveNodeToolSystem m_MoveNodeToolSystem;
         private ArrangeToolSystem m_ArrangeToolSystem;
+        private ReverseToolSystem m_ReverseToolSystem;
         private ProxyAction m_AddNodeAction;
         private ProxyAction m_RemoveNodeAction;
         private ProxyAction m_SlopeAction;
@@ -37,6 +39,7 @@ namespace NetworkToolsReworked.Tools
         private ProxyAction m_SmoothAction;
         private ProxyAction m_MoveNodeAction;
         private ProxyAction m_ArrangeAction;
+        private ProxyAction m_ReverseAction;
 
         public ToolId Current
         {
@@ -51,6 +54,7 @@ namespace NetworkToolsReworked.Tools
                 if (active == m_SmoothToolSystem) return ToolId.Smooth;
                 if (active == m_MoveNodeToolSystem) return ToolId.MoveNode;
                 if (active == m_ArrangeToolSystem) return ToolId.Arrange;
+                if (active == m_ReverseToolSystem) return ToolId.Reverse;
                 return ToolId.None;
             }
         }
@@ -74,6 +78,7 @@ namespace NetworkToolsReworked.Tools
             m_SmoothToolSystem = World.GetOrCreateSystemManaged<SmoothToolSystem>();
             m_MoveNodeToolSystem = World.GetOrCreateSystemManaged<MoveNodeToolSystem>();
             m_ArrangeToolSystem = World.GetOrCreateSystemManaged<ArrangeToolSystem>();
+            m_ReverseToolSystem = World.GetOrCreateSystemManaged<ReverseToolSystem>();
 
             m_AddNodeAction = Enable(nameof(Setting.AddNodeTool));
             m_RemoveNodeAction = Enable(nameof(Setting.RemoveNodeTool));
@@ -83,6 +88,7 @@ namespace NetworkToolsReworked.Tools
             m_SmoothAction = Enable(nameof(Setting.SmoothTool));
             m_MoveNodeAction = Enable(nameof(Setting.MoveNodeTool));
             m_ArrangeAction = Enable(nameof(Setting.ArrangeTool));
+            m_ReverseAction = Enable(nameof(Setting.ReverseTool));
         }
 
         protected override void OnUpdate()
@@ -103,6 +109,8 @@ namespace NetworkToolsReworked.Tools
                 Toggle(ToolId.MoveNode);
             else if (m_ArrangeAction.WasPerformedThisFrame())
                 Toggle(ToolId.Arrange);
+            else if (m_ReverseAction.WasPerformedThisFrame())
+                Toggle(ToolId.Reverse);
         }
 
         /// <summary>Activates a tool, or returns to the default tool if it is already active.</summary>
@@ -137,6 +145,9 @@ namespace NetworkToolsReworked.Tools
                     break;
                 case ToolId.Arrange:
                     m_ToolSystem.activeTool = m_ArrangeToolSystem;
+                    break;
+                case ToolId.Reverse:
+                    m_ToolSystem.activeTool = m_ReverseToolSystem;
                     break;
                 default:
                     m_ToolSystem.activeTool = m_DefaultToolSystem;
