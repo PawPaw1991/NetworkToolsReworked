@@ -26,6 +26,7 @@ import { ArrangeOptions } from "./ArrangeOptions";
 import { RoundaboutOptions } from "./RoundaboutOptions";
 import { ReplaceOptions, UpgradesOptions } from "./ReplaceOptions";
 import { ParallelOptions } from "./ParallelOptions";
+import { RampOptions } from "./RampOptions";
 
 const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "AddNode", label: "Add Node", hint: "Click a road to split it with a new node." },
@@ -39,6 +40,7 @@ const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "Replace", label: "Change type", hint: "Turn the road between two nodes into another road type, keeping its shape and height." },
   { id: "Upgrades", label: "Copy upgrades", hint: "Give the road between two nodes the same upgrades (trees, sidewalks, walls...) as another road." },
   { id: "Measure", label: "Measure", hint: "Hover a road for its length, grade, curve and height, or pick two nodes to measure between them. Changes nothing." },
+  { id: "Ramp", label: "Ramp", hint: "Build a ramp leaving or joining a road, climbing to a set height within the road type's grade limit." },
   { id: "Intersect", label: "Intersect", hint: "Join two roads that cross without a junction. Hover near the crossing." },
   { id: "Undo", label: "Undo", hint: "Undo the last edit made with these tools (last 30 this session). Ctrl+Alt+Z." },
   { id: "Connect", label: "Connect", hint: "Build a new road between two nodes. , and . rotate the start direction." },
@@ -68,6 +70,12 @@ const TOOL_STEPS: Partial<Record<ToolId, Steps>> = {
     PickStart: { step: "", text: "Hover a road to measure it. Red parts are steeper than the road type allows. Click a node to measure from it." },
     PickEnd: { step: "", text: "Hover another node to measure the road between them, click to keep the reading. Right-click to start again." },
     Review: { step: "", text: "Right-click or Clear to measure something else." },
+  },
+  Ramp: {
+    PickSource: { step: "", text: "Click a road whose type the ramps should use. Right-click to keep the current type." },
+    PickStart: { step: "1/2", text: "Hover a road to preview a ramp at the cursor, click to lock it." },
+    PickEnd: { step: "1/2", text: "Hover a road to preview a ramp at the cursor, click to lock it." },
+    Review: { step: "2/2", text: "Adjust the ramp below. Click or press Apply to build it, right-click or Back to move it." },
   },
   Replace: {
     PickSource: { step: "1/4", text: "Click a road of the type you want to use." },
@@ -174,6 +182,8 @@ export const ToolPanel = () => {
       )}
 
       {active === "Parallel" && <ParallelOptions />}
+
+      {active === "Ramp" && <RampOptions />}
     </div>
   );
 };

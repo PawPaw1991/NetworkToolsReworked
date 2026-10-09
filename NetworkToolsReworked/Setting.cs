@@ -97,6 +97,10 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.M, nameof(MeasureTool), ctrl: true, shift: true)]
         public ProxyBinding MeasureTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.E, nameof(RampTool), ctrl: true, shift: true)]
+        public ProxyBinding RampTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -173,6 +177,33 @@ namespace NetworkToolsReworked
         [SettingsUIHidden]
         public bool ParallelBothSides { get; set; }
 
+        /// <summary>Ramp: on the right of the road's direction (false: left).</summary>
+        [SettingsUIHidden]
+        public bool RampRight { get; set; }
+
+        /// <summary>Ramp: an entry merging into the road instead of an exit.</summary>
+        [SettingsUIHidden]
+        public bool RampEntry { get; set; }
+
+        /// <summary>Ramp: take the road's direction the other way round.</summary>
+        [SettingsUIHidden]
+        public bool RampFlip { get; set; }
+
+        /// <summary>Ramp: angle off the road at the junction, degrees.</summary>
+        [SettingsUIHidden]
+        public float RampAngle { get; set; }
+
+        /// <summary>Ramp: extra turn along the ramp, degrees; positive turns away from the road.</summary>
+        [SettingsUIHidden]
+        public float RampTurn { get; set; }
+
+        [SettingsUIHidden]
+        public float RampLength { get; set; }
+
+        /// <summary>Ramp: height of the far end above the junction, metres.</summary>
+        [SettingsUIHidden]
+        public float RampHeight { get; set; }
+
         [SettingsUIHidden]
         public MoveSnap MoveSnap { get; set; }
 
@@ -229,6 +260,13 @@ namespace NetworkToolsReworked
             ParallelGap = 0f;
             ParallelWidths = 1f;
             ParallelBothSides = false;
+            RampRight = true;
+            RampEntry = false;
+            RampFlip = false;
+            RampAngle = 15f;
+            RampTurn = 0f;
+            RampLength = 120f;
+            RampHeight = 6f;
             MoveSnap = MoveSnap.Off;
             MoveGridSize = 8f;
             ClearanceWarning = 6f;
@@ -333,6 +371,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.MeasureTool)), "Measure tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.MeasureTool)), "Toggle the Measure tool. Hover a road to see its length, grade, tightest curve and height above ground; click two nodes to measure the road between them. Changes nothing." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.MeasureTool)), "Measure tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RampTool)), "Ramp tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.RampTool)), "Toggle the Ramp tool. Hover a road to preview a ramp leaving or joining it at the cursor, click to lock it, set its side, angle, length and height in the tool panel, then apply." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.RampTool)), "Ramp tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },

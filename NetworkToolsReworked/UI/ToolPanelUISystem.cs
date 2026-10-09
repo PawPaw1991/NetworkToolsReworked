@@ -50,6 +50,14 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<float> m_ParallelGap;
         private ValueBinding<float> m_ParallelWidths;
         private ValueBinding<bool> m_ParallelBothSides;
+        private ValueBinding<bool> m_RampRight;
+        private ValueBinding<bool> m_RampEntry;
+        private ValueBinding<bool> m_RampFlip;
+        private ValueBinding<float> m_RampAngle;
+        private ValueBinding<float> m_RampTurn;
+        private ValueBinding<float> m_RampLength;
+        private ValueBinding<float> m_RampHeight;
+        private ValueBinding<string> m_RampType;
         private SlopeToolSystem m_SlopeToolSystem;
 
         protected override void OnCreate()
@@ -95,6 +103,14 @@ namespace NetworkToolsReworked.UI
             AddBinding(m_ParallelGap = new ValueBinding<float>(kGroup, "ParallelGap", 0f));
             AddBinding(m_ParallelWidths = new ValueBinding<float>(kGroup, "ParallelWidths", 1f));
             AddBinding(m_ParallelBothSides = new ValueBinding<bool>(kGroup, "ParallelBothSides", false));
+            AddBinding(m_RampRight = new ValueBinding<bool>(kGroup, "RampRight", true));
+            AddBinding(m_RampEntry = new ValueBinding<bool>(kGroup, "RampEntry", false));
+            AddBinding(m_RampFlip = new ValueBinding<bool>(kGroup, "RampFlip", false));
+            AddBinding(m_RampAngle = new ValueBinding<float>(kGroup, "RampAngle", 15f));
+            AddBinding(m_RampTurn = new ValueBinding<float>(kGroup, "RampTurn", 0f));
+            AddBinding(m_RampLength = new ValueBinding<float>(kGroup, "RampLength", 120f));
+            AddBinding(m_RampHeight = new ValueBinding<float>(kGroup, "RampHeight", 6f));
+            AddBinding(m_RampType = new ValueBinding<string>(kGroup, "RampType", string.Empty));
 
             AddBinding(new TriggerBinding(kGroup, "TogglePanel", () => m_PanelOpen.Update(!m_PanelOpen.value)));
             AddBinding(new TriggerBinding<string>(kGroup, "SelectTool", name =>
@@ -133,6 +149,15 @@ namespace NetworkToolsReworked.UI
             AddBinding(new TriggerBinding<float>(kGroup, "SetParallelGap", v => Save(s => s.ParallelGap = v)));
             AddBinding(new TriggerBinding<float>(kGroup, "SetParallelWidths", v => Save(s => s.ParallelWidths = v)));
             AddBinding(new TriggerBinding<bool>(kGroup, "SetParallelBothSides", v => Save(s => s.ParallelBothSides = v)));
+            AddBinding(new TriggerBinding<bool>(kGroup, "SetRampRight", v => Save(s => s.RampRight = v)));
+            AddBinding(new TriggerBinding<bool>(kGroup, "SetRampEntry", v => Save(s => s.RampEntry = v)));
+            AddBinding(new TriggerBinding<bool>(kGroup, "SetRampFlip", v => Save(s => s.RampFlip = v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetRampAngle", v => Save(s => s.RampAngle = v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetRampTurn", v => Save(s => s.RampTurn = v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetRampLength", v => Save(s => s.RampLength = v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetRampHeight", v => Save(s => s.RampHeight = v)));
+            AddBinding(new TriggerBinding(kGroup, "PickRampType", () => m_ToolActivationSystem.RampTool.RequestPickType()));
+            AddBinding(new TriggerBinding(kGroup, "UseRoadType", () => m_ToolActivationSystem.RampTool.UseRoadType()));
             AddBinding(new TriggerBinding(kGroup, "PickSource", () => m_ToolActivationSystem.SourceTool?.RequestPickSource()));
             AddBinding(new TriggerBinding(kGroup, "ApplyPreview", () => m_ToolActivationSystem.PreviewTool?.RequestApply()));
             AddBinding(new TriggerBinding(kGroup, "CancelPreview", () => m_ToolActivationSystem.PreviewTool?.RequestCancel()));
@@ -182,6 +207,14 @@ namespace NetworkToolsReworked.UI
             m_ParallelGap.Update(settings.ParallelGap);
             m_ParallelWidths.Update(settings.ParallelWidths);
             m_ParallelBothSides.Update(settings.ParallelBothSides);
+            m_RampRight.Update(settings.RampRight);
+            m_RampEntry.Update(settings.RampEntry);
+            m_RampFlip.Update(settings.RampFlip);
+            m_RampAngle.Update(settings.RampAngle);
+            m_RampTurn.Update(settings.RampTurn);
+            m_RampLength.Update(settings.RampLength);
+            m_RampHeight.Update(settings.RampHeight);
+            m_RampType.Update(m_ToolActivationSystem.RampTool.RampTypeName);
         }
 
         private static void Save(Action<Setting> change)

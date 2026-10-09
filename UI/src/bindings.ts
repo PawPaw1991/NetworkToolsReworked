@@ -1,7 +1,7 @@
 import { bindValue, trigger } from "cs2/api";
 import mod from "mod.json";
 
-export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Upgrades" | "Measure" | "Connect" | "Parallel";
+export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Upgrades" | "Measure" | "Ramp" | "Connect" | "Parallel";
 
 export const panelOpen$ = bindValue<boolean>(mod.id, "PanelOpen", false);
 export const activeTool$ = bindValue<ToolId>(mod.id, "ActiveTool", "None");
@@ -40,6 +40,14 @@ export const parallelSpacing$ = bindValue<number>(mod.id, "ParallelSpacing", 0);
 export const parallelGap$ = bindValue<number>(mod.id, "ParallelGap", 0);
 export const parallelWidths$ = bindValue<number>(mod.id, "ParallelWidths", 1);
 export const parallelBothSides$ = bindValue<boolean>(mod.id, "ParallelBothSides", false);
+export const rampRight$ = bindValue<boolean>(mod.id, "RampRight", true);
+export const rampEntry$ = bindValue<boolean>(mod.id, "RampEntry", false);
+export const rampFlip$ = bindValue<boolean>(mod.id, "RampFlip", false);
+export const rampAngle$ = bindValue<number>(mod.id, "RampAngle", 15);
+export const rampTurn$ = bindValue<number>(mod.id, "RampTurn", 0);
+export const rampLength$ = bindValue<number>(mod.id, "RampLength", 120);
+export const rampHeight$ = bindValue<number>(mod.id, "RampHeight", 6);
+export const rampType$ = bindValue<string>(mod.id, "RampType", "");
 export const connectRotation$ = bindValue<number>(mod.id, "ConnectRotation", 0);
 
 export const togglePanel = () => trigger(mod.id, "TogglePanel");
@@ -77,5 +85,14 @@ export const setParallelSpacing = (value: number) => trigger(mod.id, "SetParalle
 export const setParallelGap = (value: number) => trigger(mod.id, "SetParallelGap", value);
 export const setParallelWidths = (value: number) => trigger(mod.id, "SetParallelWidths", value);
 export const setParallelBothSides = (value: boolean) => trigger(mod.id, "SetParallelBothSides", value);
+export const setRampRight = (value: boolean) => trigger(mod.id, "SetRampRight", value);
+export const setRampEntry = (value: boolean) => trigger(mod.id, "SetRampEntry", value);
+export const setRampFlip = (value: boolean) => trigger(mod.id, "SetRampFlip", value);
+export const setRampAngle = (value: number) => trigger(mod.id, "SetRampAngle", value);
+export const setRampTurn = (value: number) => trigger(mod.id, "SetRampTurn", value);
+export const setRampLength = (value: number) => trigger(mod.id, "SetRampLength", value);
+export const setRampHeight = (value: number) => trigger(mod.id, "SetRampHeight", value);
+export const pickRampType = () => trigger(mod.id, "PickRampType");
+export const useRoadType = () => trigger(mod.id, "UseRoadType");
 export const pickSource = () => trigger(mod.id, "PickSource");
 export const setMoveGridSize = (value: number) => trigger(mod.id, "SetMoveGridSize", value);

@@ -43,6 +43,7 @@ namespace NetworkToolsReworked
             updateSystem.UpdateAt<ReplaceToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<UpgradesToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<MeasureToolSystem>(SystemUpdatePhase.ToolUpdate);
+            updateSystem.UpdateAt<RampToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<ToolActivationSystem>(SystemUpdatePhase.MainLoop);
             updateSystem.UpdateAt<ToolPanelUISystem>(SystemUpdatePhase.UIUpdate);
         }
