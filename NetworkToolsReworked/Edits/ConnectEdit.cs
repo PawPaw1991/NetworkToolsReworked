@@ -3,6 +3,7 @@ using Colossal.Mathematics;
 using Game.Common;
 using Game.Net;
 using Game.Prefabs;
+using Game.Simulation;
 using Game.Tools;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -23,25 +24,85 @@ namespace NetworkToolsReworked.Edits
     {
         /// <summary>
         /// Horizontal direction a road would naturally continue in when leaving this node: away from
-        /// its only edge for a dead end, otherwise straight towards the target.
+        /// its only edge for a dead end, otherwise straight towards the target. Tracks can't branch at
+        /// an angle, so on a track the direction is whichever way along an existing track at the node
+        /// points most towards the target.
         /// </summary>
         public static float3 DefaultDirection(EntityManager em, Entity node, float3 target)
         {
             var position = em.GetComponentData<Node>(node).m_Position;
+            var toTarget = Flat(target - position);
             var buffer = em.GetBuffer<ConnectedEdge>(node, isReadOnly: true);
-            if (buffer.Length == 1 && em.TryGetComponent(buffer[0].m_Edge, out Edge edge))
+            var isTrack = IsTrack(em, node);
+
+            var best = float3.zero;
+            var bestScore = float.MinValue;
+            foreach (var connected in buffer)
             {
-                var bezier = em.GetComponentData<Curve>(buffer[0].m_Edge).m_Bezier;
-                var away = edge.m_Start == node ? -MathUtils.StartTangent(bezier) : MathUtils.EndTangent(bezier);
-                away.y = 0f;
-                if (math.lengthsq(away) > 0.0001f)
-                    return math.normalize(away);
+                if (em.HasComponent<Owner>(connected.m_Edge) || !em.TryGetComponent(connected.m_Edge, out Edge edge))
+                    continue;
+                if (edge.m_Start != node && edge.m_End != node)
+                    continue;
+                var bezier = em.GetComponentData<Curve>(connected.m_Edge).m_Bezier;
+                var away = Flat(edge.m_Start == node ? -MathUtils.StartTangent(bezier) : MathUtils.EndTangent(bezier));
+                if (math.lengthsq(away) < 0.5f)
+                    continue;
+
+                if (buffer.Length == 1)
+                    return away;
+                if (!isTrack)
+                    continue;
+
+                // Along the track either way: continuing past the node, or back the way the edge came.
+                foreach (var candidate in new[] { away, -away })
+                {
+                    var score = math.dot(candidate, toTarget);
+                    if (score > bestScore)
+                    {
+                        bestScore = score;
+                        best = candidate;
+                    }
+                }
             }
 
-            var toTarget = target - position;
-            toTarget.y = 0f;
-            return math.lengthsq(toTarget) > 0.0001f ? math.normalize(toTarget) : new float3(0f, 0f, 1f);
+            if (math.lengthsq(best) > 0.5f)
+                return best;
+            return math.lengthsq(toTarget) > 0.5f ? toTarget : new float3(0f, 0f, 1f);
         }
+
+        /// <summary>True if the node is on a train, tram or subway track.</summary>
+        public static bool IsTrack(EntityManager em, Entity node)
+        {
+            var prefab = PrefabFor(em, node);
+            return prefab != Entity.Null && RestyleEdit.KindOf(em, prefab) == RestyleEdit.NetKind.Track;
+        }
+
+        /// <summary>True if both nodes carry the same broad kind of network (road, track, path).</summary>
+        public static bool SameKind(EntityManager em, Entity a, Entity b)
+        {
+            var pa = PrefabFor(em, a);
+            var pb = PrefabFor(em, b);
+            return pa != Entity.Null && pb != Entity.Null && RestyleEdit.KindOf(em, pa) == RestyleEdit.KindOf(em, pb);
+        }
+
+        /// <summary>Steepest grade the network type allows (rise per metre).</summary>
+        public static float GradeLimit(EntityManager em, Entity prefab)
+        {
+            return em.TryGetComponent(prefab, out NetGeometryData geometry) && geometry.m_MaxSlopeSteepness > 0f ? geometry.m_MaxSlopeSteepness : 0.12f;
+        }
+
+        /// <summary>
+        /// The node's own elevation for bridges and tunnels; otherwise its real height above the ground,
+        /// so a link climbing from a raised ground node isn't treated as starting at ground level.
+        /// </summary>
+        private static float2 NodeElevation(EntityManager em, ref TerrainHeightData terrain, Entity node, float3 position)
+        {
+            if (em.TryGetComponent(node, out Elevation elevation))
+                return elevation.m_Elevation;
+            return new float2(position.y - TerrainUtils.SampleHeight(ref terrain, position));
+        }
+
+        private static float3 Flat(float3 v) => math.normalizesafe(new float3(v.x, 0f, v.z));
 
         public static Entity PrefabFor(EntityManager em, Entity node)
         {
@@ -60,14 +121,14 @@ namespace NetworkToolsReworked.Edits
         }
 
         /// <param name="startDirection">Horizontal direction of travel leaving the start node.</param>
-        public static bool Emit(EntityManager em, EntityCommandBuffer ecb, Entity start, Entity end, float3 startDirection, ConnectMode mode, int randomSeed)
+        public static bool Emit(EntityManager em, EntityCommandBuffer ecb, ref TerrainHeightData terrain, Entity start, Entity end, float3 startDirection, ConnectMode mode, int randomSeed)
         {
             if (start == end || AreConnected(em, start, end))
                 return false;
 
-            var prefab = PrefabFor(em, start);
-            if (prefab == Entity.Null)
+            if (!SameKind(em, start, end))
                 return false;
+            var prefab = BuildType.For(em, PrefabFor(em, start));
 
             var p0 = em.GetComponentData<Node>(start).m_Position;
             var p1 = em.GetComponentData<Node>(end).m_Position;
@@ -75,6 +136,10 @@ namespace NetworkToolsReworked.Edits
             var flatChord = new float3(chord.x, 0f, chord.z);
             if (math.lengthsq(flatChord) < 1f)
                 return false;
+
+            // Tracks have to meet the track at the end node in line too.
+            if (IsTrack(em, start))
+                mode = ConnectMode.SmoothBothEnds;
 
             float3 endDirection;
             if (mode == ConnectMode.SmoothBothEnds)
@@ -89,14 +154,18 @@ namespace NetworkToolsReworked.Edits
                 endDirection = 2f * math.dot(startDirection, c) * c - startDirection;
             }
 
-            // Spread the height difference along the tangents so the grade is even.
-            var grade = chord.y / math.length(flatChord);
-            var t0 = math.normalize(new float3(startDirection.x, grade, startDirection.z));
-            var t1 = math.normalize(new float3(endDirection.x, grade, endDirection.z));
-            var curve = NetUtils.FitCurve(p0, t0, t1, p1);
+            // Fit the shape on the flat first, then spread the height evenly along it. Tilting the
+            // tangents instead squashes the curve sideways on steep links and can kink it.
+            var flat0 = new float3(p0.x, 0f, p0.z);
+            var flat1 = new float3(p1.x, 0f, p1.z);
+            var curve = NetUtils.FitCurve(flat0, Flat(startDirection), Flat(endDirection), flat1);
+            curve.a.y = p0.y;
+            curve.b.y = math.lerp(p0.y, p1.y, 1f / 3f);
+            curve.c.y = math.lerp(p0.y, p1.y, 2f / 3f);
+            curve.d.y = p1.y;
 
-            var startElevation = em.TryGetComponent(start, out Elevation e0) ? e0.m_Elevation : float2.zero;
-            var endElevation = em.TryGetComponent(end, out Elevation e1) ? e1.m_Elevation : float2.zero;
+            var startElevation = NodeElevation(em, ref terrain, start, p0);
+            var endElevation = NodeElevation(em, ref terrain, end, p1);
 
             var course = new NetCourse
             {

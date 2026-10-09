@@ -16,9 +16,8 @@ namespace NetworkToolsReworked.Tools
     /// Hover a corner (a node joining exactly two roads) to preview it rounded off with a curve of the set
     /// radius, click to lock it, adjust the radius, then click or Apply. See <see cref="FilletEdit"/>.
     /// </summary>
-    public partial class FilletToolSystem : ToolBaseSystem, IPreviewTool
+    public partial class FilletToolSystem : NetEditToolSystem, IPreviewTool
     {
-        private ToolOutputBarrier m_ToolOutputBarrier;
         private TerrainSystem m_TerrainSystem;
         private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
@@ -39,7 +38,6 @@ namespace NetworkToolsReworked.Tools
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0xF111u);
@@ -73,7 +71,7 @@ namespace NetworkToolsReworked.Tools
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             var applyRequested = m_ApplyRequested;
             var cancelRequested = m_CancelRequested;
@@ -115,7 +113,7 @@ namespace NetworkToolsReworked.Tools
             }
 
             var terrain = m_TerrainSystem.GetHeightData();
-            if (!FilletEdit.Emit(EntityManager, m_ToolOutputBarrier.CreateCommandBuffer(), ref terrain, target, Mod.Settings.FilletRadius, m_Random.NextInt(), out var result))
+            if (!FilletEdit.Emit(EntityManager, DefinitionBuffer(), ref terrain, target, Mod.Settings.FilletRadius, m_Random.NextInt(), out var result))
             {
                 m_Overlay.Node(target, ToolOverlay.Invalid);
                 Summary = "The roads at this corner are too short to round it.";

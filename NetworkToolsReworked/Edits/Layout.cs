@@ -132,6 +132,16 @@ namespace NetworkToolsReworked.Edits
 
         public static void Emit(EntityCommandBuffer ecb, ref TerrainHeightData terrain, Layout layout, List<Bezier4x3> placed, DuplicateMode mode, int randomSeed)
         {
+            // Ends where two or more roads meet are shared joints and carry no end flags (see SlopeEdit.ChainEnd).
+            var ends = new Dictionary<float3, int>();
+            for (var i = 0; i < layout.Roads.Count; i++)
+            {
+                if (layout.Roads[i].Prefab == Entity.Null)
+                    continue;
+                foreach (var p in new[] { placed[i].a, placed[i].d })
+                    ends[p] = ends.TryGetValue(p, out var n) ? n + 1 : 1;
+            }
+
             for (var i = 0; i < layout.Roads.Count; i++)
             {
                 var road = layout.Roads[i];
@@ -140,6 +150,10 @@ namespace NetworkToolsReworked.Edits
                 var curve = placed[i];
                 var startPos = End(ref terrain, curve, start: true, road.Elevated);
                 var endPos = End(ref terrain, curve, start: false, road.Elevated);
+                if (ends[curve.a] > 1)
+                    Share(ref terrain, ref startPos);
+                if (ends[curve.d] > 1)
+                    Share(ref terrain, ref endPos);
                 var definition = NetDefinitions.Emit(ecb, new CreationDefinition
                 {
                     m_Prefab = road.Prefab,
@@ -201,6 +215,16 @@ namespace NetworkToolsReworked.Edits
         {
             var above = p.y - TerrainUtils.SampleHeight(ref terrain, p);
             return new float3(p.x - anchor.x, above, p.z - anchor.y);
+        }
+
+        /// <summary>
+        /// A joint shared by several roads: every course there has to agree exactly, so it gets the true
+        /// height above ground whether its road is a bridge or not, and no end flags.
+        /// </summary>
+        private static void Share(ref TerrainHeightData terrain, ref CoursePos pos)
+        {
+            pos.m_Elevation = new float2(pos.m_Position.y - TerrainUtils.SampleHeight(ref terrain, pos.m_Position));
+            pos.m_Flags = 0;
         }
 
         private static CoursePos End(ref TerrainHeightData terrain, Bezier4x3 curve, bool start, bool elevated)

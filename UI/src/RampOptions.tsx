@@ -1,5 +1,4 @@
 import { useValue } from "cs2/api";
-import { Button } from "cs2/ui";
 import {
   pickRampType,
   rampAngle$,
@@ -9,7 +8,6 @@ import {
   rampLength$,
   rampRight$,
   rampTurn$,
-  rampType$,
   setRampAngle,
   setRampEntry,
   setRampFlip,
@@ -17,10 +15,9 @@ import {
   setRampLength,
   setRampRight,
   setRampTurn,
-  useRoadType,
 } from "bindings";
-import styles from "./ToolPanel.module.scss";
 import { Choice, Section, Stepper, indexed } from "./controls";
+import { RoadTypePicker } from "./RoadTypePicker";
 
 export const RampOptions = () => {
   const right = useValue(rampRight$);
@@ -30,7 +27,6 @@ export const RampOptions = () => {
   const turn = useValue(rampTurn$);
   const length = useValue(rampLength$);
   const height = useValue(rampHeight$);
-  const type = useValue(rampType$);
 
   return (
     <>
@@ -42,12 +38,7 @@ export const RampOptions = () => {
       <Stepper label="Turn" unit="°" value={turn} step={15} fine={5} min={-180} max={180} onChange={setRampTurn} />
       <Stepper label="Length" unit="m" value={length} step={20} fine={5} min={20} max={800} onChange={setRampLength} />
       <Stepper label="Height" unit="m" value={height} step={1} fine={0.5} min={-40} max={40} onChange={setRampHeight} />
-      <Section title="Road type" />
-      <div className={styles.row}>
-        <span className={styles.label}>{type === "" ? "Same as the road" : type}</span>
-        <Button variant="flat" className={styles.choice} onSelect={pickRampType}>Copy from a road</Button>
-        {type !== "" && <Button variant="flat" className={styles.choice} onSelect={useRoadType}>Same as road</Button>}
-      </div>
+      <RoadTypePicker onCopyFromRoad={pickRampType} />
     </>
   );
 };

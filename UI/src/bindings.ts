@@ -31,6 +31,7 @@ export const arrangeMode$ = bindValue<number>(mod.id, "ArrangeMode", 0);
 export const arrangeBulge$ = bindValue<number>(mod.id, "ArrangeBulge", 100);
 export const roundaboutRadius$ = bindValue<number>(mod.id, "RoundaboutRadius", 24);
 export const roundaboutClockwise$ = bindValue<boolean>(mod.id, "RoundaboutClockwise", false);
+export const roundaboutCustomRing$ = bindValue<boolean>(mod.id, "RoundaboutCustomRing", false);
 export const moveSnap$ = bindValue<number>(mod.id, "MoveSnap", 0);
 export const moveGridSize$ = bindValue<number>(mod.id, "MoveGridSize", 8);
 export const sourceName$ = bindValue<string>(mod.id, "SourceName", "");
@@ -108,6 +109,7 @@ export const setArrangeMode = (value: number) => trigger(mod.id, "SetArrangeMode
 export const setArrangeBulge = (value: number) => trigger(mod.id, "SetArrangeBulge", value);
 export const setRoundaboutRadius = (value: number) => trigger(mod.id, "SetRoundaboutRadius", value);
 export const setRoundaboutClockwise = (value: boolean) => trigger(mod.id, "SetRoundaboutClockwise", value);
+export const setRoundaboutCustomRing = (value: boolean) => trigger(mod.id, "SetRoundaboutCustomRing", value);
 export const setMoveSnap = (value: number) => trigger(mod.id, "SetMoveSnap", value);
 export const setReplaceKeepUpgrades = (value: boolean) => trigger(mod.id, "SetReplaceKeepUpgrades", value);
 export const setUpgradesSwapSides = (value: boolean) => trigger(mod.id, "SetUpgradesSwapSides", value);
@@ -158,3 +160,12 @@ export const setBridgeClearance = (value: number) => trigger(mod.id, "SetBridgeC
 export const useSelection = () => trigger(mod.id, "UseSelection");
 export const pickSource = () => trigger(mod.id, "PickSource");
 export const setMoveGridSize = (value: number) => trigger(mod.id, "SetMoveGridSize", value);
+
+/** One line per type: kind ("Road", "Track", "Pathway"), prefab name, icon path, tab separated. */
+export const roadTypes$ = bindValue<string>(mod.id, "RoadTypes", "");
+/** Prefab name of the shared road type for new roads, or "" for each road's own type. */
+export const buildType$ = bindValue<string>(mod.id, "BuildType", "");
+export const setBuildType = (name: string) => trigger(mod.id, "SetBuildType", name);
+export const roundaboutIslands$ = bindValue<string>(mod.id, "RoundaboutIslands", "");
+export const roundaboutIsland$ = bindValue<string>(mod.id, "RoundaboutIsland", "");
+export const setRoundaboutIsland = (name: string) => trigger(mod.id, "SetRoundaboutIsland", name);

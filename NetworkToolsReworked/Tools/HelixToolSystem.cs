@@ -19,13 +19,11 @@ namespace NetworkToolsReworked.Tools
     /// Apply. A helix from a road end uses that road's type unless another type is copied; a free one
     /// needs a copied type. See <see cref="HelixEdit"/>.
     /// </summary>
-    public partial class HelixToolSystem : ToolBaseSystem, IPreviewTool
+    public partial class HelixToolSystem : NetEditToolSystem, IPreviewTool
     {
-        private ToolOutputBarrier m_ToolOutputBarrier;
         private TerrainSystem m_TerrainSystem;
         private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
-        private Entity m_TypePrefab;
         private bool m_PickingType;
         private bool m_Locked;
         private Entity m_LockedNode;
@@ -40,7 +38,8 @@ namespace NetworkToolsReworked.Tools
         public string Summary { get; private set; } = string.Empty;
 
         /// <summary>Name of the copied road type; empty when the helix uses the type of the road it continues.</summary>
-        public string TypeName { get; private set; } = string.Empty;
+        /// <summary>The shared road type chosen for new roads (see <see cref="BuildType"/>); empty for the road's own type.</summary>
+        public string TypeName => BuildType.Name;
 
         public void RequestApply() => m_ApplyRequested = true;
 
@@ -50,15 +49,13 @@ namespace NetworkToolsReworked.Tools
 
         public void UseRoadType()
         {
-            m_TypePrefab = Entity.Null;
-            TypeName = string.Empty;
+            BuildType.Clear();
             m_PickingType = false;
         }
 
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0x4E11u);
@@ -94,7 +91,7 @@ namespace NetworkToolsReworked.Tools
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             var applyRequested = m_ApplyRequested;
             var cancelRequested = m_CancelRequested;
@@ -117,8 +114,6 @@ namespace NetworkToolsReworked.Tools
             Summary = string.Empty;
             m_Overlay.BeginFrame();
 
-            if (m_TypePrefab != Entity.Null && (!EntityManager.Exists(m_TypePrefab) || EntityManager.HasComponent<Deleted>(m_TypePrefab)))
-                UseRoadType();
             if (m_Locked && m_LockedNode != Entity.Null && !OpenEnd(m_LockedNode, out _, out _))
                 m_Locked = false;
 
@@ -134,8 +129,7 @@ namespace NetworkToolsReworked.Tools
                 Summary = $"Click to build helixes as {PrefabName(prefab)}.";
                 if (click)
                 {
-                    m_TypePrefab = prefab;
-                    TypeName = PrefabName(prefab);
+                    BuildType.Set(prefab, PrefabName(prefab));
                     m_PickingType = false;
                 }
                 return inputDeps;
@@ -176,7 +170,7 @@ namespace NetworkToolsReworked.Tools
                 var position = EntityManager.GetComponentData<Node>(node).m_Position;
                 HelixEdit.Attach(position, direction, helix.Radius, helix.Clockwise, out centre, out startAngle);
                 startHeight = position.y;
-                prefabToUse = m_TypePrefab != Entity.Null ? m_TypePrefab : EntityManager.GetComponentData<PrefabRef>(edge).m_Prefab;
+                prefabToUse = BuildType.For(EntityManager, EntityManager.GetComponentData<PrefabRef>(edge).m_Prefab);
                 m_Overlay.Node(node, m_Locked ? ToolOverlay.End : ToolOverlay.Start);
             }
             else
@@ -186,17 +180,17 @@ namespace NetworkToolsReworked.Tools
                 startAngle = math.radians(settings.HelixStartAngle);
                 var start = centre + new float3(math.cos(startAngle), 0f, math.sin(startAngle)) * helix.Radius;
                 startHeight = TerrainUtils.SampleHeight(ref terrain, start) + settings.HelixStartHeight;
-                prefabToUse = m_TypePrefab;
+                prefabToUse = BuildType.IsSet(EntityManager) ? BuildType.Prefab : Entity.Null;
                 if (prefabToUse == Entity.Null)
                 {
                     m_Overlay.Point(centre, 4f, ToolOverlay.Invalid);
-                    Summary = "Hover the open end of a road to carry on from it, or copy a road type below to place a helix anywhere.";
+                    Summary = "Hover the open end of a road to carry on from it, or choose a road type under Build as to place a helix anywhere.";
                     return inputDeps;
                 }
                 m_Overlay.Point(centre, 4f, m_Locked ? ToolOverlay.End : ToolOverlay.Start);
             }
 
-            HelixEdit.Emit(EntityManager, m_ToolOutputBarrier.CreateCommandBuffer(), ref terrain, prefabToUse, centre, startAngle, startHeight, node, helix, m_Random.NextInt(), out var result);
+            HelixEdit.Emit(EntityManager, DefinitionBuffer(), ref terrain, prefabToUse, centre, startAngle, startHeight, node, helix, m_Random.NextInt(), out var result);
             var limit = EntityManager.TryGetComponent(prefabToUse, out NetGeometryData geometry) && geometry.m_MaxSlopeSteepness > 0f ? geometry.m_MaxSlopeSteepness : 0.12f;
             var color = Grades.ColorFor(result.Grade, limit);
             foreach (var curve in result.Curves)

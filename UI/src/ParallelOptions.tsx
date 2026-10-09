@@ -18,6 +18,7 @@ import {
   setParallelWidths,
 } from "bindings";
 import { Choice, Section, Stepper, indexed } from "./controls";
+import { RoadTypePicker } from "./RoadTypePicker";
 
 export const ParallelOptions = () => {
   const offset = useValue(parallelOffset$);
@@ -50,6 +51,7 @@ export const ParallelOptions = () => {
       <Section title="Height and direction" />
       <Stepper label="Height offset" unit="m" value={height} step={1} fine={0.5} min={-40} max={40} onChange={setParallelHeight} />
       <Choice options={indexed(["Same direction", "Opposite"])} value={reverse ? 1 : 0} onChange={(v) => setParallelReverse(v === 1)} />
+      <RoadTypePicker />
     </>
   );
 };

@@ -25,6 +25,7 @@ import { SmoothOptions } from "./SmoothOptions";
 import { MoveOptions } from "./MoveOptions";
 import { ArrangeOptions } from "./ArrangeOptions";
 import { RoundaboutOptions } from "./RoundaboutOptions";
+import { RoadTypePicker } from "./RoadTypePicker";
 import { ReplaceOptions, UpgradesOptions } from "./ReplaceOptions";
 import { ParallelOptions } from "./ParallelOptions";
 import { RampOptions } from "./RampOptions";
@@ -48,7 +49,7 @@ const TOOLS: { id: ToolId; label: string; hint: string; keys: string }[] = [
   { id: "MoveNode", label: "Move Node", hint: "Move a node; the roads attached to it follow.", keys: "Ctrl+Shift+D or Alt+3" },
   { id: "Arrange", label: "Arrange", hint: "Space the nodes between two nodes evenly, on the current shape, a straight line or an arc.", keys: "Ctrl+Shift+A or Alt+4" },
   { id: "Reverse", label: "Reverse", hint: "Reverse the direction of the road between two nodes, e.g. a one-way road.", keys: "Ctrl+Shift+R" },
-  { id: "Roundabout", label: "Roundabout", hint: "Turn a junction into a roundabout. The ring uses the same road type as the junction.", keys: "Ctrl+Shift+O" },
+  { id: "Roundabout", label: "Roundabout", hint: "Turn a junction into a roundabout. Game roundabout uses the game's own roundabout, sized to the roads (click one that has it to remove it). Custom ring builds a ring of roads at any radius.", keys: "Ctrl+Shift+O" },
   { id: "Replace", label: "Change type", hint: "Turn the road between two nodes into another road type, keeping its shape and height.", keys: "Ctrl+Shift+T or Alt+8" },
   { id: "Upgrades", label: "Copy upgrades", hint: "Give the road between two nodes the same upgrades (trees, sidewalks, walls...) as another road.", keys: "Ctrl+Shift+U" },
   { id: "Measure", label: "Measure", hint: "Hover a road for its length, grade, curve and height, or pick two nodes to measure between them. Changes nothing.", keys: "Ctrl+Shift+M or Alt+9" },
@@ -232,6 +233,7 @@ export const ToolPanel = () => {
             <span className={styles.value}>{rotation}°</span>
             <Button variant="flat" className={styles.step} onSelect={() => rotateConnect(-1)}>Right</Button>
           </div>
+          <RoadTypePicker />
         </>
       )}
 

@@ -42,6 +42,7 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<float> m_ArrangeBulge;
         private ValueBinding<float> m_RoundaboutRadius;
         private ValueBinding<bool> m_RoundaboutClockwise;
+        private ValueBinding<bool> m_RoundaboutCustomRing;
         private ValueBinding<int> m_MoveSnap;
         private ValueBinding<float> m_MoveGridSize;
         private ValueBinding<string> m_SourceName;
@@ -101,6 +102,7 @@ namespace NetworkToolsReworked.UI
             m_SlopeToolSystem = World.GetOrCreateSystemManaged<SlopeToolSystem>();
 
             AddBinding(m_PanelOpen = new ValueBinding<bool>(kGroup, "PanelOpen", false));
+            CreateRoadTypeBindings();
             AddBinding(m_ActiveTool = new ValueBinding<string>(kGroup, "ActiveTool", nameof(ToolId.None)));
             AddBinding(m_SlopeProfile = new ValueBinding<int>(kGroup, "SlopeProfile", 0));
             AddBinding(m_ConnectMode = new ValueBinding<int>(kGroup, "ConnectMode", 0));
@@ -128,6 +130,7 @@ namespace NetworkToolsReworked.UI
             AddBinding(m_ArrangeBulge = new ValueBinding<float>(kGroup, "ArrangeBulge", 100f));
             AddBinding(m_RoundaboutRadius = new ValueBinding<float>(kGroup, "RoundaboutRadius", 24f));
             AddBinding(m_RoundaboutClockwise = new ValueBinding<bool>(kGroup, "RoundaboutClockwise", false));
+            AddBinding(m_RoundaboutCustomRing = new ValueBinding<bool>(kGroup, "RoundaboutCustomRing", false));
             AddBinding(m_MoveSnap = new ValueBinding<int>(kGroup, "MoveSnap", 0));
             AddBinding(m_MoveGridSize = new ValueBinding<float>(kGroup, "MoveGridSize", 8f));
             AddBinding(m_SourceName = new ValueBinding<string>(kGroup, "SourceName", string.Empty));
@@ -242,6 +245,7 @@ namespace NetworkToolsReworked.UI
             AddBinding(new TriggerBinding<float>(kGroup, "SetArrangeBulge", v => Save(s => s.ArrangeBulge = v)));
             AddBinding(new TriggerBinding<float>(kGroup, "SetRoundaboutRadius", v => Save(s => s.RoundaboutRadius = v)));
             AddBinding(new TriggerBinding<bool>(kGroup, "SetRoundaboutClockwise", v => Save(s => s.RoundaboutClockwise = v)));
+            AddBinding(new TriggerBinding<bool>(kGroup, "SetRoundaboutCustomRing", v => Save(s => s.RoundaboutCustomRing = v)));
             AddBinding(new TriggerBinding<int>(kGroup, "SetMoveSnap", v => Save(s => s.MoveSnap = (MoveSnap)v)));
             AddBinding(new TriggerBinding<float>(kGroup, "SetMoveGridSize", v => Save(s => s.MoveGridSize = v)));
             AddBinding(new TriggerBinding<bool>(kGroup, "SetReplaceKeepUpgrades", v => Save(s => s.ReplaceKeepUpgrades = v)));
@@ -303,6 +307,7 @@ namespace NetworkToolsReworked.UI
             m_ArrangeBulge.Update(settings.ArrangeBulge);
             m_RoundaboutRadius.Update(settings.RoundaboutRadius);
             m_RoundaboutClockwise.Update(settings.RoundaboutClockwise);
+            m_RoundaboutCustomRing.Update(settings.RoundaboutCustomRing);
             m_MoveSnap.Update((int)settings.MoveSnap);
             m_MoveGridSize.Update(settings.MoveGridSize);
             m_SourceName.Update(m_ToolActivationSystem.SourceTool?.SourceName ?? string.Empty);
@@ -344,6 +349,7 @@ namespace NetworkToolsReworked.UI
             UpdateUndoHistory();
             UpdateDuplicate(settings);
             UpdatePresets();
+            UpdateRoadTypes();
         }
 
         private void UpdateDuplicate(Setting settings)

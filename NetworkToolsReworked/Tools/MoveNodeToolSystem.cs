@@ -17,9 +17,8 @@ namespace NetworkToolsReworked.Tools
     /// to drop and review, then nudge its position and height in the panel and click or press Apply.
     /// Right-click steps back one phase, or exits if nothing is picked.
     /// </summary>
-    public partial class MoveNodeToolSystem : ToolBaseSystem, IPreviewTool
+    public partial class MoveNodeToolSystem : NetEditToolSystem, IPreviewTool
     {
-        private ToolOutputBarrier m_ToolOutputBarrier;
         private TerrainSystem m_TerrainSystem;
         private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
@@ -48,7 +47,6 @@ namespace NetworkToolsReworked.Tools
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0x30BEu);
@@ -83,7 +81,7 @@ namespace NetworkToolsReworked.Tools
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             var applyRequested = m_ApplyRequested;
             var cancelRequested = m_CancelRequested;
@@ -139,7 +137,7 @@ namespace NetworkToolsReworked.Tools
             m_Overlay.Line(original, position, 1f, ToolOverlay.Start);
             m_Overlay.Point(position, m_Overlay.Width(m_Node) + 2f, m_Dropped ? ToolOverlay.End : ToolOverlay.Hover);
 
-            var emitted = MoveEdit.Emit(EntityManager, m_ToolOutputBarrier.CreateCommandBuffer(), ref terrain, m_Node, position, m_Random.NextInt());
+            var emitted = MoveEdit.Emit(EntityManager, DefinitionBuffer(), ref terrain, m_Node, position, m_Random.NextInt());
             var moved = position - original;
             Summary = emitted
                 ? $"Moved {PathInfo.Distance(math.length(moved.xz))}, height {PathInfo.Signed(moved.y)} m"

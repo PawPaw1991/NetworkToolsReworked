@@ -216,6 +216,17 @@ namespace NetworkToolsReworked
         [SettingsUIHidden]
         public float ArrangeBulge { get; set; }
 
+        /// <summary>
+        /// Roundabout: false uses the game's own roundabout (a central island on the junction);
+        /// true builds a custom ring of roads at <see cref="RoundaboutRadius"/>.
+        /// </summary>
+        [SettingsUIHidden]
+        public bool RoundaboutCustomRing { get; set; }
+
+        /// <summary>Roundabout: prefab name of the game's central island to place; empty picks a small one.</summary>
+        [SettingsUIHidden]
+        public string RoundaboutIsland { get; set; }
+
         /// <summary>Roundabout ring radius in metres, centre line.</summary>
         [SettingsUIHidden]
         public float RoundaboutRadius { get; set; }
@@ -393,6 +404,8 @@ namespace NetworkToolsReworked
             ArrangeBulge = 100f;
             RoundaboutRadius = 24f;
             RoundaboutClockwise = false;
+            RoundaboutCustomRing = false;
+            RoundaboutIsland = string.Empty;
             ReplaceKeepUpgrades = true;
             UpgradesSwapSides = false;
             ParallelSpacing = ParallelSpacing.Metres;

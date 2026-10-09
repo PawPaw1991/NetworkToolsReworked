@@ -17,10 +17,13 @@ namespace NetworkToolsReworked.Tools
     /// Click a junction to preview a roundabout around it, adjust the radius and direction in the panel,
     /// then click or press Apply. Right-click picks another junction, or exits.
     /// </summary>
-    public partial class RoundaboutToolSystem : ToolBaseSystem, IPreviewTool
+    public partial class RoundaboutToolSystem : NetEditToolSystem, IPreviewTool
     {
-        private ToolOutputBarrier m_ToolOutputBarrier;
         private TerrainSystem m_TerrainSystem;
+        private PrefabSystem m_PrefabSystem;
+        private EntityQuery m_IslandQuery;
+        private List<Islands.Island> m_Islands = new List<Islands.Island>();
+        private int m_IslandPrefabCount = -1;
         private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
         private readonly List<float3> m_Ring = new List<float3>();
@@ -41,8 +44,9 @@ namespace NetworkToolsReworked.Tools
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
+            m_PrefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
+            m_IslandQuery = GetEntityQuery(Islands.QueryTypes);
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0x60DAu);
         }
@@ -75,7 +79,7 @@ namespace NetworkToolsReworked.Tools
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             var applyRequested = m_ApplyRequested;
             var cancelRequested = m_CancelRequested;
@@ -100,6 +104,9 @@ namespace NetworkToolsReworked.Tools
                 m_Node = Entity.Null;
 
             var click = applyAction.WasPressedThisFrame();
+            if (!Mod.Settings.RoundaboutCustomRing)
+                return UpdateGame(click, applyRequested, inputDeps);
+
             var radius = math.clamp(Mod.Settings.RoundaboutRadius, 8f, 200f);
             var target = m_Node;
             if (target == Entity.Null && GetRaycastResult(out Entity hitEntity, out RaycastHit hit))
@@ -118,7 +125,7 @@ namespace NetworkToolsReworked.Tools
             }
 
             var terrain = m_TerrainSystem.GetHeightData();
-            var ecb = m_ToolOutputBarrier.CreateCommandBuffer();
+            var ecb = DefinitionBuffer();
             if (!RoundaboutEdit.Emit(EntityManager, ecb, ref terrain, target, radius, Mod.Settings.RoundaboutClockwise, m_Random.NextInt(), m_Ring))
                 return inputDeps;
 
@@ -138,6 +145,66 @@ namespace NetworkToolsReworked.Tools
                 m_Node = Entity.Null;
             }
 
+            return inputDeps;
+        }
+
+        /// <summary>
+        /// The game's own roundabout: one of its central islands placed on the junction. Hover a junction
+        /// to preview it, click to lock, click or Apply to build. On a junction that already has the
+        /// chosen island, the same steps remove it.
+        /// </summary>
+        private JobHandle UpdateGame(bool click, bool applyRequested, JobHandle inputDeps)
+        {
+            var target = m_Node;
+            if (target == Entity.Null && GetRaycastResult(out Entity hitEntity, out RaycastHit hit))
+                target = HoveredNode(hitEntity, hit);
+            if (target == Entity.Null)
+                return inputDeps;
+
+            var problem = RoundaboutEdit.CheckGame(EntityManager, target);
+            m_Overlay.Node(target, problem == RoundaboutEdit.GameProblem.None ? (m_Node != Entity.Null ? ToolOverlay.End : ToolOverlay.Hover) : ToolOverlay.Invalid);
+            if (problem != RoundaboutEdit.GameProblem.None)
+            {
+                Summary = problem == RoundaboutEdit.GameProblem.NotSupported
+                    ? "The game doesn't allow roundabouts on one of the roads here (only roads and tram track). Try Custom ring."
+                    : "Pick a junction.";
+                return inputDeps;
+            }
+
+            // Rebuilt only when prefabs load.
+            var count = m_IslandQuery.CalculateEntityCount();
+            if (count != m_IslandPrefabCount)
+            {
+                m_IslandPrefabCount = count;
+                m_Islands = Islands.List(EntityManager, m_PrefabSystem, m_IslandQuery);
+            }
+            var chosen = Islands.Pick(m_Islands, Mod.Settings.RoundaboutIsland);
+            if (chosen == Entity.Null)
+            {
+                Summary = "No roundabout islands are loaded. Try Custom ring.";
+                return inputDeps;
+            }
+
+            // Same island again removes it; another island swaps it.
+            var existing = RoundaboutEdit.FindIsland(EntityManager, target);
+            var existingPrefab = existing != Entity.Null ? EntityManager.GetComponentData<PrefabRef>(existing).m_Prefab : Entity.Null;
+            var remove = existingPrefab == chosen;
+            RoundaboutEdit.EmitIsland(EntityManager, DefinitionBuffer(), target, remove ? Entity.Null : chosen, m_Random.NextInt());
+            var name = m_PrefabSystem.GetPrefab<PrefabBase>(chosen).name;
+            Summary = remove ? $"Remove the {name} here." : existing != Entity.Null ? $"Swap the island here for {name}." : $"{name}, sized to fit the roads here.";
+
+            if (m_Node == Entity.Null)
+            {
+                if (click)
+                    m_Node = target;
+            }
+            else if (click || applyRequested)
+            {
+                applyMode = ApplyMode.Apply;
+                if (Mod.Settings.DebugLogging)
+                    Mod.Log.Info($"Roundabout island {(remove ? "removed" : name)} at {m_Node} (had {existing})");
+                m_Node = Entity.Null;
+            }
             return inputDeps;
         }
 

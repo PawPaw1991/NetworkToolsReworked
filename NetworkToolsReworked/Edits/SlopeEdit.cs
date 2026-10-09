@@ -270,11 +270,13 @@ namespace NetworkToolsReworked.Edits
                     ecb.AddComponent(definition, upgraded);
             }
 
-            // Re-point the other roads at each moved node, keeping those roads themselves (m_Original).
+            // Re-point the other roads at each moved node, keeping those roads themselves (m_Original),
+            // and remove the old node outright, so nothing can stay attached to it.
             var chainEdges = new HashSet<Entity>(edges);
             var handled = new HashSet<Entity>();
             foreach (var node in newPositions.Keys)
             {
+                NetDefinitions.DeleteNode(em, ecb, node, randomSeed);
                 foreach (var connected in em.GetBuffer<ConnectedEdge>(node, isReadOnly: true))
                 {
                     var side = connected.m_Edge;
@@ -616,6 +618,7 @@ namespace NetworkToolsReworked.Edits
                 m_Curve = b,
                 m_StartPosition = startPos,
                 m_EndPosition = endPos,
+                m_Elevation = new float2(startPos.m_Elevation.x, endPos.m_Elevation.x),
                 m_Length = MathUtils.Length(b),
                 m_FixedIndex = -1,
             });
@@ -638,9 +641,15 @@ namespace NetworkToolsReworked.Edits
 
             if (newPositions.TryGetValue(node, out var moved))
             {
+                // A new node is shared by several courses, and the game only joins them into one node if
+                // they agree exactly. So the elevation is the true height above ground (the same for every
+                // course, and it stops the game pulling a raised ground road back down), and the end
+                // flags are left off: IsFirst/IsLast mark the loose ends of a drawn road, and on a shared
+                // joint they make the game treat each course's end on its own.
                 pos.m_Entity = Entity.Null;
                 pos.m_Position = moved;
-                pos.m_Elevation = hasElevation ? new float2(moved.y - TerrainUtils.SampleHeight(ref terrain, moved)) : float2.zero;
+                pos.m_Elevation = new float2(moved.y - TerrainUtils.SampleHeight(ref terrain, moved));
+                pos.m_Flags = 0;
             }
             else
             {

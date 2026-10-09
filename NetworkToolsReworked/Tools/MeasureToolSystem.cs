@@ -20,7 +20,7 @@ namespace NetworkToolsReworked.Tools
     /// hover (or click) another to measure the road between them: length, straight-line distance and
     /// bearing, height difference, grades and how far the road turns. Nothing is ever changed.
     /// </summary>
-    public partial class MeasureToolSystem : ToolBaseSystem, IPreviewTool
+    public partial class MeasureToolSystem : NetEditToolSystem, IPreviewTool
     {
         private TerrainSystem m_TerrainSystem;
         private ToolOverlay m_Overlay;
@@ -78,7 +78,7 @@ namespace NetworkToolsReworked.Tools
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             var cancelRequested = m_CancelRequested;
             m_CancelRequested = false;
