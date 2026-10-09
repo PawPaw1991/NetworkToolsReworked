@@ -29,6 +29,7 @@ Tools never write `Game.Net.Node`, `Edge`, `Curve`, `Composition` or `Elevation`
 |---|---|
 | Ctrl+N | Add Node: hover a road, path or track and click to split it with a new node |
 | Ctrl+Shift+N | Remove Node: hover a node joining two segments of the same type and click to merge them |
+| Ctrl+G | Slope: click a start node, hover an end node to preview, click to re-grade the road between them. The shape (linear or ease in/out) is set in Options |
 
 Press the key again or right-click to leave the tool. Both keys can be rebound in Options.
 

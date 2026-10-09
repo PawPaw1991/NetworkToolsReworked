@@ -234,7 +234,7 @@ namespace NetworkToolsReworked.Edits
             return em.TryGetComponent(edge, out Elevation elevation) ? elevation.m_Elevation : float2.zero;
         }
 
-        private static Entity Emit(EntityCommandBuffer ecb, CreationDefinition definition, NetCourse course)
+        internal static Entity Emit(EntityCommandBuffer ecb, CreationDefinition definition, NetCourse course)
         {
             var entity = ecb.CreateEntity();
             ecb.AddComponent(entity, definition);
