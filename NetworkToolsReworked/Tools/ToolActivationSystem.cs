@@ -27,6 +27,7 @@ namespace NetworkToolsReworked.Tools
         MatchHeight,
         Health,
         Bridge,
+        Fillet,
     }
 
     /// <summary>Turns the tools on and off, from their key bindings or the tool panel.</summary>
@@ -63,6 +64,8 @@ namespace NetworkToolsReworked.Tools
         private ProxyAction m_HealthAction;
         private BridgeToolSystem m_BridgeToolSystem;
         private ProxyAction m_BridgeAction;
+        private FilletToolSystem m_FilletToolSystem;
+        private ProxyAction m_FilletAction;
         private ProxyAction m_AddNodeAction;
         private ProxyAction m_RemoveNodeAction;
         private ProxyAction m_SlopeAction;
@@ -101,6 +104,7 @@ namespace NetworkToolsReworked.Tools
                 if (active == m_MatchHeightToolSystem) return ToolId.MatchHeight;
                 if (active == m_HealthToolSystem) return ToolId.Health;
                 if (active == m_BridgeToolSystem) return ToolId.Bridge;
+                if (active == m_FilletToolSystem) return ToolId.Fillet;
                 return ToolId.None;
             }
         }
@@ -154,6 +158,8 @@ namespace NetworkToolsReworked.Tools
             m_HealthAction = Enable(nameof(Setting.HealthTool));
             m_BridgeToolSystem = World.GetOrCreateSystemManaged<BridgeToolSystem>();
             m_BridgeAction = Enable(nameof(Setting.BridgeTool));
+            m_FilletToolSystem = World.GetOrCreateSystemManaged<FilletToolSystem>();
+            m_FilletAction = Enable(nameof(Setting.FilletTool));
             m_AddNodeAction = Enable(nameof(Setting.AddNodeTool));
             m_RemoveNodeAction = Enable(nameof(Setting.RemoveNodeTool));
             m_SlopeAction = Enable(nameof(Setting.SlopeTool));
@@ -222,6 +228,8 @@ namespace NetworkToolsReworked.Tools
                 Toggle(ToolId.Health);
             else if (m_BridgeAction.WasPerformedThisFrame())
                 Toggle(ToolId.Bridge);
+            else if (m_FilletAction.WasPerformedThisFrame())
+                Toggle(ToolId.Fillet);
         }
 
         /// <summary>Activates a tool, or returns to the default tool if it is already active.</summary>
@@ -289,6 +297,9 @@ namespace NetworkToolsReworked.Tools
                     break;
                 case ToolId.Bridge:
                     m_ToolSystem.activeTool = m_BridgeToolSystem;
+                    break;
+                case ToolId.Fillet:
+                    m_ToolSystem.activeTool = m_FilletToolSystem;
                     break;
                 default:
                     m_ToolSystem.activeTool = m_DefaultToolSystem;

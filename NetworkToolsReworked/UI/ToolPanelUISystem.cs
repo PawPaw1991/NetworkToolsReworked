@@ -63,6 +63,7 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<bool> m_PresetsAvailable;
         private ValueBinding<string> m_PresetNames;
         private ValueBinding<bool> m_SelectionAvailable;
+        private ValueBinding<float> m_FilletRadius;
         private ValueBinding<int> m_BridgeMode;
         private ValueBinding<float> m_BridgeHeight;
         private ValueBinding<float> m_BridgeClearance;
@@ -139,6 +140,8 @@ namespace NetworkToolsReworked.UI
                 Save(s => s.HealthMinLength = v);
                 m_ToolActivationSystem.HealthTool.RequestRescan();
             }));
+            AddBinding(m_FilletRadius = new ValueBinding<float>(kGroup, "FilletRadius", 40f));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetFilletRadius", v => Save(s => s.FilletRadius = v)));
             AddBinding(m_BridgeMode = new ValueBinding<int>(kGroup, "BridgeMode", 0));
             AddBinding(m_BridgeHeight = new ValueBinding<float>(kGroup, "BridgeHeight", 10f));
             AddBinding(m_BridgeClearance = new ValueBinding<float>(kGroup, "BridgeClearance", 8f));
@@ -258,6 +261,7 @@ namespace NetworkToolsReworked.UI
             var pathTool = m_ToolActivationSystem.SourceTool;
             m_SelectionAvailable.Update(pathTool != null && m_PanelOpen.value && MoveItSelection.Available);
             m_UsingSelection.Update(pathTool != null && pathTool.UsingSelection);
+            m_FilletRadius.Update(settings.FilletRadius);
             m_BridgeMode.Update((int)settings.BridgeMode);
             m_BridgeHeight.Update(settings.BridgeHeight);
             m_BridgeClearance.Update(settings.BridgeClearance);

@@ -155,6 +155,10 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.B, nameof(BridgeTool), ctrl: true, shift: true)]
         public ProxyBinding BridgeTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.F, nameof(FilletTool), ctrl: true, shift: true)]
+        public ProxyBinding FilletTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -258,6 +262,10 @@ namespace NetworkToolsReworked
         [SettingsUIHidden]
         public float RampHeight { get; set; }
 
+        /// <summary>Round corner: radius of the curve, metres.</summary>
+        [SettingsUIHidden]
+        public float FilletRadius { get; set; }
+
         /// <summary>Bridge and tunnel: what sets the height.</summary>
         [SettingsUIHidden]
         public LiftMode BridgeMode { get; set; }
@@ -338,6 +346,7 @@ namespace NetworkToolsReworked
             RampLength = 120f;
             RampHeight = 6f;
             HealthMinLength = 3f;
+            FilletRadius = 40f;
             BridgeMode = LiftMode.OverCrossings;
             BridgeHeight = 10f;
             BridgeClearance = 8f;
@@ -492,6 +501,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.BridgeTool)), "Bridge and tunnel tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.BridgeTool)), "Toggle the Bridge and tunnel tool. Pick two nodes to lift the road between them over the roads crossing it, raise it into a bridge or lower it into a tunnel, with approach slopes within its grade limit." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.BridgeTool)), "Bridge and tunnel tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.FilletTool)), "Round corner tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.FilletTool)), "Toggle the Round corner tool. Hover a node where two roads meet at an angle to preview the corner rounded off with a curve of the set radius, click to lock it, adjust the radius, then apply." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.FilletTool)), "Round corner tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },
