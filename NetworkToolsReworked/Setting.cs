@@ -55,6 +55,10 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.P, nameof(ParallelTool), ctrl: true, shift: true)]
         public ProxyBinding ParallelTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.G, nameof(SmoothTool), ctrl: true, shift: true)]
+        public ProxyBinding SmoothTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -77,6 +81,21 @@ namespace NetworkToolsReworked
 
         [SettingsUIHidden]
         public bool CurveKeepEnds { get; set; }
+
+        /// <summary>Smooth tool: percent of the way from the current curve to the fully smoothed one.</summary>
+        [SettingsUIHidden]
+        public float SmoothStrength { get; set; }
+
+        [SettingsUIHidden]
+        public bool SmoothKeepEnds { get; set; }
+
+        /// <summary>Smooth tool: also even out bumps and dips in the grade at the nodes.</summary>
+        [SettingsUIHidden]
+        public bool SmoothGrades { get; set; }
+
+        /// <summary>Smooth tool: percent to pull inner nodes towards an even line (moves nodes).</summary>
+        [SettingsUIHidden]
+        public float SmoothRelax { get; set; }
 
         /// <summary>Sideways distance of the Parallel copy in metres; positive is to the right.</summary>
         [SettingsUISection(kSection, kGeneralGroup)]
@@ -108,6 +127,10 @@ namespace NetworkToolsReworked
             CurveMode = CurveMode.Keep;
             CurveStrength = 100f;
             CurveKeepEnds = true;
+            SmoothStrength = 100f;
+            SmoothKeepEnds = true;
+            SmoothGrades = true;
+            SmoothRelax = 0f;
             ConnectMode = ConnectMode.SimpleCurve;
             ParallelOffset = 16f;
             ParallelHeight = 0f;
@@ -166,6 +189,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ConnectMode)), "Simple curve leaves the start node in the chosen direction. Smooth both ends also lines up with the road at the end node." },
                 { m_Setting.GetEnumValueLocaleID(ConnectMode.SimpleCurve), "Simple curve" },
                 { m_Setting.GetEnumValueLocaleID(ConnectMode.SmoothBothEnds), "Smooth both ends" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ParallelTool)), "Parallel tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ParallelTool)), "Toggle the Parallel tool. Click a start node, hover an end node to preview a copy of the road between them, click to build it." },

@@ -40,10 +40,11 @@ namespace NetworkToolsReworked.Tools
             m_HasResult = false;
         }
 
-        protected override bool EmitPath(EntityCommandBuffer ecb, List<Entity> nodes, List<Entity> edges, int randomSeed)
+        /// <summary>The shape to apply, from the current options.</summary>
+        protected virtual ShapeParams BuildShape()
         {
             var settings = Mod.Settings;
-            var shape = new ShapeParams
+            return new ShapeParams
             {
                 Profile = settings.SlopeProfile,
                 Ease = math.clamp(settings.SlopeEase, 0f, 50f) / 100f,
@@ -54,7 +55,11 @@ namespace NetworkToolsReworked.Tools
                 CurveStrength = math.clamp(settings.CurveStrength, 0f, 100f) / 100f,
                 KeepEndDirections = settings.CurveKeepEnds,
             };
+        }
 
+        protected override bool EmitPath(EntityCommandBuffer ecb, List<Entity> nodes, List<Entity> edges, int randomSeed)
+        {
+            var shape = BuildShape();
             var terrain = m_TerrainSystem.GetHeightData();
             m_HasResult = SlopeEdit.Emit(EntityManager, ecb, ref terrain, nodes, edges, shape, randomSeed, out m_Result);
             return m_HasResult;
@@ -70,7 +75,10 @@ namespace NetworkToolsReworked.Tools
             }
 
             for (var i = 0; i < edges.Count; i++)
+            {
+                overlay.DashedEdge(edges[i], ToolOverlay.Before);
                 overlay.Bezier(m_Result.Curves[i], overlay.Width(edges[i]), GradeColor(edges[i], m_Result.EdgeMaxGrade[i]));
+            }
         }
 
         protected override string Describe(List<Entity> nodes, List<Entity> edges)

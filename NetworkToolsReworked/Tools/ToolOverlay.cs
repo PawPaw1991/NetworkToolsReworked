@@ -20,6 +20,7 @@ namespace NetworkToolsReworked.Tools
         public static readonly Color End = new Color(1f, 0.65f, 0.15f, 0.85f);
         public static readonly Color Path = new Color(0.3f, 0.7f, 1f, 0.35f);
         public static readonly Color Locked = new Color(1f, 0.65f, 0.15f, 0.35f);
+        public static readonly Color Before = new Color(1f, 1f, 1f, 0.7f);
         public static readonly Color Invalid = new Color(1f, 0.25f, 0.2f, 0.7f);
 
         private readonly OverlayRenderSystem m_OverlayRenderSystem;
@@ -62,6 +63,14 @@ namespace NetworkToolsReworked.Tools
             if (!m_EntityManager.TryGetComponent(edge, out Curve curve))
                 return;
             Buffer.DrawCurve(color, curve.m_Bezier, Width(edge));
+        }
+
+        /// <summary>Thin dashed line along an edge's current curve, to compare with a preview.</summary>
+        public void DashedEdge(Entity edge, Color color)
+        {
+            if (!m_EntityManager.TryGetComponent(edge, out Curve curve))
+                return;
+            Buffer.DrawDashedCurve(color, curve.m_Bezier, 0.6f, 2f, 2f);
         }
 
         public void Bezier(Bezier4x3 curve, float width, Color color) => Buffer.DrawCurve(color, curve, width);

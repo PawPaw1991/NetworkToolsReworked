@@ -29,6 +29,10 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<int> m_CurveMode;
         private ValueBinding<float> m_CurveStrength;
         private ValueBinding<bool> m_CurveKeepEnds;
+        private ValueBinding<float> m_SmoothStrength;
+        private ValueBinding<bool> m_SmoothKeepEnds;
+        private ValueBinding<bool> m_SmoothGrades;
+        private ValueBinding<float> m_SmoothRelax;
         private SlopeToolSystem m_SlopeToolSystem;
 
         protected override void OnCreate()
@@ -54,6 +58,10 @@ namespace NetworkToolsReworked.UI
             AddBinding(m_CurveMode = new ValueBinding<int>(kGroup, "CurveMode", 0));
             AddBinding(m_CurveStrength = new ValueBinding<float>(kGroup, "CurveStrength", 100f));
             AddBinding(m_CurveKeepEnds = new ValueBinding<bool>(kGroup, "CurveKeepEnds", true));
+            AddBinding(m_SmoothStrength = new ValueBinding<float>(kGroup, "SmoothStrength", 100f));
+            AddBinding(m_SmoothKeepEnds = new ValueBinding<bool>(kGroup, "SmoothKeepEnds", true));
+            AddBinding(m_SmoothGrades = new ValueBinding<bool>(kGroup, "SmoothGrades", true));
+            AddBinding(m_SmoothRelax = new ValueBinding<float>(kGroup, "SmoothRelax", 0f));
 
             AddBinding(new TriggerBinding(kGroup, "TogglePanel", () => m_PanelOpen.Update(!m_PanelOpen.value)));
             AddBinding(new TriggerBinding<string>(kGroup, "SelectTool", name =>
@@ -73,6 +81,10 @@ namespace NetworkToolsReworked.UI
             AddBinding(new TriggerBinding<int>(kGroup, "SetCurveMode", v => Save(s => s.CurveMode = (CurveMode)v)));
             AddBinding(new TriggerBinding<float>(kGroup, "SetCurveStrength", v => Save(s => s.CurveStrength = v)));
             AddBinding(new TriggerBinding<bool>(kGroup, "SetCurveKeepEnds", v => Save(s => s.CurveKeepEnds = v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetSmoothStrength", v => Save(s => s.SmoothStrength = v)));
+            AddBinding(new TriggerBinding<bool>(kGroup, "SetSmoothKeepEnds", v => Save(s => s.SmoothKeepEnds = v)));
+            AddBinding(new TriggerBinding<bool>(kGroup, "SetSmoothGrades", v => Save(s => s.SmoothGrades = v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetSmoothRelax", v => Save(s => s.SmoothRelax = v)));
             AddBinding(new TriggerBinding(kGroup, "ApplyPreview", () => m_ToolActivationSystem.PreviewTool?.RequestApply()));
             AddBinding(new TriggerBinding(kGroup, "CancelPreview", () => m_ToolActivationSystem.PreviewTool?.RequestCancel()));
             AddBinding(new TriggerBinding<int>(kGroup, "RotateConnect", steps => m_ToolActivationSystem.ConnectTool.RequestRotate(steps)));
@@ -100,6 +112,10 @@ namespace NetworkToolsReworked.UI
             m_CurveMode.Update((int)settings.CurveMode);
             m_CurveStrength.Update(settings.CurveStrength);
             m_CurveKeepEnds.Update(settings.CurveKeepEnds);
+            m_SmoothStrength.Update(settings.SmoothStrength);
+            m_SmoothKeepEnds.Update(settings.SmoothKeepEnds);
+            m_SmoothGrades.Update(settings.SmoothGrades);
+            m_SmoothRelax.Update(settings.SmoothRelax);
         }
 
         private static void Save(Action<Setting> change)

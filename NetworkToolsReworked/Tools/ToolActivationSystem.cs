@@ -12,6 +12,7 @@ namespace NetworkToolsReworked.Tools
         Slope,
         Connect,
         Parallel,
+        Smooth,
     }
 
     /// <summary>Turns the tools on and off, from their key bindings or the tool panel.</summary>
@@ -23,11 +24,13 @@ namespace NetworkToolsReworked.Tools
         private SlopeToolSystem m_SlopeToolSystem;
         private ConnectToolSystem m_ConnectToolSystem;
         private ParallelToolSystem m_ParallelToolSystem;
+        private SmoothToolSystem m_SmoothToolSystem;
         private ProxyAction m_AddNodeAction;
         private ProxyAction m_RemoveNodeAction;
         private ProxyAction m_SlopeAction;
         private ProxyAction m_ConnectAction;
         private ProxyAction m_ParallelAction;
+        private ProxyAction m_SmoothAction;
 
         public ToolId Current
         {
@@ -39,6 +42,7 @@ namespace NetworkToolsReworked.Tools
                 if (active == m_SlopeToolSystem) return ToolId.Slope;
                 if (active == m_ConnectToolSystem) return ToolId.Connect;
                 if (active == m_ParallelToolSystem) return ToolId.Parallel;
+                if (active == m_SmoothToolSystem) return ToolId.Smooth;
                 return ToolId.None;
             }
         }
@@ -57,12 +61,14 @@ namespace NetworkToolsReworked.Tools
             m_SlopeToolSystem = World.GetOrCreateSystemManaged<SlopeToolSystem>();
             m_ConnectToolSystem = World.GetOrCreateSystemManaged<ConnectToolSystem>();
             m_ParallelToolSystem = World.GetOrCreateSystemManaged<ParallelToolSystem>();
+            m_SmoothToolSystem = World.GetOrCreateSystemManaged<SmoothToolSystem>();
 
             m_AddNodeAction = Enable(nameof(Setting.AddNodeTool));
             m_RemoveNodeAction = Enable(nameof(Setting.RemoveNodeTool));
             m_SlopeAction = Enable(nameof(Setting.SlopeTool));
             m_ConnectAction = Enable(nameof(Setting.ConnectTool));
             m_ParallelAction = Enable(nameof(Setting.ParallelTool));
+            m_SmoothAction = Enable(nameof(Setting.SmoothTool));
         }
 
         protected override void OnUpdate()
@@ -77,6 +83,8 @@ namespace NetworkToolsReworked.Tools
                 Toggle(ToolId.Connect);
             else if (m_ParallelAction.WasPerformedThisFrame())
                 Toggle(ToolId.Parallel);
+            else if (m_SmoothAction.WasPerformedThisFrame())
+                Toggle(ToolId.Smooth);
         }
 
         /// <summary>Activates a tool, or returns to the default tool if it is already active.</summary>
@@ -102,6 +110,9 @@ namespace NetworkToolsReworked.Tools
                     break;
                 case ToolId.Parallel:
                     m_ToolSystem.activeTool = m_ParallelToolSystem;
+                    break;
+                case ToolId.Smooth:
+                    m_ToolSystem.activeTool = m_SmoothToolSystem;
                     break;
                 default:
                     m_ToolSystem.activeTool = m_DefaultToolSystem;

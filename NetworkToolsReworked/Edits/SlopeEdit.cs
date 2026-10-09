@@ -40,6 +40,18 @@ namespace NetworkToolsReworked.Edits
 
         /// <summary>Smooth keeps the road's direction at the two end nodes, so roads beyond them stay aligned.</summary>
         public bool KeepEndDirections;
+
+        /// <summary>
+        /// With the Keep profile: line up the grade at every joint too, so the road has no bumps or dips
+        /// at its nodes. Node heights stay as they are.
+        /// </summary>
+        public bool SmoothGrades;
+
+        /// <summary>
+        /// Smooth only, 0 to 1: also pull the inner nodes sideways towards an even line between their
+        /// neighbours. Any amount above zero moves nodes, so the chain is rebuilt.
+        /// </summary>
+        public float Relax;
     }
 
     public struct ShapeResult
@@ -127,7 +139,7 @@ namespace NetworkToolsReworked.Edits
         {
             result = default;
             var keepsCurve = shape.Curve == CurveMode.Keep || shape.CurveStrength <= 0f;
-            if (shape.Profile == SlopeProfile.Keep && keepsCurve && shape.Arch == 0f && shape.StartOffset == 0f && shape.EndOffset == 0f)
+            if (shape.Profile == SlopeProfile.Keep && keepsCurve && !shape.SmoothGrades && shape.Arch == 0f && shape.StartOffset == 0f && shape.EndOffset == 0f)
                 return false;
 
             var count = edges.Count;
@@ -167,6 +179,9 @@ namespace NetworkToolsReworked.Edits
                 curves[i].c.y = h1 - g1 * lengths[i] / 3f;
             }
 
+            if (shape.Profile == SlopeProfile.Keep && shape.SmoothGrades)
+                SmoothGrades(curves, original, along, shape.KeepEndDirections);
+
             result = new ShapeResult
             {
                 Curves = curves,
@@ -179,8 +194,9 @@ namespace NetworkToolsReworked.Edits
                 const int samples = 16;
                 for (var k = 0; k <= samples; k++)
                 {
-                    profile.Height(along[i] + lengths[i] * k / samples, out var grade);
-                    result.EdgeMaxGrade[i] = math.max(result.EdgeMaxGrade[i], math.abs(grade));
+                    var tangent = MathUtils.Tangent(curves[i], (float)k / samples);
+                    var grade = math.abs(tangent.y) / math.max(math.length(tangent.xz), 0.001f);
+                    result.EdgeMaxGrade[i] = math.max(result.EdgeMaxGrade[i], grade);
                 }
                 result.MaxGrade = math.max(result.MaxGrade, result.EdgeMaxGrade[i]);
             }
@@ -285,6 +301,7 @@ namespace NetworkToolsReworked.Edits
                 for (var i = 0; i < count; i++)
                     points[i] = original[i].a;
                 points[count] = original[count - 1].d;
+                RelaxPoints(points, math.saturate(shape.Relax));
 
                 var directions = new float3[count + 1];
                 for (var i = 1; i < count; i++)
@@ -323,6 +340,68 @@ namespace NetworkToolsReworked.Edits
             }
             return curves;
         }
+
+        /// <summary>
+        /// Sets one grade per joint from the neighbouring node heights (Catmull-Rom style) and rebuilds the
+        /// vertical handles from it, so the grade flows through each node. Node heights don't change.
+        /// </summary>
+        private static void SmoothGrades(Bezier4x3[] curves, Bezier4x3[] original, float[] along, bool keepEnds)
+        {
+            var count = curves.Length;
+            var heights = new float[count + 1];
+            for (var i = 0; i < count; i++)
+                heights[i] = curves[i].a.y;
+            heights[count] = curves[count - 1].d.y;
+
+            var grades = new float[count + 1];
+            for (var i = 1; i < count; i++)
+                grades[i] = (heights[i + 1] - heights[i - 1]) / math.max(along[i + 1] - along[i - 1], 0.01f);
+
+            if (keepEnds)
+            {
+                grades[0] = Grade(MathUtils.StartTangent(original[0]));
+                grades[count] = Grade(MathUtils.EndTangent(original[count - 1]));
+            }
+            else if (count == 1)
+            {
+                grades[0] = grades[1] = (heights[1] - heights[0]) / math.max(along[1], 0.01f);
+            }
+            else
+            {
+                // Free ends: the end segment becomes a parabola that meets the next joint's grade.
+                grades[0] = 2f * (heights[1] - heights[0]) / math.max(along[1] - along[0], 0.01f) - grades[1];
+                grades[count] = 2f * (heights[count] - heights[count - 1]) / math.max(along[count] - along[count - 1], 0.01f) - grades[count - 1];
+            }
+
+            for (var i = 0; i < count; i++)
+            {
+                var length = along[i + 1] - along[i];
+                curves[i].b.y = heights[i] + grades[i] * length / 3f;
+                curves[i].c.y = heights[i + 1] - grades[i + 1] * length / 3f;
+            }
+        }
+
+        /// <summary>Moves inner points towards the midpoint of their neighbours, in a few gentle passes.</summary>
+        private static void RelaxPoints(float3[] points, float relax)
+        {
+            if (relax <= 0f || points.Length < 3)
+                return;
+
+            const int passes = 4;
+            var next = new float3[points.Length];
+            for (var pass = 0; pass < passes; pass++)
+            {
+                for (var i = 1; i < points.Length - 1; i++)
+                {
+                    var mid = (points[i - 1] + points[i + 1]) * 0.5f;
+                    next[i] = LerpXZ(points[i], mid, relax);
+                }
+                for (var i = 1; i < points.Length - 1; i++)
+                    points[i] = next[i];
+            }
+        }
+
+        private static float Grade(float3 tangent) => tangent.y / math.max(math.length(tangent.xz), 0.001f);
 
         private static float3 LerpXZ(float3 from, float3 to, float t) => new float3(math.lerp(from.x, to.x, t), from.y, math.lerp(from.z, to.z, t));
 

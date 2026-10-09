@@ -1,7 +1,7 @@
 import { bindValue, trigger } from "cs2/api";
 import mod from "mod.json";
 
-export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Connect" | "Parallel";
+export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "Connect" | "Parallel";
 
 export const panelOpen$ = bindValue<boolean>(mod.id, "PanelOpen", false);
 export const activeTool$ = bindValue<ToolId>(mod.id, "ActiveTool", "None");
@@ -20,6 +20,10 @@ export const slopeEndOffset$ = bindValue<number>(mod.id, "SlopeEndOffset", 0);
 export const curveMode$ = bindValue<number>(mod.id, "CurveMode", 0);
 export const curveStrength$ = bindValue<number>(mod.id, "CurveStrength", 100);
 export const curveKeepEnds$ = bindValue<boolean>(mod.id, "CurveKeepEnds", true);
+export const smoothStrength$ = bindValue<number>(mod.id, "SmoothStrength", 100);
+export const smoothKeepEnds$ = bindValue<boolean>(mod.id, "SmoothKeepEnds", true);
+export const smoothGrades$ = bindValue<boolean>(mod.id, "SmoothGrades", true);
+export const smoothRelax$ = bindValue<number>(mod.id, "SmoothRelax", 0);
 export const connectRotation$ = bindValue<number>(mod.id, "ConnectRotation", 0);
 
 export const togglePanel = () => trigger(mod.id, "TogglePanel");
@@ -39,3 +43,7 @@ export const setSlopeEndOffset = (value: number) => trigger(mod.id, "SetSlopeEnd
 export const setCurveMode = (value: number) => trigger(mod.id, "SetCurveMode", value);
 export const setCurveStrength = (value: number) => trigger(mod.id, "SetCurveStrength", value);
 export const setCurveKeepEnds = (value: boolean) => trigger(mod.id, "SetCurveKeepEnds", value);
+export const setSmoothStrength = (value: number) => trigger(mod.id, "SetSmoothStrength", value);
+export const setSmoothKeepEnds = (value: boolean) => trigger(mod.id, "SetSmoothKeepEnds", value);
+export const setSmoothGrades = (value: boolean) => trigger(mod.id, "SetSmoothGrades", value);
+export const setSmoothRelax = (value: number) => trigger(mod.id, "SetSmoothRelax", value);
