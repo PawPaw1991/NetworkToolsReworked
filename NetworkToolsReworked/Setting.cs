@@ -58,6 +58,26 @@ namespace NetworkToolsReworked
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
+        // Shape options below are set from the tool panel only.
+
+        /// <summary>Percent of the length at each end that eases into the grade (Ease in/out).</summary>
+        [SettingsUIHidden]
+        public float SlopeEase { get; set; }
+
+        /// <summary>Extra height at the middle of the shaped road, in metres.</summary>
+        [SettingsUIHidden]
+        public float SlopeArch { get; set; }
+
+        [SettingsUIHidden]
+        public CurveMode CurveMode { get; set; }
+
+        /// <summary>Percent of the way from the current curve to the smoothed or straight one.</summary>
+        [SettingsUIHidden]
+        public float CurveStrength { get; set; }
+
+        [SettingsUIHidden]
+        public bool CurveKeepEnds { get; set; }
+
         /// <summary>Sideways distance of the Parallel copy in metres; positive is to the right.</summary>
         [SettingsUISection(kSection, kGeneralGroup)]
         [SettingsUISlider(min = -64, max = 64, step = 1)]
@@ -83,6 +103,11 @@ namespace NetworkToolsReworked
         public override void SetDefaults()
         {
             SlopeProfile = SlopeProfile.Linear;
+            SlopeEase = 50f;
+            SlopeArch = 0f;
+            CurveMode = CurveMode.Keep;
+            CurveStrength = 100f;
+            CurveKeepEnds = true;
             ConnectMode = ConnectMode.SimpleCurve;
             ParallelOffset = 16f;
             ParallelHeight = 0f;
@@ -118,13 +143,14 @@ namespace NetworkToolsReworked
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.RemoveNodeTool)), "Remove Node tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SlopeTool)), "Slope tool" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.SlopeTool)), "Toggle the Slope tool. Click a start node, hover an end node to preview, click to re-grade the road between them." },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.SlopeTool)), "Toggle the Slope tool. Pick two nodes to re-grade, smooth or straighten the road between them; adjust the shape in the tool panel before applying." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.SlopeTool)), "Slope tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SlopeProfile)), "Slope shape" },
-                { m_Setting.GetOptionDescLocaleID(nameof(Setting.SlopeProfile)), "Linear keeps one constant grade. Ease in/out starts and ends flat and is steepest in the middle." },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.SlopeProfile)), "Keep leaves the heights as they are. Linear keeps one constant grade. Ease in/out starts and ends flat. More options are in the tool panel." },
                 { m_Setting.GetEnumValueLocaleID(SlopeProfile.Linear), "Linear" },
                 { m_Setting.GetEnumValueLocaleID(SlopeProfile.EaseInOut), "Ease in/out" },
+                { m_Setting.GetEnumValueLocaleID(SlopeProfile.Keep), "Keep" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ConnectTool)), "Connect tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ConnectTool)), "Toggle the Connect tool. Click a start node, hover an end node to preview a new road between them, click to build it." },

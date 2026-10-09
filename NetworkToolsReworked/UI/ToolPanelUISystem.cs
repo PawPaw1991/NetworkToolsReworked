@@ -22,11 +22,20 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<string> m_Phase;
         private ValueBinding<string> m_Summary;
         private ValueBinding<int> m_ConnectRotation;
+        private ValueBinding<float> m_SlopeEase;
+        private ValueBinding<float> m_SlopeArch;
+        private ValueBinding<float> m_SlopeStartOffset;
+        private ValueBinding<float> m_SlopeEndOffset;
+        private ValueBinding<int> m_CurveMode;
+        private ValueBinding<float> m_CurveStrength;
+        private ValueBinding<bool> m_CurveKeepEnds;
+        private SlopeToolSystem m_SlopeToolSystem;
 
         protected override void OnCreate()
         {
             base.OnCreate();
             m_ToolActivationSystem = World.GetOrCreateSystemManaged<ToolActivationSystem>();
+            m_SlopeToolSystem = World.GetOrCreateSystemManaged<SlopeToolSystem>();
 
             AddBinding(m_PanelOpen = new ValueBinding<bool>(kGroup, "PanelOpen", false));
             AddBinding(m_ActiveTool = new ValueBinding<string>(kGroup, "ActiveTool", nameof(ToolId.None)));
@@ -38,6 +47,13 @@ namespace NetworkToolsReworked.UI
             AddBinding(m_Phase = new ValueBinding<string>(kGroup, "Phase", string.Empty));
             AddBinding(m_Summary = new ValueBinding<string>(kGroup, "Summary", string.Empty));
             AddBinding(m_ConnectRotation = new ValueBinding<int>(kGroup, "ConnectRotation", 0));
+            AddBinding(m_SlopeEase = new ValueBinding<float>(kGroup, "SlopeEase", 50f));
+            AddBinding(m_SlopeArch = new ValueBinding<float>(kGroup, "SlopeArch", 0f));
+            AddBinding(m_SlopeStartOffset = new ValueBinding<float>(kGroup, "SlopeStartOffset", 0f));
+            AddBinding(m_SlopeEndOffset = new ValueBinding<float>(kGroup, "SlopeEndOffset", 0f));
+            AddBinding(m_CurveMode = new ValueBinding<int>(kGroup, "CurveMode", 0));
+            AddBinding(m_CurveStrength = new ValueBinding<float>(kGroup, "CurveStrength", 100f));
+            AddBinding(m_CurveKeepEnds = new ValueBinding<bool>(kGroup, "CurveKeepEnds", true));
 
             AddBinding(new TriggerBinding(kGroup, "TogglePanel", () => m_PanelOpen.Update(!m_PanelOpen.value)));
             AddBinding(new TriggerBinding<string>(kGroup, "SelectTool", name =>
@@ -50,6 +66,13 @@ namespace NetworkToolsReworked.UI
             AddBinding(new TriggerBinding<float>(kGroup, "SetParallelOffset", v => Save(s => s.ParallelOffset = v)));
             AddBinding(new TriggerBinding<float>(kGroup, "SetParallelHeight", v => Save(s => s.ParallelHeight = v)));
             AddBinding(new TriggerBinding<bool>(kGroup, "SetParallelReverse", v => Save(s => s.ParallelReverse = v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetSlopeEase", v => Save(s => s.SlopeEase = v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetSlopeArch", v => Save(s => s.SlopeArch = v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetSlopeStartOffset", v => m_SlopeToolSystem.StartOffset = v));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetSlopeEndOffset", v => m_SlopeToolSystem.EndOffset = v));
+            AddBinding(new TriggerBinding<int>(kGroup, "SetCurveMode", v => Save(s => s.CurveMode = (CurveMode)v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetCurveStrength", v => Save(s => s.CurveStrength = v)));
+            AddBinding(new TriggerBinding<bool>(kGroup, "SetCurveKeepEnds", v => Save(s => s.CurveKeepEnds = v)));
             AddBinding(new TriggerBinding(kGroup, "ApplyPreview", () => m_ToolActivationSystem.PreviewTool?.RequestApply()));
             AddBinding(new TriggerBinding(kGroup, "CancelPreview", () => m_ToolActivationSystem.PreviewTool?.RequestCancel()));
             AddBinding(new TriggerBinding<int>(kGroup, "RotateConnect", steps => m_ToolActivationSystem.ConnectTool.RequestRotate(steps)));
@@ -70,6 +93,13 @@ namespace NetworkToolsReworked.UI
             m_Phase.Update(preview?.Phase.ToString() ?? string.Empty);
             m_Summary.Update(preview?.Summary ?? string.Empty);
             m_ConnectRotation.Update(m_ToolActivationSystem.ConnectTool.RotationDegrees);
+            m_SlopeEase.Update(settings.SlopeEase);
+            m_SlopeArch.Update(settings.SlopeArch);
+            m_SlopeStartOffset.Update(m_SlopeToolSystem.StartOffset);
+            m_SlopeEndOffset.Update(m_SlopeToolSystem.EndOffset);
+            m_CurveMode.Update((int)settings.CurveMode);
+            m_CurveStrength.Update(settings.CurveStrength);
+            m_CurveKeepEnds.Update(settings.CurveKeepEnds);
         }
 
         private static void Save(Action<Setting> change)

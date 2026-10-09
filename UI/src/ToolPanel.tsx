@@ -20,17 +20,17 @@ import {
   setParallelHeight,
   setParallelOffset,
   setParallelReverse,
-  setSlopeProfile,
-  slopeProfile$,
   summary$,
   togglePanel,
 } from "bindings";
 import styles from "./ToolPanel.module.scss";
+import { Choice, Stepper, indexed } from "./controls";
+import { ShapeOptions } from "./ShapeOptions";
 
 const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "AddNode", label: "Add Node", hint: "Click a road to split it with a new node." },
   { id: "RemoveNode", label: "Remove Node", hint: "Click a node between two segments of the same road to merge them." },
-  { id: "Slope", label: "Slope", hint: "Re-grade the road between two nodes." },
+  { id: "Slope", label: "Slope & Curve", hint: "Re-grade, smooth or straighten the road between two nodes." },
   { id: "Connect", label: "Connect", hint: "Build a new road between two nodes. , and . rotate the start direction." },
   { id: "Parallel", label: "Parallel", hint: "Build a copy of the road between two nodes, offset to the side." },
 ];
@@ -41,32 +41,9 @@ const STEPS: Record<Exclude<Phase, "">, { step: string; text: string }> = {
   Review: { step: "3/3", text: "Check the preview and adjust the options below. Click or press Apply to build it, right-click or Back to pick another end." },
 };
 
-const Choice = ({ options, value, onChange }: { options: string[]; value: number; onChange: (v: number) => void }) => (
-  <div className={styles.row}>
-    {options.map((label, i) => (
-      <Button key={label} variant="flat" className={classNames(styles.choice, { [styles.active]: value === i })} onSelect={() => onChange(i)}>
-        {label}
-      </Button>
-    ))}
-  </div>
-);
-
-const Stepper = ({ label, value, step, min, max, onChange }: { label: string; value: number; step: number; min: number; max: number; onChange: (v: number) => void }) => {
-  const set = (v: number) => onChange(Math.min(max, Math.max(min, v)));
-  return (
-    <div className={styles.row}>
-      <span className={styles.label}>{label}</span>
-      <Button variant="flat" className={styles.step} onSelect={() => set(value - step)}>−</Button>
-      <span className={styles.value}>{value} m</span>
-      <Button variant="flat" className={styles.step} onSelect={() => set(value + step)}>+</Button>
-    </div>
-  );
-};
-
 export const ToolPanel = () => {
   const open = useValue(panelOpen$);
   const active = useValue(activeTool$);
-  const slopeProfile = useValue(slopeProfile$);
   const connectMode = useValue(connectMode$);
   const offset = useValue(parallelOffset$);
   const height = useValue(parallelHeight$);
@@ -119,11 +96,11 @@ export const ToolPanel = () => {
         </div>
       )}
 
-      {active === "Slope" && <Choice options={["Linear", "Ease in/out"]} value={slopeProfile} onChange={setSlopeProfile} />}
+      {active === "Slope" && <ShapeOptions />}
 
       {active === "Connect" && (
         <>
-          <Choice options={["Simple curve", "Smooth both ends"]} value={connectMode} onChange={setConnectMode} />
+          <Choice options={indexed(["Simple curve", "Smooth both ends"])} value={connectMode} onChange={setConnectMode} />
           <div className={styles.row}>
             <span className={styles.label}>Start direction</span>
             <Button variant="flat" className={styles.step} onSelect={() => rotateConnect(1)}>Left</Button>
@@ -135,9 +112,9 @@ export const ToolPanel = () => {
 
       {active === "Parallel" && (
         <>
-          <Stepper label="Side offset" value={offset} step={1} min={-64} max={64} onChange={setParallelOffset} />
-          <Stepper label="Height offset" value={height} step={1} min={-40} max={40} onChange={setParallelHeight} />
-          <Choice options={["Same direction", "Opposite"]} value={reverse ? 1 : 0} onChange={(v) => setParallelReverse(v === 1)} />
+          <Stepper label="Side offset" unit="m" value={offset} step={1} min={-64} max={64} onChange={setParallelOffset} />
+          <Stepper label="Height offset" unit="m" value={height} step={1} min={-40} max={40} onChange={setParallelHeight} />
+          <Choice options={indexed(["Same direction", "Opposite"])} value={reverse ? 1 : 0} onChange={(v) => setParallelReverse(v === 1)} />
         </>
       )}
     </div>
