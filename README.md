@@ -32,6 +32,7 @@ Click the **Network Tools** button at the top left of the screen to open the too
 | Ctrl+N | Add Node: hover a road, path or track and click to split it with a new node |
 | Ctrl+Shift+N | Remove Node: hover a node joining two segments of the same type and click to merge them |
 | Ctrl+G | Slope & Curve: pick two nodes to re-grade, smooth or straighten the road between them. Options are in the tool panel |
+| Ctrl+Shift+G | Smooth: pick two nodes to smooth the road between them. Options are in the tool panel |
 | Ctrl+J | Connect: click a start node, hover an end node to preview a new road between them, click to build it. `,` and `.` rotate the start direction |
 | Ctrl+Shift+P | Parallel: click a start node, hover an end node to preview a copy of the road between them, click to build it. Side offset, height offset and direction are set in Options |
 
@@ -42,6 +43,8 @@ Slope, Connect and Parallel work in three steps, shown in the panel: click a sta
 - Slope: Keep, Linear or Ease in/out, with the ease length (5 to 50% of the road at each end), an arch (bump or dip at the middle), and start and end height changes in 0.1 m or 1 m steps.
 - Curve: Keep, Smooth (line up the direction at every joint; optionally keep the direction at both ends so roads beyond stay aligned) or Straighten, each with a strength from 0 to 100%.
 - The preview is coloured by grade against each road's own limit (green, yellow, red) and the panel shows the steepest grade. When no node moves (for example smoothing only), the roads are edited in place and keep their identity.
+
+**Smooth options** (tool panel): strength (0 to 100%), keep the direction at both ends or leave them free, smooth the slope too (evens out bumps and dips at the nodes) or curves only, and Relax nodes, which also pulls the inner nodes towards an even line. Without Relax no node moves, so the roads are edited in place. The preview shows the current road as a dashed line under the new shape.
 
 Press the key again or right-click to leave the tool. Both keys can be rebound in Options.
 

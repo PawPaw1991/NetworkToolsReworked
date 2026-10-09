@@ -26,11 +26,13 @@ import {
 import styles from "./ToolPanel.module.scss";
 import { Choice, Stepper, indexed } from "./controls";
 import { ShapeOptions } from "./ShapeOptions";
+import { SmoothOptions } from "./SmoothOptions";
 
 const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "AddNode", label: "Add Node", hint: "Click a road to split it with a new node." },
   { id: "RemoveNode", label: "Remove Node", hint: "Click a node between two segments of the same road to merge them." },
   { id: "Slope", label: "Slope & Curve", hint: "Re-grade, smooth or straighten the road between two nodes." },
+  { id: "Smooth", label: "Smooth", hint: "Smooth out kinks in the road between two nodes. Nodes stay put unless you relax them." },
   { id: "Connect", label: "Connect", hint: "Build a new road between two nodes. , and . rotate the start direction." },
   { id: "Parallel", label: "Parallel", hint: "Build a copy of the road between two nodes, offset to the side." },
 ];
@@ -97,6 +99,8 @@ export const ToolPanel = () => {
       )}
 
       {active === "Slope" && <ShapeOptions />}
+
+      {active === "Smooth" && <SmoothOptions />}
 
       {active === "Connect" && (
         <>
