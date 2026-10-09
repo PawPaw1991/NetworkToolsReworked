@@ -63,6 +63,8 @@ Slope, Connect and Parallel work in three steps, shown in the panel: click a sta
 
 **Presets** (tool panel): Slope & Curve, Smooth, Arrange, Roundabout, Parallel, Ramp, Move Node and Connect can save their current options as a preset, named after the options (for example "Exit right, 15°, 120 m, +6 m"). Click a preset to load it, × to delete it. Presets are kept in `ModsSettings/NetworkToolsReworked/presets.txt` in the game's user data folder, up to 12 per tool.
 
+**Quick keys**: Alt+1 to Alt+9 switch straight to Slope & Curve, Smooth, Move Node, Arrange, Connect, Parallel, Ramp, Change road type and Measure. Backspace steps back one pick in the active tool, like a right-click (Esc is left to the game, which closes the tool). The panel shows each tool's keys. All of these can be rebound in Options.
+
 Press the key again or right-click to leave the tool. Both keys can be rebound in Options.
 
 ## Building

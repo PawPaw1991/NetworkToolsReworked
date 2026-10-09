@@ -10,13 +10,14 @@ using NetworkToolsReworked.Tools;
 namespace NetworkToolsReworked
 {
     [FileLocation(nameof(NetworkToolsReworked))]
-    [SettingsUIGroupOrder(kKeybindingGroup, kGeneralGroup)]
-    [SettingsUIShowGroupName(kKeybindingGroup, kGeneralGroup)]
+    [SettingsUIGroupOrder(kKeybindingGroup, kQuickGroup, kGeneralGroup)]
+    [SettingsUIShowGroupName(kKeybindingGroup, kQuickGroup, kGeneralGroup)]
     public class Setting : ModSetting
     {
         public const string kSection = "Main";
         public const string kGeneralGroup = "General";
         public const string kKeybindingGroup = "Keybinding";
+        public const string kQuickGroup = "QuickSwitch";
 
         public Setting(IMod mod) : base(mod)
         {
@@ -104,6 +105,47 @@ namespace NetworkToolsReworked
         [SettingsUISection(kSection, kKeybindingGroup)]
         [SettingsUIKeyboardBinding(BindingKeyboard.H, nameof(MatchHeightTool), ctrl: true, shift: true)]
         public ProxyBinding MatchHeightTool { get; set; }
+
+        /// <summary>Steps back one pick in the active tool, like a right-click. Esc is left to the game.</summary>
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Backspace, nameof(StepBack))]
+        public ProxyBinding StepBack { get; set; }
+
+        [SettingsUISection(kSection, kQuickGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit1, nameof(QuickTool1), alt: true)]
+        public ProxyBinding QuickTool1 { get; set; }
+
+        [SettingsUISection(kSection, kQuickGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit2, nameof(QuickTool2), alt: true)]
+        public ProxyBinding QuickTool2 { get; set; }
+
+        [SettingsUISection(kSection, kQuickGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit3, nameof(QuickTool3), alt: true)]
+        public ProxyBinding QuickTool3 { get; set; }
+
+        [SettingsUISection(kSection, kQuickGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit4, nameof(QuickTool4), alt: true)]
+        public ProxyBinding QuickTool4 { get; set; }
+
+        [SettingsUISection(kSection, kQuickGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit5, nameof(QuickTool5), alt: true)]
+        public ProxyBinding QuickTool5 { get; set; }
+
+        [SettingsUISection(kSection, kQuickGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit6, nameof(QuickTool6), alt: true)]
+        public ProxyBinding QuickTool6 { get; set; }
+
+        [SettingsUISection(kSection, kQuickGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit7, nameof(QuickTool7), alt: true)]
+        public ProxyBinding QuickTool7 { get; set; }
+
+        [SettingsUISection(kSection, kQuickGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit8, nameof(QuickTool8), alt: true)]
+        public ProxyBinding QuickTool8 { get; set; }
+
+        [SettingsUISection(kSection, kQuickGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Digit9, nameof(QuickTool9), alt: true)]
+        public ProxyBinding QuickTool9 { get; set; }
 
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
@@ -308,6 +350,37 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionGroupLocaleID(Setting.kGeneralGroup), "General" },
 
                 { m_Setting.GetOptionGroupLocaleID(Setting.kKeybindingGroup), "Key bindings" },
+                { m_Setting.GetOptionGroupLocaleID(Setting.kQuickGroup), "Quick switch" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.StepBack)), "Step back" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.StepBack)), "Step back one pick in the active tool (like a right-click), or leave the tool if nothing is picked." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.StepBack)), "Step back" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.QuickTool1)), "Quick switch 1: Slope & Curve" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.QuickTool1)), "Switch straight to the Slope & Curve tool (or leave it if it is active)." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.QuickTool1)), "Slope & Curve" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.QuickTool2)), "Quick switch 2: Smooth" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.QuickTool2)), "Switch straight to the Smooth tool (or leave it if it is active)." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.QuickTool2)), "Smooth" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.QuickTool3)), "Quick switch 3: Move Node" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.QuickTool3)), "Switch straight to the Move Node tool (or leave it if it is active)." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.QuickTool3)), "Move Node" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.QuickTool4)), "Quick switch 4: Arrange" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.QuickTool4)), "Switch straight to the Arrange tool (or leave it if it is active)." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.QuickTool4)), "Arrange" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.QuickTool5)), "Quick switch 5: Connect" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.QuickTool5)), "Switch straight to the Connect tool (or leave it if it is active)." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.QuickTool5)), "Connect" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.QuickTool6)), "Quick switch 6: Parallel" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.QuickTool6)), "Switch straight to the Parallel tool (or leave it if it is active)." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.QuickTool6)), "Parallel" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.QuickTool7)), "Quick switch 7: Ramp" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.QuickTool7)), "Switch straight to the Ramp tool (or leave it if it is active)." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.QuickTool7)), "Ramp" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.QuickTool8)), "Quick switch 8: Change road type" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.QuickTool8)), "Switch straight to the Change road type tool (or leave it if it is active)." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.QuickTool8)), "Change road type" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.QuickTool9)), "Quick switch 9: Measure" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.QuickTool9)), "Switch straight to the Measure tool (or leave it if it is active)." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.QuickTool9)), "Measure" },
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.AddNodeTool)), "Add Node tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.AddNodeTool)), "Toggle the Add Node tool. Click a road to split it with a new node." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.AddNodeTool)), "Add Node tool" },
