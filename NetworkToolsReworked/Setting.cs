@@ -80,6 +80,10 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.Z, nameof(UndoTool), ctrl: true, alt: true)]
         public ProxyBinding UndoTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.X, nameof(IntersectTool), ctrl: true, shift: true)]
+        public ProxyBinding IntersectTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -249,6 +253,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.UndoTool)), "Undo" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.UndoTool)), "Preview undoing the last edit made with Network Tools Reworked, then click or press Apply. Keeps the last 30 edits for this session." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.UndoTool)), "Undo" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.IntersectTool)), "Intersect tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.IntersectTool)), "Toggle the Intersect tool. Hover a road where another crosses it without a junction, click to preview a junction there, then apply." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.IntersectTool)), "Intersect tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },

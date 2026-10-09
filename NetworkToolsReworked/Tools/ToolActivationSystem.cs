@@ -19,6 +19,7 @@ namespace NetworkToolsReworked.Tools
         Reverse,
         Roundabout,
         Undo,
+        Intersect,
     }
 
     /// <summary>Turns the tools on and off, from their key bindings or the tool panel.</summary>
@@ -36,6 +37,7 @@ namespace NetworkToolsReworked.Tools
         private ReverseToolSystem m_ReverseToolSystem;
         private RoundaboutToolSystem m_RoundaboutToolSystem;
         private UndoToolSystem m_UndoToolSystem;
+        private IntersectToolSystem m_IntersectToolSystem;
         private ProxyAction m_AddNodeAction;
         private ProxyAction m_RemoveNodeAction;
         private ProxyAction m_SlopeAction;
@@ -47,6 +49,7 @@ namespace NetworkToolsReworked.Tools
         private ProxyAction m_ReverseAction;
         private ProxyAction m_RoundaboutAction;
         private ProxyAction m_UndoAction;
+        private ProxyAction m_IntersectAction;
 
         public ToolId Current
         {
@@ -64,6 +67,7 @@ namespace NetworkToolsReworked.Tools
                 if (active == m_ReverseToolSystem) return ToolId.Reverse;
                 if (active == m_RoundaboutToolSystem) return ToolId.Roundabout;
                 if (active == m_UndoToolSystem) return ToolId.Undo;
+                if (active == m_IntersectToolSystem) return ToolId.Intersect;
                 return ToolId.None;
             }
         }
@@ -90,6 +94,7 @@ namespace NetworkToolsReworked.Tools
             m_ReverseToolSystem = World.GetOrCreateSystemManaged<ReverseToolSystem>();
             m_RoundaboutToolSystem = World.GetOrCreateSystemManaged<RoundaboutToolSystem>();
             m_UndoToolSystem = World.GetOrCreateSystemManaged<UndoToolSystem>();
+            m_IntersectToolSystem = World.GetOrCreateSystemManaged<IntersectToolSystem>();
 
             m_AddNodeAction = Enable(nameof(Setting.AddNodeTool));
             m_RemoveNodeAction = Enable(nameof(Setting.RemoveNodeTool));
@@ -102,6 +107,7 @@ namespace NetworkToolsReworked.Tools
             m_ReverseAction = Enable(nameof(Setting.ReverseTool));
             m_RoundaboutAction = Enable(nameof(Setting.RoundaboutTool));
             m_UndoAction = Enable(nameof(Setting.UndoTool));
+            m_IntersectAction = Enable(nameof(Setting.IntersectTool));
         }
 
         protected override void OnUpdate()
@@ -128,6 +134,8 @@ namespace NetworkToolsReworked.Tools
                 Toggle(ToolId.Roundabout);
             else if (m_UndoAction.WasPerformedThisFrame())
                 Toggle(ToolId.Undo);
+            else if (m_IntersectAction.WasPerformedThisFrame())
+                Toggle(ToolId.Intersect);
         }
 
         /// <summary>Activates a tool, or returns to the default tool if it is already active.</summary>
@@ -171,6 +179,9 @@ namespace NetworkToolsReworked.Tools
                     break;
                 case ToolId.Undo:
                     m_ToolSystem.activeTool = m_UndoToolSystem;
+                    break;
+                case ToolId.Intersect:
+                    m_ToolSystem.activeTool = m_IntersectToolSystem;
                     break;
                 default:
                     m_ToolSystem.activeTool = m_DefaultToolSystem;
