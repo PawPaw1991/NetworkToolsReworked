@@ -1,7 +1,7 @@
 import { bindValue, trigger } from "cs2/api";
 import mod from "mod.json";
 
-export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Connect" | "Parallel";
+export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Upgrades" | "Connect" | "Parallel";
 
 export const panelOpen$ = bindValue<boolean>(mod.id, "PanelOpen", false);
 export const activeTool$ = bindValue<ToolId>(mod.id, "ActiveTool", "None");
@@ -35,6 +35,7 @@ export const moveSnap$ = bindValue<number>(mod.id, "MoveSnap", 0);
 export const moveGridSize$ = bindValue<number>(mod.id, "MoveGridSize", 8);
 export const sourceName$ = bindValue<string>(mod.id, "SourceName", "");
 export const replaceKeepUpgrades$ = bindValue<boolean>(mod.id, "ReplaceKeepUpgrades", true);
+export const upgradesSwapSides$ = bindValue<boolean>(mod.id, "UpgradesSwapSides", false);
 export const connectRotation$ = bindValue<number>(mod.id, "ConnectRotation", 0);
 
 export const togglePanel = () => trigger(mod.id, "TogglePanel");
@@ -67,5 +68,6 @@ export const setRoundaboutRadius = (value: number) => trigger(mod.id, "SetRounda
 export const setRoundaboutClockwise = (value: boolean) => trigger(mod.id, "SetRoundaboutClockwise", value);
 export const setMoveSnap = (value: number) => trigger(mod.id, "SetMoveSnap", value);
 export const setReplaceKeepUpgrades = (value: boolean) => trigger(mod.id, "SetReplaceKeepUpgrades", value);
+export const setUpgradesSwapSides = (value: boolean) => trigger(mod.id, "SetUpgradesSwapSides", value);
 export const pickSource = () => trigger(mod.id, "PickSource");
 export const setMoveGridSize = (value: number) => trigger(mod.id, "SetMoveGridSize", value);

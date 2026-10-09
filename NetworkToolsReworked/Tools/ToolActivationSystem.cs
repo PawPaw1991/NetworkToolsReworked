@@ -21,6 +21,7 @@ namespace NetworkToolsReworked.Tools
         Undo,
         Intersect,
         Replace,
+        Upgrades,
     }
 
     /// <summary>Turns the tools on and off, from their key bindings or the tool panel.</summary>
@@ -40,6 +41,8 @@ namespace NetworkToolsReworked.Tools
         private UndoToolSystem m_UndoToolSystem;
         private IntersectToolSystem m_IntersectToolSystem;
         private ReplaceToolSystem m_ReplaceToolSystem;
+        private UpgradesToolSystem m_UpgradesToolSystem;
+        private ProxyAction m_UpgradesAction;
         private ProxyAction m_AddNodeAction;
         private ProxyAction m_RemoveNodeAction;
         private ProxyAction m_SlopeAction;
@@ -72,6 +75,7 @@ namespace NetworkToolsReworked.Tools
                 if (active == m_UndoToolSystem) return ToolId.Undo;
                 if (active == m_IntersectToolSystem) return ToolId.Intersect;
                 if (active == m_ReplaceToolSystem) return ToolId.Replace;
+                if (active == m_UpgradesToolSystem) return ToolId.Upgrades;
                 return ToolId.None;
             }
         }
@@ -104,6 +108,8 @@ namespace NetworkToolsReworked.Tools
             m_IntersectToolSystem = World.GetOrCreateSystemManaged<IntersectToolSystem>();
             m_ReplaceToolSystem = World.GetOrCreateSystemManaged<ReplaceToolSystem>();
 
+            m_UpgradesToolSystem = World.GetOrCreateSystemManaged<UpgradesToolSystem>();
+            m_UpgradesAction = Enable(nameof(Setting.UpgradesTool));
             m_AddNodeAction = Enable(nameof(Setting.AddNodeTool));
             m_RemoveNodeAction = Enable(nameof(Setting.RemoveNodeTool));
             m_SlopeAction = Enable(nameof(Setting.SlopeTool));
@@ -147,6 +153,8 @@ namespace NetworkToolsReworked.Tools
                 Toggle(ToolId.Intersect);
             else if (m_ReplaceAction.WasPerformedThisFrame())
                 Toggle(ToolId.Replace);
+            else if (m_UpgradesAction.WasPerformedThisFrame())
+                Toggle(ToolId.Upgrades);
         }
 
         /// <summary>Activates a tool, or returns to the default tool if it is already active.</summary>
@@ -196,6 +204,9 @@ namespace NetworkToolsReworked.Tools
                     break;
                 case ToolId.Replace:
                     m_ToolSystem.activeTool = m_ReplaceToolSystem;
+                    break;
+                case ToolId.Upgrades:
+                    m_ToolSystem.activeTool = m_UpgradesToolSystem;
                     break;
                 default:
                     m_ToolSystem.activeTool = m_DefaultToolSystem;

@@ -30,7 +30,7 @@ import { SmoothOptions } from "./SmoothOptions";
 import { MoveOptions } from "./MoveOptions";
 import { ArrangeOptions } from "./ArrangeOptions";
 import { RoundaboutOptions } from "./RoundaboutOptions";
-import { ReplaceOptions } from "./ReplaceOptions";
+import { ReplaceOptions, UpgradesOptions } from "./ReplaceOptions";
 
 const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "AddNode", label: "Add Node", hint: "Click a road to split it with a new node." },
@@ -42,6 +42,7 @@ const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "Reverse", label: "Reverse", hint: "Reverse the direction of the road between two nodes, e.g. a one-way road." },
   { id: "Roundabout", label: "Roundabout", hint: "Turn a junction into a roundabout. The ring uses the same road type as the junction." },
   { id: "Replace", label: "Change type", hint: "Turn the road between two nodes into another road type, keeping its shape and height." },
+  { id: "Upgrades", label: "Copy upgrades", hint: "Give the road between two nodes the same upgrades (trees, sidewalks, walls...) as another road." },
   { id: "Intersect", label: "Intersect", hint: "Join two roads that cross without a junction. Hover near the crossing." },
   { id: "Undo", label: "Undo", hint: "Undo the last edit made with these tools (last 30 this session). Ctrl+Alt+Z." },
   { id: "Connect", label: "Connect", hint: "Build a new road between two nodes. , and . rotate the start direction." },
@@ -61,6 +62,12 @@ const STEPS: Steps = {
 const UNDO_STEP = { step: "", text: "Red roads are removed and green ones restored. Click or press Apply to undo, right-click or Cancel to keep things as they are." };
 
 const TOOL_STEPS: Partial<Record<ToolId, Steps>> = {
+  Upgrades: {
+    PickSource: { step: "1/4", text: "Click a road whose upgrades you want to copy (one without upgrades clears them)." },
+    PickStart: { step: "2/4", text: "Click a start node. Right-click to copy another road." },
+    PickEnd: { step: "3/4", text: "Hover an end node to preview, click it to lock the preview. Right-click to pick another start." },
+    Review: { step: "4/4", text: "Click or press Apply to change the upgrades, right-click or Back to pick another end." },
+  },
   Replace: {
     PickSource: { step: "1/4", text: "Click a road of the type you want to use." },
     PickStart: { step: "2/4", text: "Click a start node. Right-click to copy another type." },
@@ -153,6 +160,8 @@ export const ToolPanel = () => {
       {active === "Roundabout" && <RoundaboutOptions />}
 
       {active === "Replace" && <ReplaceOptions />}
+
+      {active === "Upgrades" && <UpgradesOptions />}
 
       {active === "Connect" && (
         <>
