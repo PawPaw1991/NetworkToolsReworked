@@ -1,7 +1,7 @@
 import { bindValue, trigger } from "cs2/api";
 import mod from "mod.json";
 
-export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Upgrades" | "Measure" | "Ramp" | "MatchHeight" | "Health" | "Bridge" | "Fillet" | "Split" | "Connect" | "Parallel";
+export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Upgrades" | "Measure" | "Ramp" | "MatchHeight" | "Health" | "Bridge" | "Fillet" | "Split" | "Helix" | "Connect" | "Parallel";
 
 export const panelOpen$ = bindValue<boolean>(mod.id, "PanelOpen", false);
 export const activeTool$ = bindValue<ToolId>(mod.id, "ActiveTool", "None");
@@ -56,6 +56,13 @@ export const usingSelection$ = bindValue<boolean>(mod.id, "UsingSelection", fals
 export const healthIssues$ = bindValue<string>(mod.id, "HealthIssues", "");
 export const healthSelected$ = bindValue<number>(mod.id, "HealthSelected", -1);
 export const healthMinLength$ = bindValue<number>(mod.id, "HealthMinLength", 3);
+export const helixRadius$ = bindValue<number>(mod.id, "HelixRadius", 30);
+export const helixTurns$ = bindValue<number>(mod.id, "HelixTurns", 1);
+export const helixClimb$ = bindValue<number>(mod.id, "HelixClimb", 8);
+export const helixClockwise$ = bindValue<boolean>(mod.id, "HelixClockwise", false);
+export const helixStartAngle$ = bindValue<number>(mod.id, "HelixStartAngle", 0);
+export const helixStartHeight$ = bindValue<number>(mod.id, "HelixStartHeight", 0);
+export const helixType$ = bindValue<string>(mod.id, "HelixType", "");
 export const parallelTaper$ = bindValue<number>(mod.id, "ParallelTaper", 0);
 export const splitMode$ = bindValue<number>(mod.id, "SplitMode", 0);
 export const splitParts$ = bindValue<number>(mod.id, "SplitParts", 2);
@@ -118,6 +125,14 @@ export const deletePreset = (index: number) => trigger(mod.id, "DeletePreset", i
 export const selectIssue = (index: number) => trigger(mod.id, "SelectIssue", index);
 export const rescanHealth = () => trigger(mod.id, "RescanHealth");
 export const setHealthMinLength = (value: number) => trigger(mod.id, "SetHealthMinLength", value);
+export const setHelixRadius = (value: number) => trigger(mod.id, "SetHelixRadius", value);
+export const setHelixTurns = (value: number) => trigger(mod.id, "SetHelixTurns", value);
+export const setHelixClimb = (value: number) => trigger(mod.id, "SetHelixClimb", value);
+export const setHelixClockwise = (value: boolean) => trigger(mod.id, "SetHelixClockwise", value);
+export const setHelixStartAngle = (value: number) => trigger(mod.id, "SetHelixStartAngle", value);
+export const setHelixStartHeight = (value: number) => trigger(mod.id, "SetHelixStartHeight", value);
+export const pickHelixType = () => trigger(mod.id, "PickHelixType");
+export const helixUseRoadType = () => trigger(mod.id, "HelixUseRoadType");
 export const setParallelTaper = (value: number) => trigger(mod.id, "SetParallelTaper", value);
 export const setSplitMode = (value: number) => trigger(mod.id, "SetSplitMode", value);
 export const setSplitParts = (value: number) => trigger(mod.id, "SetSplitParts", value);

@@ -36,6 +36,7 @@ namespace NetworkToolsReworked.Presets
             [ToolId.Ramp] = new[] { nameof(Setting.RampEntry), nameof(Setting.RampRight), nameof(Setting.RampFlip), nameof(Setting.RampAngle), nameof(Setting.RampTurn), nameof(Setting.RampLength), nameof(Setting.RampHeight) },
             [ToolId.MoveNode] = new[] { nameof(Setting.MoveSnap), nameof(Setting.MoveGridSize) },
             [ToolId.Connect] = new[] { nameof(Setting.ConnectMode) },
+            [ToolId.Helix] = new[] { nameof(Setting.HelixRadius), nameof(Setting.HelixTurns), nameof(Setting.HelixClimb), nameof(Setting.HelixClockwise), nameof(Setting.HelixStartAngle), nameof(Setting.HelixStartHeight) },
             [ToolId.Split] = new[] { nameof(Setting.SplitMode), nameof(Setting.SplitParts), nameof(Setting.SplitSpacing), nameof(Setting.SimplifyTolerance) },
             [ToolId.Fillet] = new[] { nameof(Setting.FilletRadius) },
             [ToolId.Bridge] = new[] { nameof(Setting.BridgeMode), nameof(Setting.BridgeHeight), nameof(Setting.BridgeClearance) },
@@ -126,6 +127,8 @@ namespace NetworkToolsReworked.Presets
                     return s.MoveSnap == MoveSnap.Grid ? $"Grid {s.MoveGridSize.ToString("0.#", c)} m" : s.MoveSnap == MoveSnap.Angle ? "15° steps" : "No snap";
                 case ToolId.Connect:
                     return s.ConnectMode == ConnectMode.SmoothBothEnds ? "Smooth both ends" : "Simple curve";
+                case ToolId.Helix:
+                    return $"Radius {s.HelixRadius:0} m, {s.HelixTurns.ToString("0.##", c)} turns, {s.HelixClimb.ToString("+0.#;-0.#;0", c)} m per turn, {(s.HelixClockwise ? "clockwise" : "anticlockwise")}";
                 case ToolId.Split:
                     return s.SplitMode == SplitMode.EqualParts ? $"{s.SplitParts:0} equal parts"
                         : s.SplitMode == SplitMode.EveryDistance ? $"Every {s.SplitSpacing:0} m" : $"Simplify, {s.SimplifyTolerance.ToString("0.0#", c)} m";

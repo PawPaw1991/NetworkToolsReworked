@@ -21,7 +21,9 @@ export const Section = ({ title }: { title: string }) => <div className={styles.
 
 const round = (v: number) => Math.round(v * 100) / 100;
 
-const format = (v: number, fine?: number) => (fine !== undefined && fine < 1 ? v.toFixed(1) : String(Math.round(v)));
+// As many decimals as the fine step has (0.5 shows one, 0.25 two).
+const format = (v: number, fine?: number) =>
+  fine !== undefined && fine < 1 ? v.toFixed(Math.min(2, (String(fine).split(".")[1] ?? "0").length)) : String(Math.round(v));
 
 /** Number with coarse (−/+) and optional fine (‹/›) steps. */
 export const Stepper = ({

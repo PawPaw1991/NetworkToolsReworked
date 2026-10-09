@@ -35,6 +35,7 @@ import { HealthOptions } from "./HealthOptions";
 import { BridgeOptions } from "./BridgeOptions";
 import { FilletOptions } from "./FilletOptions";
 import { SplitOptions } from "./SplitOptions";
+import { HelixOptions } from "./HelixOptions";
 
 // Default keys; they can be rebound in Options.
 const TOOLS: { id: ToolId; label: string; hint: string; keys: string }[] = [
@@ -51,6 +52,7 @@ const TOOLS: { id: ToolId; label: string; hint: string; keys: string }[] = [
   { id: "Measure", label: "Measure", hint: "Hover a road for its length, grade, curve and height, or pick two nodes to measure between them. Changes nothing.", keys: "Ctrl+Shift+M or Alt+9" },
   { id: "Ramp", label: "Ramp", hint: "Build a ramp leaving or joining a road, climbing to a set height within the road type's grade limit.", keys: "Ctrl+Shift+E or Alt+7" },
   { id: "MatchHeight", label: "Match height", hint: "Move nodes to the same height as another node, or to a height you set.", keys: "Ctrl+Shift+H" },
+  { id: "Helix", label: "Helix", hint: "Build a spiral ramp, carrying on from the open end of a road or placed on the ground.", keys: "Ctrl+Shift+Y" },
   { id: "Split", label: "Split & simplify", hint: "Add nodes along the road between two nodes, evenly or every so many metres, or take out nodes it doesn't need.", keys: "Ctrl+Shift+L" },
   { id: "Fillet", label: "Round corner", hint: "Round off the corner where two roads meet with a curve of the radius you set.", keys: "Ctrl+Shift+F" },
   { id: "Bridge", label: "Bridge & tunnel", hint: "Lift the road between two nodes over the roads crossing it, raise it into a bridge or lower it into a tunnel, with gentle approach slopes.", keys: "Ctrl+Shift+B" },
@@ -103,6 +105,12 @@ const TOOL_STEPS: Partial<Record<ToolId, Steps>> = {
     PickStart: { step: "2/4", text: "Click a start node. Right-click to copy another type." },
     PickEnd: { step: "3/4", text: "Hover an end node to preview, click it to lock the preview. Right-click to pick another start." },
     Review: { step: "4/4", text: "Click or press Apply to change the type, right-click or Back to pick another end." },
+  },
+  Helix: {
+    PickSource: { step: "", text: "Click a road whose type the helix should use. Right-click to keep the current type." },
+    PickStart: { step: "1/2", text: "Hover the open end of a road to carry on from it, or the ground to centre a helix there. Click to lock it." },
+    PickEnd: { step: "1/2", text: "Hover the open end of a road to carry on from it, or the ground to centre a helix there. Click to lock it." },
+    Review: { step: "2/2", text: "Set the helix below. Click or press Apply to build it, right-click or Back to move it." },
   },
   Fillet: {
     PickStart: { step: "1/2", text: "Hover a corner (a node where two roads meet) to preview it rounded, click to lock it." },
@@ -231,6 +239,8 @@ export const ToolPanel = () => {
       {active === "Fillet" && <FilletOptions />}
 
       {active === "Split" && <SplitOptions />}
+
+      {active === "Helix" && <HelixOptions />}
 
       <PresetOptions />
 
