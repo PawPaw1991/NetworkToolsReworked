@@ -15,7 +15,8 @@ namespace NetworkToolsReworked.Tools
     /// Base for tools that act on the road between two picked nodes. Click a start node, hover an end
     /// node to preview, click it to lock the preview, then adjust the options and click (or press Apply
     /// in the panel) to apply. Right-click steps back one phase, or exits if nothing is picked.
-    /// Subclasses only emit the definitions for the found path.
+    /// Subclasses only emit the definitions for the found path. Tools that copy something from a road
+    /// (<see cref="UsesSource"/>) first ask for that road; the choice is kept until picked again.
     /// </summary>
     public abstract partial class PathToolSystem : ToolBaseSystem, IPreviewTool
     {
@@ -28,14 +29,41 @@ namespace NetworkToolsReworked.Tools
         private Entity m_EndNode;
         private bool m_ApplyRequested;
         private bool m_CancelRequested;
+        private bool m_PickSourceRequested;
+        private bool m_HasSource;
 
-        public ToolPhase Phase => m_StartNode == Entity.Null ? ToolPhase.PickStart : m_EndNode == Entity.Null ? ToolPhase.PickEnd : ToolPhase.Review;
+        public ToolPhase Phase => UsesSource && !m_HasSource ? ToolPhase.PickSource : m_StartNode == Entity.Null ? ToolPhase.PickStart : m_EndNode == Entity.Null ? ToolPhase.PickEnd : ToolPhase.Review;
 
         public string Summary { get; private set; } = string.Empty;
 
         public void RequestApply() => m_ApplyRequested = true;
 
         public void RequestCancel() => m_CancelRequested = true;
+
+        /// <summary>Drops the copied road so the next click picks another one.</summary>
+        public void RequestPickSource() => m_PickSourceRequested = true;
+
+        /// <summary>What was copied from the source road, for the panel; empty if nothing yet.</summary>
+        public string SourceName => UsesSource && m_HasSource ? SourceLabel : string.Empty;
+
+        /// <summary>Label of the copied source; set in <see cref="TakeSource"/>.</summary>
+        protected string SourceLabel { get; set; } = string.Empty;
+
+        /// <summary>True if the tool first copies something (a road type, upgrades) from a picked road.</summary>
+        protected virtual bool UsesSource => false;
+
+        /// <summary>Copies what the tool needs from a hovered road. Returns false (with a reason) if it can't be used.</summary>
+        protected virtual bool TakeSource(Entity edge, out string problem)
+        {
+            problem = string.Empty;
+            return false;
+        }
+
+        /// <summary>Panel line for a road hovered while picking the source.</summary>
+        protected virtual string DescribeSource(Entity edge) => string.Empty;
+
+        /// <summary>True if the copied source is still usable (e.g. its prefab still exists).</summary>
+        protected virtual bool SourceIsValid() => true;
 
         /// <summary>Writes the definitions for the path. Returns false if there is nothing to change.</summary>
         protected abstract bool EmitPath(EntityCommandBuffer ecb, List<Entity> nodes, List<Entity> edges, int randomSeed);
@@ -51,6 +79,9 @@ namespace NetworkToolsReworked.Tools
         protected virtual void OnSelectionCleared()
         {
         }
+
+        /// <summary>Panel line when <see cref="EmitPath"/> finds nothing to change.</summary>
+        protected virtual string NothingToChange => "Nothing to change yet: adjust the options.";
 
         /// <summary>One line describing the previewed change, shown in the tool panel.</summary>
         protected virtual string Describe(List<Entity> nodes, List<Entity> edges) => PathInfo.Describe(EntityManager, nodes, edges);
@@ -97,12 +128,21 @@ namespace NetworkToolsReworked.Tools
             var cancelRequested = m_CancelRequested;
             m_ApplyRequested = m_CancelRequested = false;
 
+            if (m_PickSourceRequested || (m_HasSource && !SourceIsValid()))
+            {
+                m_PickSourceRequested = false;
+                m_HasSource = false;
+                Reset();
+            }
+
             if (cancelAction.WasPressedThisFrame() || cancelRequested)
             {
                 if (m_EndNode != Entity.Null)
                     m_EndNode = Entity.Null;
                 else if (m_StartNode != Entity.Null)
                     Reset();
+                else if (UsesSource && m_HasSource)
+                    m_HasSource = false;
                 else
                     m_ToolSystem.activeTool = m_DefaultToolSystem;
                 Summary = string.Empty;
@@ -120,7 +160,21 @@ namespace NetworkToolsReworked.Tools
                 m_EndNode = Entity.Null;
 
             var click = applyAction.WasPressedThisFrame();
-            var hovered = GetRaycastResult(out Entity hitEntity, out RaycastHit hit) ? HoveredNode(hitEntity, hit) : Entity.Null;
+            var hasHit = GetRaycastResult(out Entity hitEntity, out RaycastHit hit);
+
+            if (UsesSource && !m_HasSource)
+            {
+                if (!hasHit || EntityManager.HasComponent<Owner>(hitEntity) || !EntityManager.HasComponent<Edge>(hitEntity))
+                    return inputDeps;
+                var usable = TakeSource(hitEntity, out var problem);
+                m_Overlay.Edge(hitEntity, usable ? ToolOverlay.Hover : ToolOverlay.Invalid);
+                Summary = usable ? DescribeSource(hitEntity) : problem;
+                if (usable && click)
+                    m_HasSource = true;
+                return inputDeps;
+            }
+
+            var hovered = hasHit ? HoveredNode(hitEntity, hit) : Entity.Null;
 
             if (m_StartNode == Entity.Null)
             {
@@ -150,7 +204,7 @@ namespace NetworkToolsReworked.Tools
             var emitted = EmitPath(m_ToolOutputBarrier.CreateCommandBuffer(), m_PathNodes, m_PathEdges, m_Random.NextInt());
             DrawPath(m_Overlay, m_PathNodes, m_PathEdges, locked);
             m_Overlay.Node(end, locked ? ToolOverlay.End : ToolOverlay.Hover);
-            Summary = emitted ? Describe(m_PathNodes, m_PathEdges) : "Nothing to change yet: adjust the options.";
+            Summary = emitted ? Describe(m_PathNodes, m_PathEdges) : NothingToChange;
 
             if (!locked)
             {

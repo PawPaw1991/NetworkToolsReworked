@@ -2,6 +2,9 @@ namespace NetworkToolsReworked.Tools
 {
     public enum ToolPhase
     {
+        /// <summary>Waiting for a road to copy from (its type or upgrades), before the start node.</summary>
+        PickSource,
+
         /// <summary>Waiting for the start node.</summary>
         PickStart,
 
