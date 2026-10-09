@@ -63,6 +63,9 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<bool> m_PresetsAvailable;
         private ValueBinding<string> m_PresetNames;
         private ValueBinding<bool> m_SelectionAvailable;
+        private ValueBinding<int> m_BridgeMode;
+        private ValueBinding<float> m_BridgeHeight;
+        private ValueBinding<float> m_BridgeClearance;
         private ValueBinding<string> m_HealthIssues;
         private ValueBinding<int> m_HealthSelected;
         private ValueBinding<float> m_HealthMinLength;
@@ -136,6 +139,12 @@ namespace NetworkToolsReworked.UI
                 Save(s => s.HealthMinLength = v);
                 m_ToolActivationSystem.HealthTool.RequestRescan();
             }));
+            AddBinding(m_BridgeMode = new ValueBinding<int>(kGroup, "BridgeMode", 0));
+            AddBinding(m_BridgeHeight = new ValueBinding<float>(kGroup, "BridgeHeight", 10f));
+            AddBinding(m_BridgeClearance = new ValueBinding<float>(kGroup, "BridgeClearance", 8f));
+            AddBinding(new TriggerBinding<int>(kGroup, "SetBridgeMode", v => Save(s => s.BridgeMode = (LiftMode)v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetBridgeHeight", v => Save(s => s.BridgeHeight = v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetBridgeClearance", v => Save(s => s.BridgeClearance = v)));
             AddBinding(new TriggerBinding(kGroup, "UseSelection", () => m_ToolActivationSystem.SourceTool?.RequestUseSelection()));
 
             AddBinding(new TriggerBinding(kGroup, "TogglePanel", () => m_PanelOpen.Update(!m_PanelOpen.value)));
@@ -249,6 +258,9 @@ namespace NetworkToolsReworked.UI
             var pathTool = m_ToolActivationSystem.SourceTool;
             m_SelectionAvailable.Update(pathTool != null && m_PanelOpen.value && MoveItSelection.Available);
             m_UsingSelection.Update(pathTool != null && pathTool.UsingSelection);
+            m_BridgeMode.Update((int)settings.BridgeMode);
+            m_BridgeHeight.Update(settings.BridgeHeight);
+            m_BridgeClearance.Update(settings.BridgeClearance);
             UpdateHealth();
             UpdatePresets();
         }

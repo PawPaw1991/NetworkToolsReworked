@@ -32,6 +32,7 @@ import { MatchHeightOptions } from "./MatchHeightOptions";
 import { PresetOptions } from "./PresetOptions";
 import { SelectionRow } from "./SelectionOptions";
 import { HealthOptions } from "./HealthOptions";
+import { BridgeOptions } from "./BridgeOptions";
 
 // Default keys; they can be rebound in Options.
 const TOOLS: { id: ToolId; label: string; hint: string; keys: string }[] = [
@@ -48,6 +49,7 @@ const TOOLS: { id: ToolId; label: string; hint: string; keys: string }[] = [
   { id: "Measure", label: "Measure", hint: "Hover a road for its length, grade, curve and height, or pick two nodes to measure between them. Changes nothing.", keys: "Ctrl+Shift+M or Alt+9" },
   { id: "Ramp", label: "Ramp", hint: "Build a ramp leaving or joining a road, climbing to a set height within the road type's grade limit.", keys: "Ctrl+Shift+E or Alt+7" },
   { id: "MatchHeight", label: "Match height", hint: "Move nodes to the same height as another node, or to a height you set.", keys: "Ctrl+Shift+H" },
+  { id: "Bridge", label: "Bridge & tunnel", hint: "Lift the road between two nodes over the roads crossing it, raise it into a bridge or lower it into a tunnel, with gentle approach slopes.", keys: "Ctrl+Shift+B" },
   { id: "Health", label: "Network check", hint: "Scan the city for overlapping roads, loose nodes, tiny segments, ends that don't join, grades over the limit and roads cut off from the rest.", keys: "Ctrl+Shift+K" },
   { id: "Intersect", label: "Intersect", hint: "Join two roads that cross without a junction. Hover near the crossing.", keys: "Ctrl+Shift+X" },
   { id: "Undo", label: "Undo", hint: "Undo the last edit made with these tools (last 30 this session).", keys: "Ctrl+Alt+Z" },
@@ -214,6 +216,8 @@ export const ToolPanel = () => {
       {active === "MatchHeight" && <MatchHeightOptions />}
 
       {active === "Health" && <HealthOptions />}
+
+      {active === "Bridge" && <BridgeOptions />}
 
       <PresetOptions />
 
