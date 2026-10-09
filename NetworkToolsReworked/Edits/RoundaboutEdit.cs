@@ -99,6 +99,8 @@ namespace NetworkToolsReworked.Edits
             // The junction node itself goes; every road that met there now ends on the ring.
             NetDefinitions.DeleteNode(em, ecb, node, randomSeed);
 
+            ringPrefab = BuildType.For(em, ringPrefab);
+
             // Ring roads between neighbouring road ends, split so no piece turns more than 90 degrees.
             ring.Sort((x, y) => x.angle.CompareTo(y.angle));
             for (var i = 0; i < ring.Count; i++)

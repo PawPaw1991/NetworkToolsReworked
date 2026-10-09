@@ -26,7 +26,6 @@ namespace NetworkToolsReworked.Tools
         private Unity.Mathematics.Random m_Random;
         private Entity m_LockedEdge;
         private float m_LockedT;
-        private Entity m_RampPrefab;
         private bool m_PickingType;
         private bool m_ApplyRequested;
         private bool m_CancelRequested;
@@ -38,7 +37,8 @@ namespace NetworkToolsReworked.Tools
         public string Summary { get; private set; } = string.Empty;
 
         /// <summary>Name of the copied ramp road type; empty when the ramp uses the road's own type.</summary>
-        public string RampTypeName { get; private set; } = string.Empty;
+        /// <summary>The shared road type chosen for new roads (see <see cref="BuildType"/>); empty for the road's own type.</summary>
+        public string RampTypeName => BuildType.Name;
 
         public void RequestApply() => m_ApplyRequested = true;
 
@@ -50,8 +50,7 @@ namespace NetworkToolsReworked.Tools
         /// <summary>Go back to building ramps of the same type as the road they leave.</summary>
         public void UseRoadType()
         {
-            m_RampPrefab = Entity.Null;
-            RampTypeName = string.Empty;
+            BuildType.Clear();
             m_PickingType = false;
         }
 
@@ -117,8 +116,6 @@ namespace NetworkToolsReworked.Tools
             Summary = string.Empty;
             m_Overlay.BeginFrame();
 
-            if (m_RampPrefab != Entity.Null && (!EntityManager.Exists(m_RampPrefab) || EntityManager.HasComponent<Deleted>(m_RampPrefab)))
-                UseRoadType();
             if (m_LockedEdge != Entity.Null && !IsLiveEdge(m_LockedEdge))
                 m_LockedEdge = Entity.Null;
 
@@ -134,8 +131,7 @@ namespace NetworkToolsReworked.Tools
                 Summary = $"Click to build ramps as {PrefabName(prefab)}.";
                 if (click)
                 {
-                    m_RampPrefab = prefab;
-                    RampTypeName = PrefabName(prefab);
+                    BuildType.Set(prefab, PrefabName(prefab));
                     m_PickingType = false;
                 }
                 return inputDeps;
@@ -165,7 +161,7 @@ namespace NetworkToolsReworked.Tools
                 return inputDeps;
             }
 
-            var rampPrefab = m_RampPrefab != Entity.Null ? m_RampPrefab : EntityManager.GetComponentData<PrefabRef>(edge).m_Prefab;
+            var rampPrefab = BuildType.For(EntityManager, EntityManager.GetComponentData<PrefabRef>(edge).m_Prefab);
             var limit = PrefabGradeLimit(rampPrefab);
             var terrain = m_TerrainSystem.GetHeightData();
             var settings = Mod.Settings;

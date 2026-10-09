@@ -101,6 +101,7 @@ namespace NetworkToolsReworked.UI
             m_SlopeToolSystem = World.GetOrCreateSystemManaged<SlopeToolSystem>();
 
             AddBinding(m_PanelOpen = new ValueBinding<bool>(kGroup, "PanelOpen", false));
+            CreateRoadTypeBindings();
             AddBinding(m_ActiveTool = new ValueBinding<string>(kGroup, "ActiveTool", nameof(ToolId.None)));
             AddBinding(m_SlopeProfile = new ValueBinding<int>(kGroup, "SlopeProfile", 0));
             AddBinding(m_ConnectMode = new ValueBinding<int>(kGroup, "ConnectMode", 0));
@@ -344,6 +345,7 @@ namespace NetworkToolsReworked.UI
             UpdateUndoHistory();
             UpdateDuplicate(settings);
             UpdatePresets();
+            UpdateRoadTypes();
         }
 
         private void UpdateDuplicate(Setting settings)

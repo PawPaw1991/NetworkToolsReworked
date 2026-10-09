@@ -126,9 +126,9 @@ namespace NetworkToolsReworked.Edits
             if (start == end || AreConnected(em, start, end))
                 return false;
 
-            var prefab = PrefabFor(em, start);
-            if (prefab == Entity.Null || !SameKind(em, start, end))
+            if (!SameKind(em, start, end))
                 return false;
+            var prefab = BuildType.For(em, PrefabFor(em, start));
 
             var p0 = em.GetComponentData<Node>(start).m_Position;
             var p1 = em.GetComponentData<Node>(end).m_Position;

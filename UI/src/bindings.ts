@@ -158,3 +158,9 @@ export const setBridgeClearance = (value: number) => trigger(mod.id, "SetBridgeC
 export const useSelection = () => trigger(mod.id, "UseSelection");
 export const pickSource = () => trigger(mod.id, "PickSource");
 export const setMoveGridSize = (value: number) => trigger(mod.id, "SetMoveGridSize", value);
+
+/** One line per type: kind ("Road", "Track", "Pathway"), prefab name, icon path, tab separated. */
+export const roadTypes$ = bindValue<string>(mod.id, "RoadTypes", "");
+/** Prefab name of the shared road type for new roads, or "" for each road's own type. */
+export const buildType$ = bindValue<string>(mod.id, "BuildType", "");
+export const setBuildType = (name: string) => trigger(mod.id, "SetBuildType", name);

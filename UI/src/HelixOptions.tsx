@@ -1,5 +1,4 @@
 import { useValue } from "cs2/api";
-import { Button } from "cs2/ui";
 import {
   helixClimb$,
   helixClockwise$,
@@ -7,8 +6,6 @@ import {
   helixStartAngle$,
   helixStartHeight$,
   helixTurns$,
-  helixType$,
-  helixUseRoadType,
   pickHelixType,
   setHelixClimb,
   setHelixClockwise,
@@ -17,8 +14,8 @@ import {
   setHelixStartHeight,
   setHelixTurns,
 } from "bindings";
-import styles from "./ToolPanel.module.scss";
 import { Choice, Section, Stepper, indexed } from "./controls";
+import { RoadTypePicker } from "./RoadTypePicker";
 
 export const HelixOptions = () => {
   const radius = useValue(helixRadius$);
@@ -27,7 +24,6 @@ export const HelixOptions = () => {
   const clockwise = useValue(helixClockwise$);
   const startAngle = useValue(helixStartAngle$);
   const startHeight = useValue(helixStartHeight$);
-  const type = useValue(helixType$);
 
   return (
     <>
@@ -38,12 +34,7 @@ export const HelixOptions = () => {
       <Section title="Placed on the ground" />
       <Stepper label="Start angle" unit="°" value={startAngle} step={45} fine={5} min={-180} max={180} onChange={setHelixStartAngle} />
       <Stepper label="Start height" unit="m" value={startHeight} step={1} fine={0.5} min={-40} max={60} onChange={setHelixStartHeight} />
-      <Section title="Road type" />
-      <div className={styles.row}>
-        <span className={styles.label}>{type === "" ? "Same as the road" : type}</span>
-        <Button variant="flat" className={styles.choice} onSelect={pickHelixType}>Copy from a road</Button>
-        {type !== "" && <Button variant="flat" className={styles.choice} onSelect={helixUseRoadType}>Same as road</Button>}
-      </div>
+      <RoadTypePicker onCopyFromRoad={pickHelixType} />
     </>
   );
 };

@@ -1,6 +1,7 @@
 import { useValue } from "cs2/api";
 import { roundaboutClockwise$, roundaboutRadius$, setRoundaboutClockwise, setRoundaboutRadius } from "bindings";
 import { Choice, Stepper } from "./controls";
+import { RoadTypePicker } from "./RoadTypePicker";
 
 export const RoundaboutOptions = () => {
   const radius = useValue(roundaboutRadius$);
@@ -17,6 +18,7 @@ export const RoundaboutOptions = () => {
         value={clockwise ? 1 : 0}
         onChange={(v) => setRoundaboutClockwise(v === 1)}
       />
+      <RoadTypePicker />
     </>
   );
 };

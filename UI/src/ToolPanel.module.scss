@@ -122,3 +122,36 @@
 
 .fixable { color: rgba(255, 166, 38, 1); margin-right: 4rem; }
 .report { color: rgba(255, 64, 51, 1); margin-right: 4rem; }
+
+.search {
+  flex: 1;
+  margin: 0 2rem;
+  padding: 4rem 8rem;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.35);
+  border: 1rem solid rgba(255, 255, 255, 0.2);
+  border-radius: 4rem;
+}
+
+.typeList {
+  max-height: 260rem;
+  overflow-y: scroll;
+  margin: 2rem;
+}
+
+.typeItem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  padding: 4rem 6rem;
+  margin-bottom: 2rem;
+  text-align: left;
+  &.active { background-color: var(--accentColorNormal); }
+}
+
+.typeIcon {
+  width: 32rem;
+  height: 32rem;
+  margin-right: 8rem;
+}

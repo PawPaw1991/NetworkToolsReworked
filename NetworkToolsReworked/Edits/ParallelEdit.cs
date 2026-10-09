@@ -93,7 +93,7 @@ namespace NetworkToolsReworked.Edits
 
                 var definition = NetDefinitions.Emit(ecb, new CreationDefinition
                 {
-                    m_Prefab = em.GetComponentData<PrefabRef>(edges[i]).m_Prefab,
+                    m_Prefab = BuildType.For(em, em.GetComponentData<PrefabRef>(edges[i]).m_Prefab),
                     m_RandomSeed = randomSeed,
                     m_Flags = CreationFlags.SubElevation,
                 }, new NetCourse
@@ -106,7 +106,8 @@ namespace NetworkToolsReworked.Edits
                     m_FixedIndex = -1,
                 });
 
-                if (em.TryGetComponent(edges[i], out Upgraded upgraded))
+                // Upgrades belong to a road type, so they're only copied when the copy keeps the type.
+                if (BuildType.For(em, em.GetComponentData<PrefabRef>(edges[i]).m_Prefab) == em.GetComponentData<PrefabRef>(edges[i]).m_Prefab && em.TryGetComponent(edges[i], out Upgraded upgraded))
                     ecb.AddComponent(definition, upgraded);
             }
         }
@@ -176,7 +177,7 @@ namespace NetworkToolsReworked.Edits
 
                 var definition = NetDefinitions.Emit(ecb, new CreationDefinition
                 {
-                    m_Prefab = em.GetComponentData<PrefabRef>(edges[i]).m_Prefab,
+                    m_Prefab = BuildType.For(em, em.GetComponentData<PrefabRef>(edges[i]).m_Prefab),
                     m_RandomSeed = randomSeed,
                     m_Flags = CreationFlags.SubElevation,
                 }, new NetCourse
@@ -189,7 +190,8 @@ namespace NetworkToolsReworked.Edits
                     m_FixedIndex = -1,
                 });
 
-                if (em.TryGetComponent(edges[i], out Upgraded upgraded))
+                // Upgrades belong to a road type, so they're only copied when the copy keeps the type.
+                if (BuildType.For(em, em.GetComponentData<PrefabRef>(edges[i]).m_Prefab) == em.GetComponentData<PrefabRef>(edges[i]).m_Prefab && em.TryGetComponent(edges[i], out Upgraded upgraded))
                     ecb.AddComponent(definition, upgraded);
             }
         }
