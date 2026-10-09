@@ -36,6 +36,7 @@ namespace NetworkToolsReworked.Presets
             [ToolId.Ramp] = new[] { nameof(Setting.RampEntry), nameof(Setting.RampRight), nameof(Setting.RampFlip), nameof(Setting.RampAngle), nameof(Setting.RampTurn), nameof(Setting.RampLength), nameof(Setting.RampHeight) },
             [ToolId.MoveNode] = new[] { nameof(Setting.MoveSnap), nameof(Setting.MoveGridSize) },
             [ToolId.Connect] = new[] { nameof(Setting.ConnectMode) },
+            [ToolId.Fillet] = new[] { nameof(Setting.FilletRadius) },
             [ToolId.Bridge] = new[] { nameof(Setting.BridgeMode), nameof(Setting.BridgeHeight), nameof(Setting.BridgeClearance) },
         };
 
@@ -123,6 +124,8 @@ namespace NetworkToolsReworked.Presets
                     return s.MoveSnap == MoveSnap.Grid ? $"Grid {s.MoveGridSize.ToString("0.#", c)} m" : s.MoveSnap == MoveSnap.Angle ? "15° steps" : "No snap";
                 case ToolId.Connect:
                     return s.ConnectMode == ConnectMode.SmoothBothEnds ? "Smooth both ends" : "Simple curve";
+                case ToolId.Fillet:
+                    return $"Radius {s.FilletRadius:0} m";
                 case ToolId.Bridge:
                     return s.BridgeMode == LiftMode.OverCrossings ? $"Over crossings, {s.BridgeClearance.ToString("0.#", c)} m clear"
                         : s.BridgeMode == LiftMode.Raise ? $"Raise {s.BridgeHeight.ToString("0.#", c)} m" : $"Lower {s.BridgeHeight.ToString("0.#", c)} m";
