@@ -29,6 +29,7 @@ namespace NetworkToolsReworked.Tools
         Bridge,
         Fillet,
         Split,
+        Helix,
     }
 
     /// <summary>Turns the tools on and off, from their key bindings or the tool panel.</summary>
@@ -69,6 +70,8 @@ namespace NetworkToolsReworked.Tools
         private ProxyAction m_FilletAction;
         private SplitToolSystem m_SplitToolSystem;
         private ProxyAction m_SplitAction;
+        private HelixToolSystem m_HelixToolSystem;
+        private ProxyAction m_HelixAction;
         private ProxyAction m_AddNodeAction;
         private ProxyAction m_RemoveNodeAction;
         private ProxyAction m_SlopeAction;
@@ -109,6 +112,7 @@ namespace NetworkToolsReworked.Tools
                 if (active == m_BridgeToolSystem) return ToolId.Bridge;
                 if (active == m_FilletToolSystem) return ToolId.Fillet;
                 if (active == m_SplitToolSystem) return ToolId.Split;
+                if (active == m_HelixToolSystem) return ToolId.Helix;
                 return ToolId.None;
             }
         }
@@ -125,6 +129,8 @@ namespace NetworkToolsReworked.Tools
         public MatchHeightToolSystem MatchHeightTool => m_MatchHeightToolSystem;
 
         public HealthToolSystem HealthTool => m_HealthToolSystem;
+
+        public HelixToolSystem HelixTool => m_HelixToolSystem;
 
         /// <summary>The active tool if it copies from a picked road first, otherwise null.</summary>
         public PathToolSystem SourceTool => m_ToolSystem.activeTool as PathToolSystem;
@@ -166,6 +172,8 @@ namespace NetworkToolsReworked.Tools
             m_FilletAction = Enable(nameof(Setting.FilletTool));
             m_SplitToolSystem = World.GetOrCreateSystemManaged<SplitToolSystem>();
             m_SplitAction = Enable(nameof(Setting.SplitTool));
+            m_HelixToolSystem = World.GetOrCreateSystemManaged<HelixToolSystem>();
+            m_HelixAction = Enable(nameof(Setting.HelixTool));
             m_AddNodeAction = Enable(nameof(Setting.AddNodeTool));
             m_RemoveNodeAction = Enable(nameof(Setting.RemoveNodeTool));
             m_SlopeAction = Enable(nameof(Setting.SlopeTool));
@@ -238,6 +246,8 @@ namespace NetworkToolsReworked.Tools
                 Toggle(ToolId.Fillet);
             else if (m_SplitAction.WasPerformedThisFrame())
                 Toggle(ToolId.Split);
+            else if (m_HelixAction.WasPerformedThisFrame())
+                Toggle(ToolId.Helix);
         }
 
         /// <summary>Activates a tool, or returns to the default tool if it is already active.</summary>
@@ -311,6 +321,9 @@ namespace NetworkToolsReworked.Tools
                     break;
                 case ToolId.Split:
                     m_ToolSystem.activeTool = m_SplitToolSystem;
+                    break;
+                case ToolId.Helix:
+                    m_ToolSystem.activeTool = m_HelixToolSystem;
                     break;
                 default:
                     m_ToolSystem.activeTool = m_DefaultToolSystem;
