@@ -127,23 +127,8 @@ namespace NetworkToolsReworked.Edits
 
         private static void EmitRingPiece(EntityManager em, EntityCommandBuffer ecb, ref TerrainHeightData terrain, Entity prefab, Bezier4x3 arc, bool hasElevation, float3 centre, int randomSeed)
         {
-            CoursePos End(float3 p, bool start)
-            {
-                var tangent = start ? MathUtils.StartTangent(arc) : MathUtils.EndTangent(arc);
-                return new CoursePos
-                {
-                    m_Entity = Entity.Null,
-                    m_Position = p,
-                    m_Rotation = NetUtils.GetNodeRotation(tangent),
-                    m_Elevation = hasElevation ? new float2(p.y - TerrainUtils.SampleHeight(ref terrain, p)) : float2.zero,
-                    m_CourseDelta = start ? 0f : 1f,
-                    m_Flags = start ? CoursePosFlags.IsFirst : CoursePosFlags.IsLast,
-                    m_ParentMesh = -1,
-                };
-            }
-
-            var startPos = End(arc.a, true);
-            var endPos = End(arc.d, false);
+            var startPos = RingEnd(ref terrain, arc, start: true, hasElevation);
+            var endPos = RingEnd(ref terrain, arc, start: false, hasElevation);
             NetDefinitions.Emit(ecb, new CreationDefinition
             {
                 m_Prefab = prefab,
@@ -158,6 +143,23 @@ namespace NetworkToolsReworked.Edits
                 m_Length = MathUtils.Length(arc),
                 m_FixedIndex = -1,
             });
+        }
+
+        // A static method rather than a local function: C# does not let local functions capture ref parameters.
+        private static CoursePos RingEnd(ref TerrainHeightData terrain, Bezier4x3 arc, bool start, bool hasElevation)
+        {
+            var p = start ? arc.a : arc.d;
+            var tangent = start ? MathUtils.StartTangent(arc) : MathUtils.EndTangent(arc);
+            return new CoursePos
+            {
+                m_Entity = Entity.Null,
+                m_Position = p,
+                m_Rotation = NetUtils.GetNodeRotation(tangent),
+                m_Elevation = hasElevation ? new float2(p.y - TerrainUtils.SampleHeight(ref terrain, p)) : float2.zero,
+                m_CourseDelta = start ? 0f : 1f,
+                m_Flags = start ? CoursePosFlags.IsFirst : CoursePosFlags.IsLast,
+                m_ParentMesh = -1,
+            };
         }
 
         /// <summary>Counter-clockwise (seen from above) circular arc as a cubic bezier, flat at the centre's height.</summary>
