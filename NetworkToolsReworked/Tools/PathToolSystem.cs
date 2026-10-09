@@ -5,6 +5,7 @@ using Game.Net;
 using Game.Prefabs;
 using Game.Tools;
 using NetworkToolsReworked.Edits;
+using NetworkToolsReworked.Undo;
 using Unity.Entities;
 using Unity.Jobs;
 
@@ -109,6 +110,7 @@ namespace NetworkToolsReworked.Tools
             }
 
             applyMode = ApplyMode.Clear;
+            UndoRecorder.Begin(EntityManager, toolID);
             Summary = string.Empty;
             m_Overlay.BeginFrame();
 
@@ -158,6 +160,7 @@ namespace NetworkToolsReworked.Tools
             else if (emitted && (click || applyRequested))
             {
                 applyMode = ApplyMode.Apply;
+                UndoRecorder.Commit();
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"{toolID} applied over {m_PathEdges.Count} edges from {m_StartNode} to {end}");
                 Reset();

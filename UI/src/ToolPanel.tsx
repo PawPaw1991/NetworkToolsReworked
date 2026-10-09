@@ -40,6 +40,7 @@ const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "Arrange", label: "Arrange", hint: "Space the nodes between two nodes evenly, on the current shape, a straight line or an arc." },
   { id: "Reverse", label: "Reverse", hint: "Reverse the direction of the road between two nodes, e.g. a one-way road." },
   { id: "Roundabout", label: "Roundabout", hint: "Turn a junction into a roundabout. The ring uses the same road type as the junction." },
+  { id: "Undo", label: "Undo", hint: "Undo the last edit made with these tools (last 30 this session). Ctrl+Alt+Z." },
   { id: "Connect", label: "Connect", hint: "Build a new road between two nodes. , and . rotate the start direction." },
   { id: "Parallel", label: "Parallel", hint: "Build a copy of the road between two nodes, offset to the side." },
 ];
@@ -53,7 +54,10 @@ const STEPS: Steps = {
 };
 
 // Tools whose steps read differently from the two-node tools.
+const UNDO_STEP = { step: "", text: "Red roads are removed and green ones restored. Click or press Apply to undo, right-click or Cancel to keep things as they are." };
+
 const TOOL_STEPS: Partial<Record<ToolId, Steps>> = {
+  Undo: { PickStart: UNDO_STEP, PickEnd: UNDO_STEP, Review: UNDO_STEP },
   Roundabout: {
     PickStart: { step: "1/2", text: "Hover a junction to preview, click it to lock the preview." },
     PickEnd: { step: "1/2", text: "Hover a junction to preview, click it to lock the preview." },
@@ -107,7 +111,7 @@ export const ToolPanel = () => {
       {phase !== "" && (
         <div className={styles.status}>
           <div className={styles.row}>
-            <span className={styles.stepBadge}>{steps[phase].step}</span>
+            {steps[phase].step !== "" && <span className={styles.stepBadge}>{steps[phase].step}</span>}
             <span className={styles.label}>{steps[phase].text}</span>
           </div>
           {summary !== "" && <div className={styles.summary}>{summary}</div>}
@@ -116,7 +120,7 @@ export const ToolPanel = () => {
               {phase === "Review" && (
                 <Button variant="flat" className={classNames(styles.choice, styles.active)} onSelect={applyPreview}>Apply</Button>
               )}
-              <Button variant="flat" className={styles.choice} onSelect={cancelPreview}>{phase === "Review" ? "Back" : active === "MoveNode" ? "Pick another" : "Clear start"}</Button>
+              <Button variant="flat" className={styles.choice} onSelect={cancelPreview}>{active === "Undo" ? "Cancel" : phase === "Review" ? "Back" : active === "MoveNode" ? "Pick another" : "Clear start"}</Button>
             </div>
           )}
         </div>

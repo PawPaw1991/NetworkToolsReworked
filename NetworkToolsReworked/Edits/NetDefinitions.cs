@@ -4,6 +4,7 @@ using Game.Common;
 using Game.Net;
 using Game.Prefabs;
 using Game.Tools;
+using NetworkToolsReworked.Undo;
 using Unity.Entities;
 using Unity.Mathematics;
 
@@ -41,6 +42,10 @@ namespace NetworkToolsReworked.Edits
             var endPos = pos;
             endPos.m_CourseDelta = 1f;
             endPos.m_Flags = CoursePosFlags.IsLast;
+
+            UndoRecorder.RecordOriginal(edge);
+            UndoRecorder.RecordResult(MathUtils.Cut(curve, new float2(0f, t)));
+            UndoRecorder.RecordResult(MathUtils.Cut(curve, new float2(t, 1f)));
 
             var course = new NetCourse
             {
@@ -236,6 +241,7 @@ namespace NetworkToolsReworked.Edits
 
         internal static Entity Emit(EntityCommandBuffer ecb, CreationDefinition definition, NetCourse course)
         {
+            UndoRecorder.Record(definition, course);
             var entity = ecb.CreateEntity();
             ecb.AddComponent(entity, definition);
             ecb.AddComponent(entity, course);

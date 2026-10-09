@@ -6,6 +6,7 @@ using Game.Prefabs;
 using Game.Simulation;
 using Game.Tools;
 using NetworkToolsReworked.Edits;
+using NetworkToolsReworked.Undo;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -91,6 +92,7 @@ namespace NetworkToolsReworked.Tools
             }
 
             applyMode = ApplyMode.Clear;
+            UndoRecorder.Begin(EntityManager, toolID);
             Summary = string.Empty;
             m_Overlay.BeginFrame();
 
@@ -130,6 +132,7 @@ namespace NetworkToolsReworked.Tools
             else if (click || applyRequested)
             {
                 applyMode = ApplyMode.Apply;
+                UndoRecorder.Commit();
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"Roundabout applied at {m_Node}, radius {radius}");
                 m_Node = Entity.Null;

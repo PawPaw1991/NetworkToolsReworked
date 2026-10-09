@@ -75,6 +75,11 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.O, nameof(RoundaboutTool), ctrl: true, shift: true)]
         public ProxyBinding RoundaboutTool { get; set; }
 
+        /// <summary>Ctrl+Alt+Z so it doesn't take Ctrl+Z from other mods' undo (Move It uses it).</summary>
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Z, nameof(UndoTool), ctrl: true, alt: true)]
+        public ProxyBinding UndoTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -240,6 +245,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RoundaboutTool)), "Roundabout tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.RoundaboutTool)), "Toggle the Roundabout tool. Click a junction to turn it into a roundabout; set the radius and direction in the tool panel." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.RoundaboutTool)), "Roundabout tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.UndoTool)), "Undo" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.UndoTool)), "Preview undoing the last edit made with Network Tools Reworked, then click or press Apply. Keeps the last 30 edits for this session." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.UndoTool)), "Undo" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },

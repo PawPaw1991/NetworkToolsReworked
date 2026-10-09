@@ -5,6 +5,7 @@ using Game.Prefabs;
 using Game.Simulation;
 using Game.Tools;
 using NetworkToolsReworked.Edits;
+using NetworkToolsReworked.Undo;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -104,6 +105,7 @@ namespace NetworkToolsReworked.Tools
             }
 
             applyMode = ApplyMode.Clear;
+            UndoRecorder.Begin(EntityManager, toolID);
             Summary = string.Empty;
             m_Overlay.BeginFrame();
 
@@ -151,6 +153,7 @@ namespace NetworkToolsReworked.Tools
             else if (emitted && (click || applyRequested))
             {
                 applyMode = ApplyMode.Apply;
+                UndoRecorder.Commit();
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"Move node applied: {m_Node} by {moved}");
                 Reset();

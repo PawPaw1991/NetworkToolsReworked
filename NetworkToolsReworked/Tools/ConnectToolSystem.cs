@@ -5,6 +5,7 @@ using Game.Net;
 using Game.Prefabs;
 using Game.Tools;
 using NetworkToolsReworked.Edits;
+using NetworkToolsReworked.Undo;
 using Unity.Entities;
 using Unity.Jobs;
 using Unity.Mathematics;
@@ -119,6 +120,7 @@ namespace NetworkToolsReworked.Tools
             m_RotationOffset += rotateSteps * kRotateStep;
 
             applyMode = ApplyMode.Clear;
+            UndoRecorder.Begin(EntityManager, toolID);
             Summary = string.Empty;
             m_Overlay.BeginFrame();
 
@@ -175,6 +177,7 @@ namespace NetworkToolsReworked.Tools
             else if (click || applyRequested)
             {
                 applyMode = ApplyMode.Apply;
+                UndoRecorder.Commit();
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"Connect applied from {m_StartNode} to {end}");
                 Reset();

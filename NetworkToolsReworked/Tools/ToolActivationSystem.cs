@@ -1,6 +1,7 @@
 using Game;
 using Game.Input;
 using Game.Tools;
+using NetworkToolsReworked.Undo;
 
 namespace NetworkToolsReworked.Tools
 {
@@ -17,6 +18,7 @@ namespace NetworkToolsReworked.Tools
         Arrange,
         Reverse,
         Roundabout,
+        Undo,
     }
 
     /// <summary>Turns the tools on and off, from their key bindings or the tool panel.</summary>
@@ -33,6 +35,7 @@ namespace NetworkToolsReworked.Tools
         private ArrangeToolSystem m_ArrangeToolSystem;
         private ReverseToolSystem m_ReverseToolSystem;
         private RoundaboutToolSystem m_RoundaboutToolSystem;
+        private UndoToolSystem m_UndoToolSystem;
         private ProxyAction m_AddNodeAction;
         private ProxyAction m_RemoveNodeAction;
         private ProxyAction m_SlopeAction;
@@ -43,6 +46,7 @@ namespace NetworkToolsReworked.Tools
         private ProxyAction m_ArrangeAction;
         private ProxyAction m_ReverseAction;
         private ProxyAction m_RoundaboutAction;
+        private ProxyAction m_UndoAction;
 
         public ToolId Current
         {
@@ -59,6 +63,7 @@ namespace NetworkToolsReworked.Tools
                 if (active == m_ArrangeToolSystem) return ToolId.Arrange;
                 if (active == m_ReverseToolSystem) return ToolId.Reverse;
                 if (active == m_RoundaboutToolSystem) return ToolId.Roundabout;
+                if (active == m_UndoToolSystem) return ToolId.Undo;
                 return ToolId.None;
             }
         }
@@ -84,6 +89,7 @@ namespace NetworkToolsReworked.Tools
             m_ArrangeToolSystem = World.GetOrCreateSystemManaged<ArrangeToolSystem>();
             m_ReverseToolSystem = World.GetOrCreateSystemManaged<ReverseToolSystem>();
             m_RoundaboutToolSystem = World.GetOrCreateSystemManaged<RoundaboutToolSystem>();
+            m_UndoToolSystem = World.GetOrCreateSystemManaged<UndoToolSystem>();
 
             m_AddNodeAction = Enable(nameof(Setting.AddNodeTool));
             m_RemoveNodeAction = Enable(nameof(Setting.RemoveNodeTool));
@@ -95,6 +101,7 @@ namespace NetworkToolsReworked.Tools
             m_ArrangeAction = Enable(nameof(Setting.ArrangeTool));
             m_ReverseAction = Enable(nameof(Setting.ReverseTool));
             m_RoundaboutAction = Enable(nameof(Setting.RoundaboutTool));
+            m_UndoAction = Enable(nameof(Setting.UndoTool));
         }
 
         protected override void OnUpdate()
@@ -119,6 +126,8 @@ namespace NetworkToolsReworked.Tools
                 Toggle(ToolId.Reverse);
             else if (m_RoundaboutAction.WasPerformedThisFrame())
                 Toggle(ToolId.Roundabout);
+            else if (m_UndoAction.WasPerformedThisFrame())
+                Toggle(ToolId.Undo);
         }
 
         /// <summary>Activates a tool, or returns to the default tool if it is already active.</summary>
@@ -159,6 +168,9 @@ namespace NetworkToolsReworked.Tools
                     break;
                 case ToolId.Roundabout:
                     m_ToolSystem.activeTool = m_RoundaboutToolSystem;
+                    break;
+                case ToolId.Undo:
+                    m_ToolSystem.activeTool = m_UndoToolSystem;
                     break;
                 default:
                     m_ToolSystem.activeTool = m_DefaultToolSystem;

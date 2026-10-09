@@ -37,6 +37,7 @@ Click the **Network Tools** button at the top left of the screen to open the too
 | Ctrl+Shift+A | Arrange: pick two nodes to space the nodes between them evenly, along the current shape, on a straight line, or on an arc (with adjustable bulge) |
 | Ctrl+Shift+R | Reverse: pick two nodes to reverse the direction of the road between them (one-way roads, tracks). Side-specific upgrades stay on the same side |
 | Ctrl+Shift+O | Roundabout: click a junction of three or more roads to preview a roundabout around it, set the radius and direction in the panel, then apply |
+| Ctrl+Alt+Z | Undo: preview undoing the last edit made with these tools (red is removed, green restored), then click or press Apply. Keeps the last 30 edits for the session. Ctrl+Z is left to other mods such as Move It |
 | Ctrl+J | Connect: click a start node, hover an end node to preview a new road between them, click to build it. `,` and `.` rotate the start direction |
 | Ctrl+Shift+P | Parallel: click a start node, hover an end node to preview a copy of the road between them, click to build it. Side offset, height offset and direction are set in Options |
 
