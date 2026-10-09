@@ -46,6 +46,10 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<string> m_SourceName;
         private ValueBinding<bool> m_ReplaceKeepUpgrades;
         private ValueBinding<bool> m_UpgradesSwapSides;
+        private ValueBinding<int> m_ParallelSpacing;
+        private ValueBinding<float> m_ParallelGap;
+        private ValueBinding<float> m_ParallelWidths;
+        private ValueBinding<bool> m_ParallelBothSides;
         private SlopeToolSystem m_SlopeToolSystem;
 
         protected override void OnCreate()
@@ -87,6 +91,10 @@ namespace NetworkToolsReworked.UI
             AddBinding(m_SourceName = new ValueBinding<string>(kGroup, "SourceName", string.Empty));
             AddBinding(m_ReplaceKeepUpgrades = new ValueBinding<bool>(kGroup, "ReplaceKeepUpgrades", true));
             AddBinding(m_UpgradesSwapSides = new ValueBinding<bool>(kGroup, "UpgradesSwapSides", false));
+            AddBinding(m_ParallelSpacing = new ValueBinding<int>(kGroup, "ParallelSpacing", 0));
+            AddBinding(m_ParallelGap = new ValueBinding<float>(kGroup, "ParallelGap", 0f));
+            AddBinding(m_ParallelWidths = new ValueBinding<float>(kGroup, "ParallelWidths", 1f));
+            AddBinding(m_ParallelBothSides = new ValueBinding<bool>(kGroup, "ParallelBothSides", false));
 
             AddBinding(new TriggerBinding(kGroup, "TogglePanel", () => m_PanelOpen.Update(!m_PanelOpen.value)));
             AddBinding(new TriggerBinding<string>(kGroup, "SelectTool", name =>
@@ -121,6 +129,10 @@ namespace NetworkToolsReworked.UI
             AddBinding(new TriggerBinding<float>(kGroup, "SetMoveGridSize", v => Save(s => s.MoveGridSize = v)));
             AddBinding(new TriggerBinding<bool>(kGroup, "SetReplaceKeepUpgrades", v => Save(s => s.ReplaceKeepUpgrades = v)));
             AddBinding(new TriggerBinding<bool>(kGroup, "SetUpgradesSwapSides", v => Save(s => s.UpgradesSwapSides = v)));
+            AddBinding(new TriggerBinding<int>(kGroup, "SetParallelSpacing", v => Save(s => s.ParallelSpacing = (ParallelSpacing)v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetParallelGap", v => Save(s => s.ParallelGap = v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetParallelWidths", v => Save(s => s.ParallelWidths = v)));
+            AddBinding(new TriggerBinding<bool>(kGroup, "SetParallelBothSides", v => Save(s => s.ParallelBothSides = v)));
             AddBinding(new TriggerBinding(kGroup, "PickSource", () => m_ToolActivationSystem.SourceTool?.RequestPickSource()));
             AddBinding(new TriggerBinding(kGroup, "ApplyPreview", () => m_ToolActivationSystem.PreviewTool?.RequestApply()));
             AddBinding(new TriggerBinding(kGroup, "CancelPreview", () => m_ToolActivationSystem.PreviewTool?.RequestCancel()));
@@ -166,6 +178,10 @@ namespace NetworkToolsReworked.UI
             m_SourceName.Update(m_ToolActivationSystem.SourceTool?.SourceName ?? string.Empty);
             m_ReplaceKeepUpgrades.Update(settings.ReplaceKeepUpgrades);
             m_UpgradesSwapSides.Update(settings.UpgradesSwapSides);
+            m_ParallelSpacing.Update((int)settings.ParallelSpacing);
+            m_ParallelGap.Update(settings.ParallelGap);
+            m_ParallelWidths.Update(settings.ParallelWidths);
+            m_ParallelBothSides.Update(settings.ParallelBothSides);
         }
 
         private static void Save(Action<Setting> change)
