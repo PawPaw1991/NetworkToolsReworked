@@ -100,6 +100,8 @@ namespace NetworkToolsReworked.Tools
             var r = m_Result;
             var grade = r.Length > 0.01f ? r.Rise / r.Length * 100f : 0f;
             var kept = r.InPlace ? ", nodes stay in place" : "";
+            if (Mod.Settings.CurveMode == CurveMode.Transition && edges.Count < 3)
+                kept += ". Transition curves come out best over three or more segments: add nodes first";
             var clearance = "";
             if (m_Clearance.Count > 0)
             {

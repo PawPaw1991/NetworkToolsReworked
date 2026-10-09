@@ -52,7 +52,7 @@ Slope, Connect and Parallel work in three steps, shown in the panel: click a sta
 **Slope & Curve options** (tool panel):
 
 - Slope: Keep, Linear or Ease in/out, with the ease length (5 to 50% of the road at each end), an arch (bump or dip at the middle), and start and end height changes in 0.1 m or 1 m steps.
-- Curve: Keep, Smooth (line up the direction at every joint; optionally keep the direction at both ends so roads beyond stay aligned) or Straighten, each with a strength from 0 to 100%.
+- Curve: Keep, Smooth (line up the direction at every joint; optionally keep the direction at both ends so roads beyond stay aligned), Straighten, or Transition (a highway-style bend that tightens gradually from the road's direction at each end, like a transition spiral; inner nodes move along it, so it works best over three or more segments), each with a strength from 0 to 100%.
 - The preview is coloured by grade against each road's own limit (green, yellow, red) and the panel shows the steepest grade. When no node moves (for example smoothing only), the roads are edited in place and keep their identity.
 
 **Smooth options** (tool panel): strength (0 to 100%), keep the direction at both ends or leave them free, smooth the slope too (evens out bumps and dips at the nodes) or curves only, and Relax nodes, which also pulls the inner nodes towards an even line. Without Relax no node moves, so the roads are edited in place. The preview shows the current road as a dashed line under the new shape.

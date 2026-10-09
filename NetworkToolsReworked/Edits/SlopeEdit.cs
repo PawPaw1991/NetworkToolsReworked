@@ -299,7 +299,11 @@ namespace NetworkToolsReworked.Edits
                 return curves;
 
             var target = new Bezier4x3[count];
-            if (shape.Curve == CurveMode.Straighten)
+            if (shape.Curve == CurveMode.Transition)
+            {
+                TransitionCurve(original, originalAlong, target);
+            }
+            else if (shape.Curve == CurveMode.Straighten)
             {
                 var from = original[0].a;
                 var to = original[count - 1].d;
@@ -355,6 +359,75 @@ namespace NetworkToolsReworked.Edits
                 curves[i] = new Bezier4x3(LerpXZ(o.a, t.a, strength), LerpXZ(o.b, t.b, strength), LerpXZ(o.c, t.c, strength), LerpXZ(o.d, t.d, strength));
             }
             return curves;
+        }
+
+        /// <summary>
+        /// Fills <paramref name="target"/> with a curvature-continuous path from the chain's start to its end,
+        /// leaving and arriving in the road's current directions with zero curvature at both ends, so the
+        /// bend builds up and eases off gradually. It is a quintic Hermite curve (zero second derivative at
+        /// the ends); inner nodes are placed along it at the same share of the length as before.
+        /// </summary>
+        private static void TransitionCurve(Bezier4x3[] original, float[] originalAlong, Bezier4x3[] target)
+        {
+            var count = original.Length;
+            var a = original[0].a;
+            var b = original[count - 1].d;
+            var chord = Flat(b - a);
+            var span = math.distance(a.xz, b.xz);
+            var startDir = Flat(MathUtils.StartTangent(original[0]));
+            var endDir = Flat(MathUtils.EndTangent(original[count - 1]));
+            if (math.lengthsq(startDir) < 0.5f) startDir = chord;
+            if (math.lengthsq(endDir) < 0.5f) endDir = chord;
+            var v0 = startDir * span;
+            var v1 = endDir * span;
+
+            // Arc length table, to place nodes by distance along the new path.
+            const int samples = 256;
+            var arc = new float[samples + 1];
+            var previous = Quintic(a, v0, b, v1, 0f);
+            for (var k = 1; k <= samples; k++)
+            {
+                var p = Quintic(a, v0, b, v1, (float)k / samples);
+                arc[k] = arc[k - 1] + math.distance(previous.xz, p.xz);
+                previous = p;
+            }
+
+            var u = new float[count + 1];
+            u[count] = 1f;
+            var j = 0;
+            for (var i = 1; i < count; i++)
+            {
+                var s = arc[samples] * originalAlong[i] / originalAlong[count];
+                while (j < samples - 1 && arc[j + 1] < s)
+                    j++;
+                var piece = math.max(arc[j + 1] - arc[j], 0.0001f);
+                u[i] = (j + math.saturate((s - arc[j]) / piece)) / samples;
+            }
+
+            for (var i = 0; i < count; i++)
+            {
+                var du = u[i + 1] - u[i];
+                var p0 = Quintic(a, v0, b, v1, u[i]);
+                var p1 = Quintic(a, v0, b, v1, u[i + 1]);
+                target[i] = new Bezier4x3(p0, p0 + QuinticTangent(a, v0, b, v1, u[i]) * du / 3f, p1 - QuinticTangent(a, v0, b, v1, u[i + 1]) * du / 3f, p1);
+            }
+        }
+
+        private static float3 Quintic(float3 p0, float3 v0, float3 p1, float3 v1, float u)
+        {
+            float u2 = u * u, u3 = u2 * u, u4 = u3 * u, u5 = u4 * u;
+            return (1f - 10f * u3 + 15f * u4 - 6f * u5) * p0
+                 + (u - 6f * u3 + 8f * u4 - 3f * u5) * v0
+                 + (10f * u3 - 15f * u4 + 6f * u5) * p1
+                 + (-4f * u3 + 7f * u4 - 3f * u5) * v1;
+        }
+
+        private static float3 QuinticTangent(float3 p0, float3 v0, float3 p1, float3 v1, float u)
+        {
+            float u2 = u * u, u3 = u2 * u, u4 = u3 * u;
+            return (-30f * u2 + 60f * u3 - 30f * u4) * (p0 - p1)
+                 + (1f - 18f * u2 + 32f * u3 - 15f * u4) * v0
+                 + (-12f * u2 + 28f * u3 - 15f * u4) * v1;
         }
 
         /// <summary>

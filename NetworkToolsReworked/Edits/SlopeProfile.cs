@@ -24,6 +24,12 @@ namespace NetworkToolsReworked.Edits
 
         /// <summary>Pull the road onto the straight line between its two ends.</summary>
         Straighten,
+
+        /// <summary>
+        /// Highway-style curve between the two ends' directions: the bend tightens gradually from
+        /// straight and eases out again (like a transition spiral). Inner nodes move along it.
+        /// </summary>
+        Transition,
     }
 
     public static class SlopeProfiles
