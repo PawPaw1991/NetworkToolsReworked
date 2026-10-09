@@ -11,9 +11,11 @@ namespace NetworkToolsReworked.Tools
         private DefaultToolSystem m_DefaultToolSystem;
         private NodeToolSystem m_NodeToolSystem;
         private SlopeToolSystem m_SlopeToolSystem;
+        private ConnectToolSystem m_ConnectToolSystem;
         private ProxyAction m_AddNodeAction;
         private ProxyAction m_RemoveNodeAction;
         private ProxyAction m_SlopeAction;
+        private ProxyAction m_ConnectAction;
 
         protected override void OnCreate()
         {
@@ -22,6 +24,7 @@ namespace NetworkToolsReworked.Tools
             m_DefaultToolSystem = World.GetOrCreateSystemManaged<DefaultToolSystem>();
             m_NodeToolSystem = World.GetOrCreateSystemManaged<NodeToolSystem>();
             m_SlopeToolSystem = World.GetOrCreateSystemManaged<SlopeToolSystem>();
+            m_ConnectToolSystem = World.GetOrCreateSystemManaged<ConnectToolSystem>();
 
             m_AddNodeAction = Mod.Settings.GetAction(nameof(Setting.AddNodeTool));
             m_RemoveNodeAction = Mod.Settings.GetAction(nameof(Setting.RemoveNodeTool));
@@ -29,6 +32,8 @@ namespace NetworkToolsReworked.Tools
             m_RemoveNodeAction.shouldBeEnabled = true;
             m_SlopeAction = Mod.Settings.GetAction(nameof(Setting.SlopeTool));
             m_SlopeAction.shouldBeEnabled = true;
+            m_ConnectAction = Mod.Settings.GetAction(nameof(Setting.ConnectTool));
+            m_ConnectAction.shouldBeEnabled = true;
         }
 
         protected override void OnUpdate()
@@ -38,7 +43,14 @@ namespace NetworkToolsReworked.Tools
             else if (m_RemoveNodeAction.WasPerformedThisFrame())
                 Toggle(NodeToolMode.RemoveNode);
             else if (m_SlopeAction.WasPerformedThisFrame())
-                m_ToolSystem.activeTool = m_ToolSystem.activeTool == m_SlopeToolSystem ? m_DefaultToolSystem : m_SlopeToolSystem;
+                ToggleTool(m_SlopeToolSystem);
+            else if (m_ConnectAction.WasPerformedThisFrame())
+                ToggleTool(m_ConnectToolSystem);
+        }
+
+        private void ToggleTool(ToolBaseSystem tool)
+        {
+            m_ToolSystem.activeTool = m_ToolSystem.activeTool == tool ? m_DefaultToolSystem : tool;
         }
 
         private void Toggle(NodeToolMode mode)

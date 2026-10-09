@@ -39,8 +39,23 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.G, nameof(SlopeTool), ctrl: true)]
         public ProxyBinding SlopeTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.J, nameof(ConnectTool), ctrl: true)]
+        public ProxyBinding ConnectTool { get; set; }
+
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Comma, nameof(ConnectRotateLeft))]
+        public ProxyBinding ConnectRotateLeft { get; set; }
+
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.Period, nameof(ConnectRotateRight))]
+        public ProxyBinding ConnectRotateRight { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
+
+        [SettingsUISection(kSection, kGeneralGroup)]
+        public ConnectMode ConnectMode { get; set; }
 
         /// <summary>Unit for lengths and offsets in tool panels. A cell is the 8 m zone grid.</summary>
         [SettingsUISection(kSection, kGeneralGroup)]
@@ -52,6 +67,7 @@ namespace NetworkToolsReworked
         public override void SetDefaults()
         {
             SlopeProfile = SlopeProfile.Linear;
+            ConnectMode = ConnectMode.SimpleCurve;
             Unit = DistanceUnit.Meters;
             DebugLogging = false;
         }
@@ -90,6 +106,21 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SlopeProfile)), "Linear keeps one constant grade. Ease in/out starts and ends flat and is steepest in the middle." },
                 { m_Setting.GetEnumValueLocaleID(SlopeProfile.Linear), "Linear" },
                 { m_Setting.GetEnumValueLocaleID(SlopeProfile.EaseInOut), "Ease in/out" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ConnectTool)), "Connect tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ConnectTool)), "Toggle the Connect tool. Click a start node, hover an end node to preview a new road between them, click to build it." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.ConnectTool)), "Connect tool" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ConnectRotateLeft)), "Connect: rotate start left" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ConnectRotateLeft)), "Turn the start direction of the Connect tool 15 degrees left." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.ConnectRotateLeft)), "Rotate start left" },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ConnectRotateRight)), "Connect: rotate start right" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ConnectRotateRight)), "Turn the start direction of the Connect tool 15 degrees right." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.ConnectRotateRight)), "Rotate start right" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ConnectMode)), "Connect curve" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ConnectMode)), "Simple curve leaves the start node in the chosen direction. Smooth both ends also lines up with the road at the end node." },
+                { m_Setting.GetEnumValueLocaleID(ConnectMode.SimpleCurve), "Simple curve" },
+                { m_Setting.GetEnumValueLocaleID(ConnectMode.SmoothBothEnds), "Smooth both ends" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Unit)), "Distance unit" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.Unit)), "Unit used for lengths and offsets in the tool panels. A cell is one 8 m zone grid square." },
