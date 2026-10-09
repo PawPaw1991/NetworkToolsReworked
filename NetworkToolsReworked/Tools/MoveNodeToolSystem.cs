@@ -168,12 +168,52 @@ namespace NetworkToolsReworked.Tools
         /// </summary>
         private float3 TargetPosition(ref TerrainHeightData terrain, float3 original)
         {
-            var p = m_Target;
+            var p = Snap(m_Target, original);
             p.x += Nudge.x;
             p.z += Nudge.y;
             p.y = EntityManager.HasComponent<Elevation>(m_Node) ? original.y : TerrainUtils.SampleHeight(ref terrain, p);
             p.y += HeightOffset;
             return p;
+        }
+
+        /// <summary>Snaps the dragged position to the world grid, or to 15 degree steps and whole metres from the original spot.</summary>
+        private float3 Snap(float3 target, float3 original)
+        {
+            var settings = Mod.Settings;
+            switch (settings.MoveSnap)
+            {
+                case MoveSnap.Grid:
+                    var size = math.max(settings.MoveGridSize, 0.5f);
+                    target.x = math.round(target.x / size) * size;
+                    target.z = math.round(target.z / size) * size;
+                    return target;
+                case MoveSnap.Angle:
+                    var offset = target.xz - original.xz;
+                    var length = math.round(math.length(offset));
+                    if (length < 1f)
+                        return original;
+                    var reference = ReferenceAngle();
+                    var step = math.radians(15f);
+                    var angle = reference + math.round((math.atan2(offset.y, offset.x) - reference) / step) * step;
+                    target.x = original.x + math.cos(angle) * length;
+                    target.z = original.z + math.sin(angle) * length;
+                    return target;
+                default:
+                    return target;
+            }
+        }
+
+        /// <summary>Direction of the first road at the node, so angle steps line up with the road.</summary>
+        private float ReferenceAngle()
+        {
+            foreach (var c in EntityManager.GetBuffer<ConnectedEdge>(m_Node, isReadOnly: true))
+            {
+                if (!EntityManager.TryGetComponent(c.m_Edge, out Curve curve))
+                    continue;
+                var d = curve.m_Bezier.d - curve.m_Bezier.a;
+                return math.atan2(d.z, d.x);
+            }
+            return 0f;
         }
 
         private void Reset()
