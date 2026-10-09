@@ -31,6 +31,7 @@ namespace NetworkToolsReworked
             updateSystem.UpdateAt<NodeToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<SlopeToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<ConnectToolSystem>(SystemUpdatePhase.ToolUpdate);
+            updateSystem.UpdateAt<ParallelToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<ToolActivationSystem>(SystemUpdatePhase.MainLoop);
         }
 

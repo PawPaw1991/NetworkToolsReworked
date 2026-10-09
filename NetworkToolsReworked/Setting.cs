@@ -51,8 +51,24 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.Period, nameof(ConnectRotateRight))]
         public ProxyBinding ConnectRotateRight { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.P, nameof(ParallelTool), ctrl: true, shift: true)]
+        public ProxyBinding ParallelTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
+
+        /// <summary>Sideways distance of the Parallel copy in metres; positive is to the right.</summary>
+        [SettingsUISection(kSection, kGeneralGroup)]
+        [SettingsUISlider(min = -64, max = 64, step = 1)]
+        public float ParallelOffset { get; set; }
+
+        [SettingsUISection(kSection, kGeneralGroup)]
+        [SettingsUISlider(min = -40, max = 40, step = 1)]
+        public float ParallelHeight { get; set; }
+
+        [SettingsUISection(kSection, kGeneralGroup)]
+        public bool ParallelReverse { get; set; }
 
         [SettingsUISection(kSection, kGeneralGroup)]
         public ConnectMode ConnectMode { get; set; }
@@ -68,6 +84,9 @@ namespace NetworkToolsReworked
         {
             SlopeProfile = SlopeProfile.Linear;
             ConnectMode = ConnectMode.SimpleCurve;
+            ParallelOffset = 16f;
+            ParallelHeight = 0f;
+            ParallelReverse = false;
             Unit = DistanceUnit.Meters;
             DebugLogging = false;
         }
@@ -121,6 +140,17 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ConnectMode)), "Simple curve leaves the start node in the chosen direction. Smooth both ends also lines up with the road at the end node." },
                 { m_Setting.GetEnumValueLocaleID(ConnectMode.SimpleCurve), "Simple curve" },
                 { m_Setting.GetEnumValueLocaleID(ConnectMode.SmoothBothEnds), "Smooth both ends" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ParallelTool)), "Parallel tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ParallelTool)), "Toggle the Parallel tool. Click a start node, hover an end node to preview a copy of the road between them, click to build it." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.ParallelTool)), "Parallel tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ParallelOffset)), "Parallel: side offset (m)" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ParallelOffset)), "How far to the side the copy is built, centre to centre. Positive is to the right when looking from the start node to the end node." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ParallelHeight)), "Parallel: height offset (m)" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ParallelHeight)), "Raise or lower the copy, e.g. for a stacked or sunken road." },
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ParallelReverse)), "Parallel: opposite direction" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ParallelReverse)), "Build the copy running the other way, for the second carriageway of a one-way pair." },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.Unit)), "Distance unit" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.Unit)), "Unit used for lengths and offsets in the tool panels. A cell is one 8 m zone grid square." },

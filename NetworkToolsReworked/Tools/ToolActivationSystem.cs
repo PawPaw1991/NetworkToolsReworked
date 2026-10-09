@@ -12,10 +12,12 @@ namespace NetworkToolsReworked.Tools
         private NodeToolSystem m_NodeToolSystem;
         private SlopeToolSystem m_SlopeToolSystem;
         private ConnectToolSystem m_ConnectToolSystem;
+        private ParallelToolSystem m_ParallelToolSystem;
         private ProxyAction m_AddNodeAction;
         private ProxyAction m_RemoveNodeAction;
         private ProxyAction m_SlopeAction;
         private ProxyAction m_ConnectAction;
+        private ProxyAction m_ParallelAction;
 
         protected override void OnCreate()
         {
@@ -25,6 +27,7 @@ namespace NetworkToolsReworked.Tools
             m_NodeToolSystem = World.GetOrCreateSystemManaged<NodeToolSystem>();
             m_SlopeToolSystem = World.GetOrCreateSystemManaged<SlopeToolSystem>();
             m_ConnectToolSystem = World.GetOrCreateSystemManaged<ConnectToolSystem>();
+            m_ParallelToolSystem = World.GetOrCreateSystemManaged<ParallelToolSystem>();
 
             m_AddNodeAction = Mod.Settings.GetAction(nameof(Setting.AddNodeTool));
             m_RemoveNodeAction = Mod.Settings.GetAction(nameof(Setting.RemoveNodeTool));
@@ -34,6 +37,8 @@ namespace NetworkToolsReworked.Tools
             m_SlopeAction.shouldBeEnabled = true;
             m_ConnectAction = Mod.Settings.GetAction(nameof(Setting.ConnectTool));
             m_ConnectAction.shouldBeEnabled = true;
+            m_ParallelAction = Mod.Settings.GetAction(nameof(Setting.ParallelTool));
+            m_ParallelAction.shouldBeEnabled = true;
         }
 
         protected override void OnUpdate()
@@ -46,6 +51,8 @@ namespace NetworkToolsReworked.Tools
                 ToggleTool(m_SlopeToolSystem);
             else if (m_ConnectAction.WasPerformedThisFrame())
                 ToggleTool(m_ConnectToolSystem);
+            else if (m_ParallelAction.WasPerformedThisFrame())
+                ToggleTool(m_ParallelToolSystem);
         }
 
         private void ToggleTool(ToolBaseSystem tool)
