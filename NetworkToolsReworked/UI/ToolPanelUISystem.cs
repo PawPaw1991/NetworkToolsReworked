@@ -63,6 +63,10 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<bool> m_PresetsAvailable;
         private ValueBinding<string> m_PresetNames;
         private ValueBinding<bool> m_SelectionAvailable;
+        private ValueBinding<string> m_HealthIssues;
+        private ValueBinding<int> m_HealthSelected;
+        private ValueBinding<float> m_HealthMinLength;
+        private int m_HealthVersion = -1;
         private ValueBinding<bool> m_UsingSelection;
         private SlopeToolSystem m_SlopeToolSystem;
 
@@ -122,6 +126,16 @@ namespace NetworkToolsReworked.UI
             AddBinding(m_PresetNames = new ValueBinding<string>(kGroup, "PresetNames", string.Empty));
             AddBinding(m_SelectionAvailable = new ValueBinding<bool>(kGroup, "SelectionAvailable", false));
             AddBinding(m_UsingSelection = new ValueBinding<bool>(kGroup, "UsingSelection", false));
+            AddBinding(m_HealthIssues = new ValueBinding<string>(kGroup, "HealthIssues", string.Empty));
+            AddBinding(m_HealthSelected = new ValueBinding<int>(kGroup, "HealthSelected", -1));
+            AddBinding(m_HealthMinLength = new ValueBinding<float>(kGroup, "HealthMinLength", 3f));
+            AddBinding(new TriggerBinding<int>(kGroup, "SelectIssue", i => m_ToolActivationSystem.HealthTool.RequestSelect(i)));
+            AddBinding(new TriggerBinding(kGroup, "RescanHealth", () => m_ToolActivationSystem.HealthTool.RequestRescan()));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetHealthMinLength", v =>
+            {
+                Save(s => s.HealthMinLength = v);
+                m_ToolActivationSystem.HealthTool.RequestRescan();
+            }));
             AddBinding(new TriggerBinding(kGroup, "UseSelection", () => m_ToolActivationSystem.SourceTool?.RequestUseSelection()));
 
             AddBinding(new TriggerBinding(kGroup, "TogglePanel", () => m_PanelOpen.Update(!m_PanelOpen.value)));
@@ -235,7 +249,23 @@ namespace NetworkToolsReworked.UI
             var pathTool = m_ToolActivationSystem.SourceTool;
             m_SelectionAvailable.Update(pathTool != null && m_PanelOpen.value && MoveItSelection.Available);
             m_UsingSelection.Update(pathTool != null && pathTool.UsingSelection);
+            UpdateHealth();
             UpdatePresets();
+        }
+
+        /// <summary>One line per issue: "fix" or "info", the kind, then the description, tab separated.</summary>
+        private void UpdateHealth()
+        {
+            var health = m_ToolActivationSystem.HealthTool;
+            m_HealthSelected.Update(health.Selected);
+            m_HealthMinLength.Update(Mod.Settings.HealthMinLength);
+            if (health.Version == m_HealthVersion)
+                return;
+            m_HealthVersion = health.Version;
+            var lines = new System.Collections.Generic.List<string>();
+            foreach (var issue in health.Issues)
+                lines.Add($"{(issue.CanFix ? "fix" : "info")}\t{HealthToolSystem.Name(issue.Kind)}\t{issue.Text}");
+            m_HealthIssues.Update(string.Join("\n", lines));
         }
 
         private void UpdatePresets()

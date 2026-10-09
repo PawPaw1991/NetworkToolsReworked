@@ -1,7 +1,7 @@
 import { bindValue, trigger } from "cs2/api";
 import mod from "mod.json";
 
-export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Upgrades" | "Measure" | "Ramp" | "MatchHeight" | "Connect" | "Parallel";
+export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Upgrades" | "Measure" | "Ramp" | "MatchHeight" | "Health" | "Connect" | "Parallel";
 
 export const panelOpen$ = bindValue<boolean>(mod.id, "PanelOpen", false);
 export const activeTool$ = bindValue<ToolId>(mod.id, "ActiveTool", "None");
@@ -53,6 +53,9 @@ export const presetsAvailable$ = bindValue<boolean>(mod.id, "PresetsAvailable", 
 export const presetNames$ = bindValue<string>(mod.id, "PresetNames", "");
 export const selectionAvailable$ = bindValue<boolean>(mod.id, "SelectionAvailable", false);
 export const usingSelection$ = bindValue<boolean>(mod.id, "UsingSelection", false);
+export const healthIssues$ = bindValue<string>(mod.id, "HealthIssues", "");
+export const healthSelected$ = bindValue<number>(mod.id, "HealthSelected", -1);
+export const healthMinLength$ = bindValue<number>(mod.id, "HealthMinLength", 3);
 export const connectRotation$ = bindValue<number>(mod.id, "ConnectRotation", 0);
 
 export const togglePanel = () => trigger(mod.id, "TogglePanel");
@@ -103,6 +106,9 @@ export const setMatchHeight = (value: number) => trigger(mod.id, "SetMatchHeight
 export const savePreset = () => trigger(mod.id, "SavePreset");
 export const loadPreset = (index: number) => trigger(mod.id, "LoadPreset", index);
 export const deletePreset = (index: number) => trigger(mod.id, "DeletePreset", index);
+export const selectIssue = (index: number) => trigger(mod.id, "SelectIssue", index);
+export const rescanHealth = () => trigger(mod.id, "RescanHealth");
+export const setHealthMinLength = (value: number) => trigger(mod.id, "SetHealthMinLength", value);
 export const useSelection = () => trigger(mod.id, "UseSelection");
 export const pickSource = () => trigger(mod.id, "PickSource");
 export const setMoveGridSize = (value: number) => trigger(mod.id, "SetMoveGridSize", value);
