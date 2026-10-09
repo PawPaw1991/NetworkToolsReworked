@@ -159,6 +159,10 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.F, nameof(FilletTool), ctrl: true, shift: true)]
         public ProxyBinding FilletTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.L, nameof(SplitTool), ctrl: true, shift: true)]
+        public ProxyBinding SplitTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -262,6 +266,22 @@ namespace NetworkToolsReworked
         [SettingsUIHidden]
         public float RampHeight { get; set; }
 
+        /// <summary>Split and simplify: what to do.</summary>
+        [SettingsUIHidden]
+        public SplitMode SplitMode { get; set; }
+
+        /// <summary>Split: number of equal parts per segment.</summary>
+        [SettingsUIHidden]
+        public float SplitParts { get; set; }
+
+        /// <summary>Split: length of each part, metres.</summary>
+        [SettingsUIHidden]
+        public float SplitSpacing { get; set; }
+
+        /// <summary>Simplify: how far the merged road may stray from the old one, metres.</summary>
+        [SettingsUIHidden]
+        public float SimplifyTolerance { get; set; }
+
         /// <summary>Round corner: radius of the curve, metres.</summary>
         [SettingsUIHidden]
         public float FilletRadius { get; set; }
@@ -347,6 +367,10 @@ namespace NetworkToolsReworked
             RampHeight = 6f;
             HealthMinLength = 3f;
             FilletRadius = 40f;
+            SplitMode = SplitMode.EqualParts;
+            SplitParts = 2f;
+            SplitSpacing = 48f;
+            SimplifyTolerance = 0.5f;
             BridgeMode = LiftMode.OverCrossings;
             BridgeHeight = 10f;
             BridgeClearance = 8f;
@@ -505,6 +529,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.FilletTool)), "Round corner tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.FilletTool)), "Toggle the Round corner tool. Hover a node where two roads meet at an angle to preview the corner rounded off with a curve of the set radius, click to lock it, adjust the radius, then apply." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.FilletTool)), "Round corner tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SplitTool)), "Split and simplify tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.SplitTool)), "Toggle the Split and simplify tool. Pick two nodes to cut the segments between them into equal parts or parts of a set length, or to take out nodes the road does not need." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.SplitTool)), "Split and simplify tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },

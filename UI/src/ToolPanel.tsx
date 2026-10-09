@@ -34,6 +34,7 @@ import { SelectionRow } from "./SelectionOptions";
 import { HealthOptions } from "./HealthOptions";
 import { BridgeOptions } from "./BridgeOptions";
 import { FilletOptions } from "./FilletOptions";
+import { SplitOptions } from "./SplitOptions";
 
 // Default keys; they can be rebound in Options.
 const TOOLS: { id: ToolId; label: string; hint: string; keys: string }[] = [
@@ -50,6 +51,7 @@ const TOOLS: { id: ToolId; label: string; hint: string; keys: string }[] = [
   { id: "Measure", label: "Measure", hint: "Hover a road for its length, grade, curve and height, or pick two nodes to measure between them. Changes nothing.", keys: "Ctrl+Shift+M or Alt+9" },
   { id: "Ramp", label: "Ramp", hint: "Build a ramp leaving or joining a road, climbing to a set height within the road type's grade limit.", keys: "Ctrl+Shift+E or Alt+7" },
   { id: "MatchHeight", label: "Match height", hint: "Move nodes to the same height as another node, or to a height you set.", keys: "Ctrl+Shift+H" },
+  { id: "Split", label: "Split & simplify", hint: "Add nodes along the road between two nodes, evenly or every so many metres, or take out nodes it doesn't need.", keys: "Ctrl+Shift+L" },
   { id: "Fillet", label: "Round corner", hint: "Round off the corner where two roads meet with a curve of the radius you set.", keys: "Ctrl+Shift+F" },
   { id: "Bridge", label: "Bridge & tunnel", hint: "Lift the road between two nodes over the roads crossing it, raise it into a bridge or lower it into a tunnel, with gentle approach slopes.", keys: "Ctrl+Shift+B" },
   { id: "Health", label: "Network check", hint: "Scan the city for overlapping roads, loose nodes, tiny segments, ends that don't join, grades over the limit and roads cut off from the rest.", keys: "Ctrl+Shift+K" },
@@ -227,6 +229,8 @@ export const ToolPanel = () => {
       {active === "Bridge" && <BridgeOptions />}
 
       {active === "Fillet" && <FilletOptions />}
+
+      {active === "Split" && <SplitOptions />}
 
       <PresetOptions />
 

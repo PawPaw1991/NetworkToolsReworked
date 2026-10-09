@@ -64,6 +64,10 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<string> m_PresetNames;
         private ValueBinding<bool> m_SelectionAvailable;
         private ValueBinding<float> m_FilletRadius;
+        private ValueBinding<int> m_SplitMode;
+        private ValueBinding<float> m_SplitParts;
+        private ValueBinding<float> m_SplitSpacing;
+        private ValueBinding<float> m_SimplifyTolerance;
         private ValueBinding<int> m_BridgeMode;
         private ValueBinding<float> m_BridgeHeight;
         private ValueBinding<float> m_BridgeClearance;
@@ -140,6 +144,14 @@ namespace NetworkToolsReworked.UI
                 Save(s => s.HealthMinLength = v);
                 m_ToolActivationSystem.HealthTool.RequestRescan();
             }));
+            AddBinding(m_SplitMode = new ValueBinding<int>(kGroup, "SplitMode", 0));
+            AddBinding(m_SplitParts = new ValueBinding<float>(kGroup, "SplitParts", 2f));
+            AddBinding(m_SplitSpacing = new ValueBinding<float>(kGroup, "SplitSpacing", 48f));
+            AddBinding(m_SimplifyTolerance = new ValueBinding<float>(kGroup, "SimplifyTolerance", 0.5f));
+            AddBinding(new TriggerBinding<int>(kGroup, "SetSplitMode", v => Save(s => s.SplitMode = (SplitMode)v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetSplitParts", v => Save(s => s.SplitParts = v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetSplitSpacing", v => Save(s => s.SplitSpacing = v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetSimplifyTolerance", v => Save(s => s.SimplifyTolerance = v)));
             AddBinding(m_FilletRadius = new ValueBinding<float>(kGroup, "FilletRadius", 40f));
             AddBinding(new TriggerBinding<float>(kGroup, "SetFilletRadius", v => Save(s => s.FilletRadius = v)));
             AddBinding(m_BridgeMode = new ValueBinding<int>(kGroup, "BridgeMode", 0));
@@ -262,6 +274,10 @@ namespace NetworkToolsReworked.UI
             m_SelectionAvailable.Update(pathTool != null && m_PanelOpen.value && MoveItSelection.Available);
             m_UsingSelection.Update(pathTool != null && pathTool.UsingSelection);
             m_FilletRadius.Update(settings.FilletRadius);
+            m_SplitMode.Update((int)settings.SplitMode);
+            m_SplitParts.Update(settings.SplitParts);
+            m_SplitSpacing.Update(settings.SplitSpacing);
+            m_SimplifyTolerance.Update(settings.SimplifyTolerance);
             m_BridgeMode.Update((int)settings.BridgeMode);
             m_BridgeHeight.Update(settings.BridgeHeight);
             m_BridgeClearance.Update(settings.BridgeClearance);

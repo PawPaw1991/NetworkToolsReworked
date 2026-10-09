@@ -48,6 +48,7 @@ namespace NetworkToolsReworked
             updateSystem.UpdateAt<HealthToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<BridgeToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<FilletToolSystem>(SystemUpdatePhase.ToolUpdate);
+            updateSystem.UpdateAt<SplitToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<ToolActivationSystem>(SystemUpdatePhase.MainLoop);
             updateSystem.UpdateAt<ToolPanelUISystem>(SystemUpdatePhase.UIUpdate);
         }
