@@ -27,6 +27,7 @@ import { RoundaboutOptions } from "./RoundaboutOptions";
 import { ReplaceOptions, UpgradesOptions } from "./ReplaceOptions";
 import { ParallelOptions } from "./ParallelOptions";
 import { RampOptions } from "./RampOptions";
+import { MatchHeightOptions } from "./MatchHeightOptions";
 
 const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "AddNode", label: "Add Node", hint: "Click a road to split it with a new node." },
@@ -41,6 +42,7 @@ const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "Upgrades", label: "Copy upgrades", hint: "Give the road between two nodes the same upgrades (trees, sidewalks, walls...) as another road." },
   { id: "Measure", label: "Measure", hint: "Hover a road for its length, grade, curve and height, or pick two nodes to measure between them. Changes nothing." },
   { id: "Ramp", label: "Ramp", hint: "Build a ramp leaving or joining a road, climbing to a set height within the road type's grade limit." },
+  { id: "MatchHeight", label: "Match height", hint: "Move nodes to the same height as another node, or to a height you set." },
   { id: "Intersect", label: "Intersect", hint: "Join two roads that cross without a junction. Hover near the crossing." },
   { id: "Undo", label: "Undo", hint: "Undo the last edit made with these tools (last 30 this session). Ctrl+Alt+Z." },
   { id: "Connect", label: "Connect", hint: "Build a new road between two nodes. , and . rotate the start direction." },
@@ -76,6 +78,11 @@ const TOOL_STEPS: Partial<Record<ToolId, Steps>> = {
     PickStart: { step: "1/2", text: "Hover a road to preview a ramp at the cursor, click to lock it." },
     PickEnd: { step: "1/2", text: "Hover a road to preview a ramp at the cursor, click to lock it." },
     Review: { step: "2/2", text: "Adjust the ramp below. Click or press Apply to build it, right-click or Back to move it." },
+  },
+  MatchHeight: {
+    PickStart: { step: "1/2", text: "Click a node to take its height." },
+    PickEnd: { step: "2/2", text: "Click nodes to move them to the target height (adjust it below). Right-click to take another height." },
+    Review: { step: "2/2", text: "Click nodes to move them to the target height (adjust it below). Right-click to take another height." },
   },
   Replace: {
     PickSource: { step: "1/4", text: "Click a road of the type you want to use." },
@@ -149,7 +156,7 @@ export const ToolPanel = () => {
               {phase === "Review" && active !== "Measure" && (
                 <Button variant="flat" className={classNames(styles.choice, styles.active)} onSelect={applyPreview}>Apply</Button>
               )}
-              <Button variant="flat" className={styles.choice} onSelect={cancelPreview}>{active === "Undo" ? "Cancel" : active === "Measure" ? "Clear" : phase === "Review" ? "Back" : active === "MoveNode" ? "Pick another" : "Clear start"}</Button>
+              <Button variant="flat" className={styles.choice} onSelect={cancelPreview}>{active === "Undo" ? "Cancel" : active === "MatchHeight" ? "Take another height" : active === "Measure" ? "Clear" : phase === "Review" ? "Back" : active === "MoveNode" ? "Pick another" : "Clear start"}</Button>
             </div>
           )}
         </div>
@@ -184,6 +191,8 @@ export const ToolPanel = () => {
       {active === "Parallel" && <ParallelOptions />}
 
       {active === "Ramp" && <RampOptions />}
+
+      {active === "MatchHeight" && <MatchHeightOptions />}
     </div>
   );
 };

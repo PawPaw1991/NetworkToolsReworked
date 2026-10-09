@@ -101,6 +101,10 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.E, nameof(RampTool), ctrl: true, shift: true)]
         public ProxyBinding RampTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.H, nameof(MatchHeightTool), ctrl: true, shift: true)]
+        public ProxyBinding MatchHeightTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -375,6 +379,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RampTool)), "Ramp tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.RampTool)), "Toggle the Ramp tool. Hover a road to preview a ramp leaving or joining it at the cursor, click to lock it, set its side, angle, length and height in the tool panel, then apply." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.RampTool)), "Ramp tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.MatchHeightTool)), "Match height tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.MatchHeightTool)), "Toggle the Match height tool. Click a node to take its height (or set one in the tool panel), then click other nodes to move them to that height." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.MatchHeightTool)), "Match height tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },

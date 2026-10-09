@@ -24,6 +24,7 @@ namespace NetworkToolsReworked.Tools
         Upgrades,
         Measure,
         Ramp,
+        MatchHeight,
     }
 
     /// <summary>Turns the tools on and off, from their key bindings or the tool panel.</summary>
@@ -49,6 +50,8 @@ namespace NetworkToolsReworked.Tools
         private ProxyAction m_MeasureAction;
         private RampToolSystem m_RampToolSystem;
         private ProxyAction m_RampAction;
+        private MatchHeightToolSystem m_MatchHeightToolSystem;
+        private ProxyAction m_MatchHeightAction;
         private ProxyAction m_AddNodeAction;
         private ProxyAction m_RemoveNodeAction;
         private ProxyAction m_SlopeAction;
@@ -84,6 +87,7 @@ namespace NetworkToolsReworked.Tools
                 if (active == m_UpgradesToolSystem) return ToolId.Upgrades;
                 if (active == m_MeasureToolSystem) return ToolId.Measure;
                 if (active == m_RampToolSystem) return ToolId.Ramp;
+                if (active == m_MatchHeightToolSystem) return ToolId.MatchHeight;
                 return ToolId.None;
             }
         }
@@ -96,6 +100,8 @@ namespace NetworkToolsReworked.Tools
         public MoveNodeToolSystem MoveNodeTool => m_MoveNodeToolSystem;
 
         public RampToolSystem RampTool => m_RampToolSystem;
+
+        public MatchHeightToolSystem MatchHeightTool => m_MatchHeightToolSystem;
 
         /// <summary>The active tool if it copies from a picked road first, otherwise null.</summary>
         public PathToolSystem SourceTool => m_ToolSystem.activeTool as PathToolSystem;
@@ -124,6 +130,8 @@ namespace NetworkToolsReworked.Tools
             m_MeasureAction = Enable(nameof(Setting.MeasureTool));
             m_RampToolSystem = World.GetOrCreateSystemManaged<RampToolSystem>();
             m_RampAction = Enable(nameof(Setting.RampTool));
+            m_MatchHeightToolSystem = World.GetOrCreateSystemManaged<MatchHeightToolSystem>();
+            m_MatchHeightAction = Enable(nameof(Setting.MatchHeightTool));
             m_AddNodeAction = Enable(nameof(Setting.AddNodeTool));
             m_RemoveNodeAction = Enable(nameof(Setting.RemoveNodeTool));
             m_SlopeAction = Enable(nameof(Setting.SlopeTool));
@@ -173,6 +181,8 @@ namespace NetworkToolsReworked.Tools
                 Toggle(ToolId.Measure);
             else if (m_RampAction.WasPerformedThisFrame())
                 Toggle(ToolId.Ramp);
+            else if (m_MatchHeightAction.WasPerformedThisFrame())
+                Toggle(ToolId.MatchHeight);
         }
 
         /// <summary>Activates a tool, or returns to the default tool if it is already active.</summary>
@@ -231,6 +241,9 @@ namespace NetworkToolsReworked.Tools
                     break;
                 case ToolId.Ramp:
                     m_ToolSystem.activeTool = m_RampToolSystem;
+                    break;
+                case ToolId.MatchHeight:
+                    m_ToolSystem.activeTool = m_MatchHeightToolSystem;
                     break;
                 default:
                     m_ToolSystem.activeTool = m_DefaultToolSystem;

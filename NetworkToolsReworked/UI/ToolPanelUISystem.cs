@@ -58,6 +58,7 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<float> m_RampLength;
         private ValueBinding<float> m_RampHeight;
         private ValueBinding<string> m_RampType;
+        private ValueBinding<float> m_MatchHeight;
         private SlopeToolSystem m_SlopeToolSystem;
 
         protected override void OnCreate()
@@ -111,6 +112,7 @@ namespace NetworkToolsReworked.UI
             AddBinding(m_RampLength = new ValueBinding<float>(kGroup, "RampLength", 120f));
             AddBinding(m_RampHeight = new ValueBinding<float>(kGroup, "RampHeight", 6f));
             AddBinding(m_RampType = new ValueBinding<string>(kGroup, "RampType", string.Empty));
+            AddBinding(m_MatchHeight = new ValueBinding<float>(kGroup, "MatchHeight", 0f));
 
             AddBinding(new TriggerBinding(kGroup, "TogglePanel", () => m_PanelOpen.Update(!m_PanelOpen.value)));
             AddBinding(new TriggerBinding<string>(kGroup, "SelectTool", name =>
@@ -158,6 +160,7 @@ namespace NetworkToolsReworked.UI
             AddBinding(new TriggerBinding<float>(kGroup, "SetRampHeight", v => Save(s => s.RampHeight = v)));
             AddBinding(new TriggerBinding(kGroup, "PickRampType", () => m_ToolActivationSystem.RampTool.RequestPickType()));
             AddBinding(new TriggerBinding(kGroup, "UseRoadType", () => m_ToolActivationSystem.RampTool.UseRoadType()));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetMatchHeight", v => m_ToolActivationSystem.MatchHeightTool.SetTargetHeight(v)));
             AddBinding(new TriggerBinding(kGroup, "PickSource", () => m_ToolActivationSystem.SourceTool?.RequestPickSource()));
             AddBinding(new TriggerBinding(kGroup, "ApplyPreview", () => m_ToolActivationSystem.PreviewTool?.RequestApply()));
             AddBinding(new TriggerBinding(kGroup, "CancelPreview", () => m_ToolActivationSystem.PreviewTool?.RequestCancel()));
@@ -215,6 +218,7 @@ namespace NetworkToolsReworked.UI
             m_RampLength.Update(settings.RampLength);
             m_RampHeight.Update(settings.RampHeight);
             m_RampType.Update(m_ToolActivationSystem.RampTool.RampTypeName);
+            m_MatchHeight.Update(m_ToolActivationSystem.MatchHeightTool.TargetHeight);
         }
 
         private static void Save(Action<Setting> change)

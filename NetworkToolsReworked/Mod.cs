@@ -44,6 +44,7 @@ namespace NetworkToolsReworked
             updateSystem.UpdateAt<UpgradesToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<MeasureToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<RampToolSystem>(SystemUpdatePhase.ToolUpdate);
+            updateSystem.UpdateAt<MatchHeightToolSystem>(SystemUpdatePhase.ToolUpdate);
             updateSystem.UpdateAt<ToolActivationSystem>(SystemUpdatePhase.MainLoop);
             updateSystem.UpdateAt<ToolPanelUISystem>(SystemUpdatePhase.UIUpdate);
         }

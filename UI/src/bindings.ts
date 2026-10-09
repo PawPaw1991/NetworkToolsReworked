@@ -1,7 +1,7 @@
 import { bindValue, trigger } from "cs2/api";
 import mod from "mod.json";
 
-export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Upgrades" | "Measure" | "Ramp" | "Connect" | "Parallel";
+export type ToolId = "None" | "AddNode" | "RemoveNode" | "Slope" | "Smooth" | "MoveNode" | "Arrange" | "Reverse" | "Roundabout" | "Undo" | "Intersect" | "Replace" | "Upgrades" | "Measure" | "Ramp" | "MatchHeight" | "Connect" | "Parallel";
 
 export const panelOpen$ = bindValue<boolean>(mod.id, "PanelOpen", false);
 export const activeTool$ = bindValue<ToolId>(mod.id, "ActiveTool", "None");
@@ -48,6 +48,7 @@ export const rampTurn$ = bindValue<number>(mod.id, "RampTurn", 0);
 export const rampLength$ = bindValue<number>(mod.id, "RampLength", 120);
 export const rampHeight$ = bindValue<number>(mod.id, "RampHeight", 6);
 export const rampType$ = bindValue<string>(mod.id, "RampType", "");
+export const matchHeight$ = bindValue<number>(mod.id, "MatchHeight", 0);
 export const connectRotation$ = bindValue<number>(mod.id, "ConnectRotation", 0);
 
 export const togglePanel = () => trigger(mod.id, "TogglePanel");
@@ -94,5 +95,6 @@ export const setRampLength = (value: number) => trigger(mod.id, "SetRampLength",
 export const setRampHeight = (value: number) => trigger(mod.id, "SetRampHeight", value);
 export const pickRampType = () => trigger(mod.id, "PickRampType");
 export const useRoadType = () => trigger(mod.id, "UseRoadType");
+export const setMatchHeight = (value: number) => trigger(mod.id, "SetMatchHeight", value);
 export const pickSource = () => trigger(mod.id, "PickSource");
 export const setMoveGridSize = (value: number) => trigger(mod.id, "SetMoveGridSize", value);
