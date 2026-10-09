@@ -18,6 +18,85 @@ namespace NetworkToolsReworked.Edits
     /// </summary>
     public static class RoundaboutEdit
     {
+        public enum GameProblem
+        {
+            None,
+            NotANode,
+            NotSupported,
+        }
+
+        /// <summary>
+        /// Whether the game's own roundabout can go on this node: every road there must be a type the game
+        /// allows roundabouts on (roads and tram track).
+        /// </summary>
+        public static GameProblem CheckGame(EntityManager em, Entity node)
+        {
+            if (!SlopeEdit.IsEditableNode(em, node))
+                return GameProblem.NotANode;
+            var roads = 0;
+            foreach (var c in em.GetBuffer<ConnectedEdge>(node, isReadOnly: true))
+            {
+                if (em.HasComponent<Owner>(c.m_Edge) || !em.TryGetComponent(c.m_Edge, out Edge e) || (e.m_Start != node && e.m_End != node))
+                    continue;
+                var prefab = em.GetComponentData<PrefabRef>(c.m_Edge).m_Prefab;
+                if (!em.TryGetComponent(prefab, out NetGeometryData geometry) || (geometry.m_Flags & GeometryFlags.SupportRoundabout) == 0)
+                    return GameProblem.NotSupported;
+                roads++;
+            }
+            return roads > 0 ? GameProblem.None : GameProblem.NotANode;
+        }
+
+        public static bool HasGameRoundabout(EntityManager em, Entity node)
+        {
+            return em.TryGetComponent(node, out Upgraded upgraded) && (upgraded.m_Flags.m_General & CompositionFlags.General.Roundabout) != 0;
+        }
+
+        /// <summary>
+        /// The game's own roundabout: a junction upgrade, the same definition the game's roundabout tool
+        /// writes. The ring is part of the junction and sized by the roads meeting there; no roads are
+        /// added, cut or moved. <paramref name="add"/> false removes it again.
+        /// </summary>
+        public static void EmitGame(EntityManager em, EntityCommandBuffer ecb, Entity node, bool add, int randomSeed)
+        {
+            var n = em.GetComponentData<Node>(node);
+            em.TryGetComponent(node, out Upgraded upgraded);
+            if (add)
+                upgraded.m_Flags.m_General |= CompositionFlags.General.Roundabout;
+            else
+                upgraded.m_Flags.m_General &= ~CompositionFlags.General.Roundabout;
+
+            var elevation = em.TryGetComponent(node, out Elevation e) ? e.m_Elevation : float2.zero;
+            var pos = new CoursePos
+            {
+                m_Entity = node,
+                m_Position = n.m_Position,
+                m_Rotation = n.m_Rotation,
+                m_Elevation = elevation,
+                m_CourseDelta = 0f,
+                m_Flags = CoursePosFlags.IsFirst | CoursePosFlags.IsLast,
+                m_ParentMesh = -1,
+            };
+            var endPos = pos;
+            endPos.m_CourseDelta = 1f;
+
+            var definition = NetDefinitions.Emit(ecb, new CreationDefinition
+            {
+                m_Original = node,
+                m_Prefab = em.GetComponentData<PrefabRef>(node).m_Prefab,
+                m_RandomSeed = randomSeed,
+                m_Flags = CreationFlags.Align | CreationFlags.SubElevation | CreationFlags.Upgrade | CreationFlags.Parent,
+            }, new NetCourse
+            {
+                m_Curve = new Bezier4x3(n.m_Position, n.m_Position, n.m_Position, n.m_Position),
+                m_StartPosition = pos,
+                m_EndPosition = endPos,
+                m_Elevation = elevation,
+                m_Length = 0f,
+                m_FixedIndex = -1,
+            });
+            ecb.AddComponent(definition, upgraded);
+        }
+
         private const float kMaxArcStep = math.PI / 2f;
         private const float kMinStubLength = 4f;
 

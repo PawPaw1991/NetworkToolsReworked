@@ -98,6 +98,9 @@ namespace NetworkToolsReworked.Tools
                 m_Node = Entity.Null;
 
             var click = applyAction.WasPressedThisFrame();
+            if (!Mod.Settings.RoundaboutCustomRing)
+                return UpdateGame(click, applyRequested, inputDeps);
+
             var radius = math.clamp(Mod.Settings.RoundaboutRadius, 8f, 200f);
             var target = m_Node;
             if (target == Entity.Null && GetRaycastResult(out Entity hitEntity, out RaycastHit hit))
@@ -136,6 +139,50 @@ namespace NetworkToolsReworked.Tools
                 m_Node = Entity.Null;
             }
 
+            return inputDeps;
+        }
+
+        /// <summary>
+        /// The game's own roundabout: hover a junction to preview it, click to lock, click or Apply to
+        /// build. On a junction that already has one, the same steps remove it.
+        /// </summary>
+        private JobHandle UpdateGame(bool click, bool applyRequested, JobHandle inputDeps)
+        {
+            var target = m_Node;
+            if (target == Entity.Null && GetRaycastResult(out Entity hitEntity, out RaycastHit hit))
+                target = HoveredNode(hitEntity, hit);
+            if (target == Entity.Null)
+                return inputDeps;
+
+            var problem = RoundaboutEdit.CheckGame(EntityManager, target);
+            m_Overlay.Node(target, problem == RoundaboutEdit.GameProblem.None ? (m_Node != Entity.Null ? ToolOverlay.End : ToolOverlay.Hover) : ToolOverlay.Invalid);
+            if (problem != RoundaboutEdit.GameProblem.None)
+            {
+                Summary = problem == RoundaboutEdit.GameProblem.NotSupported
+                    ? "The game doesn't allow roundabouts on one of the roads here (only roads and tram track). Try Custom ring."
+                    : "Pick a junction.";
+                return inputDeps;
+            }
+
+            var remove = RoundaboutEdit.HasGameRoundabout(EntityManager, target);
+            RoundaboutEdit.EmitGame(EntityManager, DefinitionBuffer(), target, add: !remove, m_Random.NextInt());
+            var size = EntityManager.TryGetComponent(target, out Game.Net.Roundabout roundabout) ? $", radius {PathInfo.Distance(roundabout.m_Radius)}" : string.Empty;
+            Summary = remove
+                ? $"Remove the roundabout here{size}."
+                : "Game roundabout, sized to fit the roads here.";
+
+            if (m_Node == Entity.Null)
+            {
+                if (click)
+                    m_Node = target;
+            }
+            else if (click || applyRequested)
+            {
+                applyMode = ApplyMode.Apply;
+                if (Mod.Settings.DebugLogging)
+                    Mod.Log.Info($"Game roundabout {(remove ? "removed" : "added")} at {m_Node}");
+                m_Node = Entity.Null;
+            }
             return inputDeps;
         }
 

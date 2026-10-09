@@ -216,6 +216,13 @@ namespace NetworkToolsReworked
         [SettingsUIHidden]
         public float ArrangeBulge { get; set; }
 
+        /// <summary>
+        /// Roundabout: false uses the game's own roundabout (a junction upgrade, sized by the roads);
+        /// true builds a custom ring of roads at <see cref="RoundaboutRadius"/>.
+        /// </summary>
+        [SettingsUIHidden]
+        public bool RoundaboutCustomRing { get; set; }
+
         /// <summary>Roundabout ring radius in metres, centre line.</summary>
         [SettingsUIHidden]
         public float RoundaboutRadius { get; set; }
@@ -393,6 +400,7 @@ namespace NetworkToolsReworked
             ArrangeBulge = 100f;
             RoundaboutRadius = 24f;
             RoundaboutClockwise = false;
+            RoundaboutCustomRing = false;
             ReplaceKeepUpgrades = true;
             UpgradesSwapSides = false;
             ParallelSpacing = ParallelSpacing.Metres;

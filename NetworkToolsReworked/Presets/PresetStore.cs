@@ -31,7 +31,7 @@ namespace NetworkToolsReworked.Presets
             [ToolId.Slope] = new[] { nameof(Setting.SlopeProfile), nameof(Setting.SlopeEase), nameof(Setting.SlopeArch), nameof(Setting.CurveMode), nameof(Setting.CurveStrength), nameof(Setting.CurveKeepEnds) },
             [ToolId.Smooth] = new[] { nameof(Setting.SmoothStrength), nameof(Setting.SmoothKeepEnds), nameof(Setting.SmoothGrades), nameof(Setting.SmoothRelax) },
             [ToolId.Arrange] = new[] { nameof(Setting.ArrangeMode), nameof(Setting.ArrangeBulge) },
-            [ToolId.Roundabout] = new[] { nameof(Setting.RoundaboutRadius), nameof(Setting.RoundaboutClockwise) },
+            [ToolId.Roundabout] = new[] { nameof(Setting.RoundaboutCustomRing), nameof(Setting.RoundaboutRadius), nameof(Setting.RoundaboutClockwise) },
             [ToolId.Parallel] = new[] { nameof(Setting.ParallelSpacing), nameof(Setting.ParallelOffset), nameof(Setting.ParallelGap), nameof(Setting.ParallelWidths), nameof(Setting.ParallelBothSides), nameof(Setting.ParallelHeight), nameof(Setting.ParallelReverse), nameof(Setting.ParallelTaper) },
             [ToolId.Ramp] = new[] { nameof(Setting.RampEntry), nameof(Setting.RampRight), nameof(Setting.RampFlip), nameof(Setting.RampAngle), nameof(Setting.RampTurn), nameof(Setting.RampLength), nameof(Setting.RampHeight) },
             [ToolId.MoveNode] = new[] { nameof(Setting.MoveSnap), nameof(Setting.MoveGridSize) },
@@ -112,7 +112,7 @@ namespace NetworkToolsReworked.Presets
                 case ToolId.Arrange:
                     return s.ArrangeMode == ArrangeMode.Arc ? $"Arc, bulge {s.ArrangeBulge:0}%" : s.ArrangeMode.ToString();
                 case ToolId.Roundabout:
-                    return $"Radius {s.RoundaboutRadius:0} m, {(s.RoundaboutClockwise ? "clockwise" : "anticlockwise")}";
+                    return s.RoundaboutCustomRing ? $"Custom ring, radius {s.RoundaboutRadius:0} m, {(s.RoundaboutClockwise ? "clockwise" : "anticlockwise")}" : "Game roundabout";
                 case ToolId.Parallel:
                     var spacing = s.ParallelSpacing == ParallelSpacing.Touching ? $"touching + {s.ParallelGap.ToString("0.#", c)} m"
                         : s.ParallelSpacing == ParallelSpacing.Widths ? $"{s.ParallelWidths:0} widths" : $"{Math.Abs(s.ParallelOffset).ToString("0.#", c)} m";

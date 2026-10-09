@@ -31,6 +31,7 @@ export const arrangeMode$ = bindValue<number>(mod.id, "ArrangeMode", 0);
 export const arrangeBulge$ = bindValue<number>(mod.id, "ArrangeBulge", 100);
 export const roundaboutRadius$ = bindValue<number>(mod.id, "RoundaboutRadius", 24);
 export const roundaboutClockwise$ = bindValue<boolean>(mod.id, "RoundaboutClockwise", false);
+export const roundaboutCustomRing$ = bindValue<boolean>(mod.id, "RoundaboutCustomRing", false);
 export const moveSnap$ = bindValue<number>(mod.id, "MoveSnap", 0);
 export const moveGridSize$ = bindValue<number>(mod.id, "MoveGridSize", 8);
 export const sourceName$ = bindValue<string>(mod.id, "SourceName", "");
@@ -108,6 +109,7 @@ export const setArrangeMode = (value: number) => trigger(mod.id, "SetArrangeMode
 export const setArrangeBulge = (value: number) => trigger(mod.id, "SetArrangeBulge", value);
 export const setRoundaboutRadius = (value: number) => trigger(mod.id, "SetRoundaboutRadius", value);
 export const setRoundaboutClockwise = (value: boolean) => trigger(mod.id, "SetRoundaboutClockwise", value);
+export const setRoundaboutCustomRing = (value: boolean) => trigger(mod.id, "SetRoundaboutCustomRing", value);
 export const setMoveSnap = (value: number) => trigger(mod.id, "SetMoveSnap", value);
 export const setReplaceKeepUpgrades = (value: boolean) => trigger(mod.id, "SetReplaceKeepUpgrades", value);
 export const setUpgradesSwapSides = (value: boolean) => trigger(mod.id, "SetUpgradesSwapSides", value);
