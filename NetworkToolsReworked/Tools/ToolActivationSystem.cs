@@ -52,6 +52,11 @@ namespace NetworkToolsReworked.Tools
         private ProxyAction m_RampAction;
         private MatchHeightToolSystem m_MatchHeightToolSystem;
         private ProxyAction m_MatchHeightAction;
+        /// <summary>Tools on the quick-switch keys (Alt+1 to Alt+9), in order.</summary>
+        public static readonly ToolId[] QuickTools = { ToolId.Slope, ToolId.Smooth, ToolId.MoveNode, ToolId.Arrange, ToolId.Connect, ToolId.Parallel, ToolId.Ramp, ToolId.Replace, ToolId.Measure };
+
+        private readonly ProxyAction[] m_QuickActions = new ProxyAction[QuickTools.Length];
+        private ProxyAction m_StepBackAction;
         private ProxyAction m_AddNodeAction;
         private ProxyAction m_RemoveNodeAction;
         private ProxyAction m_SlopeAction;
@@ -132,6 +137,9 @@ namespace NetworkToolsReworked.Tools
             m_RampAction = Enable(nameof(Setting.RampTool));
             m_MatchHeightToolSystem = World.GetOrCreateSystemManaged<MatchHeightToolSystem>();
             m_MatchHeightAction = Enable(nameof(Setting.MatchHeightTool));
+            for (var i = 0; i < QuickTools.Length; i++)
+                m_QuickActions[i] = Enable($"QuickTool{i + 1}");
+            m_StepBackAction = Enable(nameof(Setting.StepBack));
             m_AddNodeAction = Enable(nameof(Setting.AddNodeTool));
             m_RemoveNodeAction = Enable(nameof(Setting.RemoveNodeTool));
             m_SlopeAction = Enable(nameof(Setting.SlopeTool));
@@ -149,6 +157,19 @@ namespace NetworkToolsReworked.Tools
 
         protected override void OnUpdate()
         {
+            // Step back only while one of our tools is active, so the key stays free otherwise.
+            if (m_StepBackAction.WasPerformedThisFrame() && Current != ToolId.None)
+                PreviewTool?.RequestCancel();
+
+            for (var i = 0; i < m_QuickActions.Length; i++)
+            {
+                if (m_QuickActions[i].WasPerformedThisFrame())
+                {
+                    Toggle(QuickTools[i]);
+                    return;
+                }
+            }
+
             if (m_AddNodeAction.WasPerformedThisFrame())
                 Toggle(ToolId.AddNode);
             else if (m_RemoveNodeAction.WasPerformedThisFrame())

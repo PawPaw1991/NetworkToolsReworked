@@ -30,24 +30,25 @@ import { RampOptions } from "./RampOptions";
 import { MatchHeightOptions } from "./MatchHeightOptions";
 import { PresetOptions } from "./PresetOptions";
 
-const TOOLS: { id: ToolId; label: string; hint: string }[] = [
-  { id: "AddNode", label: "Add Node", hint: "Click a road to split it with a new node." },
-  { id: "RemoveNode", label: "Remove Node", hint: "Click a node between two segments of the same road to merge them." },
-  { id: "Slope", label: "Slope & Curve", hint: "Re-grade, smooth or straighten the road between two nodes." },
-  { id: "Smooth", label: "Smooth", hint: "Smooth out kinks in the road between two nodes. Nodes stay put unless you relax them." },
-  { id: "MoveNode", label: "Move Node", hint: "Move a node; the roads attached to it follow." },
-  { id: "Arrange", label: "Arrange", hint: "Space the nodes between two nodes evenly, on the current shape, a straight line or an arc." },
-  { id: "Reverse", label: "Reverse", hint: "Reverse the direction of the road between two nodes, e.g. a one-way road." },
-  { id: "Roundabout", label: "Roundabout", hint: "Turn a junction into a roundabout. The ring uses the same road type as the junction." },
-  { id: "Replace", label: "Change type", hint: "Turn the road between two nodes into another road type, keeping its shape and height." },
-  { id: "Upgrades", label: "Copy upgrades", hint: "Give the road between two nodes the same upgrades (trees, sidewalks, walls...) as another road." },
-  { id: "Measure", label: "Measure", hint: "Hover a road for its length, grade, curve and height, or pick two nodes to measure between them. Changes nothing." },
-  { id: "Ramp", label: "Ramp", hint: "Build a ramp leaving or joining a road, climbing to a set height within the road type's grade limit." },
-  { id: "MatchHeight", label: "Match height", hint: "Move nodes to the same height as another node, or to a height you set." },
-  { id: "Intersect", label: "Intersect", hint: "Join two roads that cross without a junction. Hover near the crossing." },
-  { id: "Undo", label: "Undo", hint: "Undo the last edit made with these tools (last 30 this session). Ctrl+Alt+Z." },
-  { id: "Connect", label: "Connect", hint: "Build a new road between two nodes. , and . rotate the start direction." },
-  { id: "Parallel", label: "Parallel", hint: "Build a copy of the road between two nodes, offset to the side." },
+// Default keys; they can be rebound in Options.
+const TOOLS: { id: ToolId; label: string; hint: string; keys: string }[] = [
+  { id: "AddNode", label: "Add Node", hint: "Click a road to split it with a new node.", keys: "Ctrl+N" },
+  { id: "RemoveNode", label: "Remove Node", hint: "Click a node between two segments of the same road to merge them.", keys: "Ctrl+Shift+N" },
+  { id: "Slope", label: "Slope & Curve", hint: "Re-grade, smooth or straighten the road between two nodes.", keys: "Ctrl+G or Alt+1" },
+  { id: "Smooth", label: "Smooth", hint: "Smooth out kinks in the road between two nodes. Nodes stay put unless you relax them.", keys: "Ctrl+Shift+G or Alt+2" },
+  { id: "MoveNode", label: "Move Node", hint: "Move a node; the roads attached to it follow.", keys: "Ctrl+Shift+D or Alt+3" },
+  { id: "Arrange", label: "Arrange", hint: "Space the nodes between two nodes evenly, on the current shape, a straight line or an arc.", keys: "Ctrl+Shift+A or Alt+4" },
+  { id: "Reverse", label: "Reverse", hint: "Reverse the direction of the road between two nodes, e.g. a one-way road.", keys: "Ctrl+Shift+R" },
+  { id: "Roundabout", label: "Roundabout", hint: "Turn a junction into a roundabout. The ring uses the same road type as the junction.", keys: "Ctrl+Shift+O" },
+  { id: "Replace", label: "Change type", hint: "Turn the road between two nodes into another road type, keeping its shape and height.", keys: "Ctrl+Shift+T or Alt+8" },
+  { id: "Upgrades", label: "Copy upgrades", hint: "Give the road between two nodes the same upgrades (trees, sidewalks, walls...) as another road.", keys: "Ctrl+Shift+U" },
+  { id: "Measure", label: "Measure", hint: "Hover a road for its length, grade, curve and height, or pick two nodes to measure between them. Changes nothing.", keys: "Ctrl+Shift+M or Alt+9" },
+  { id: "Ramp", label: "Ramp", hint: "Build a ramp leaving or joining a road, climbing to a set height within the road type's grade limit.", keys: "Ctrl+Shift+E or Alt+7" },
+  { id: "MatchHeight", label: "Match height", hint: "Move nodes to the same height as another node, or to a height you set.", keys: "Ctrl+Shift+H" },
+  { id: "Intersect", label: "Intersect", hint: "Join two roads that cross without a junction. Hover near the crossing.", keys: "Ctrl+Shift+X" },
+  { id: "Undo", label: "Undo", hint: "Undo the last edit made with these tools (last 30 this session).", keys: "Ctrl+Alt+Z" },
+  { id: "Connect", label: "Connect", hint: "Build a new road between two nodes. , and . rotate the start direction.", keys: "Ctrl+J or Alt+5" },
+  { id: "Parallel", label: "Parallel", hint: "Build a copy of the road between two nodes, offset to the side.", keys: "Ctrl+Shift+P or Alt+6" },
 ];
 
 type Step = { step: string; text: string };
@@ -143,7 +144,11 @@ export const ToolPanel = () => {
         ))}
       </div>
 
-      {current && <div className={styles.hint}>{current.hint}</div>}
+      {current && (
+        <div className={styles.hint}>
+          {current.hint} <span className={styles.keys}>{current.keys}</span>
+        </div>
+      )}
 
       {step && (
         <div className={styles.status}>
@@ -196,6 +201,8 @@ export const ToolPanel = () => {
       {active === "MatchHeight" && <MatchHeightOptions />}
 
       <PresetOptions />
+
+      {active !== "None" && <div className={styles.keyStrip}>Right-click or Backspace: step back · Ctrl+Alt+Z: undo · Alt+1 to Alt+9: switch tools</div>}
     </div>
   );
 };
