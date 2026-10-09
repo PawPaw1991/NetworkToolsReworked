@@ -71,6 +71,10 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.R, nameof(ReverseTool), ctrl: true, shift: true)]
         public ProxyBinding ReverseTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.O, nameof(RoundaboutTool), ctrl: true, shift: true)]
+        public ProxyBinding RoundaboutTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -116,6 +120,14 @@ namespace NetworkToolsReworked
         [SettingsUIHidden]
         public float ArrangeBulge { get; set; }
 
+        /// <summary>Roundabout ring radius in metres, centre line.</summary>
+        [SettingsUIHidden]
+        public float RoundaboutRadius { get; set; }
+
+        /// <summary>Ring direction seen from above; clockwise suits left-hand traffic.</summary>
+        [SettingsUIHidden]
+        public bool RoundaboutClockwise { get; set; }
+
         /// <summary>Sideways distance of the Parallel copy in metres; positive is to the right.</summary>
         [SettingsUISection(kSection, kGeneralGroup)]
         [SettingsUISlider(min = -64, max = 64, step = 1)]
@@ -152,6 +164,8 @@ namespace NetworkToolsReworked
             SmoothRelax = 0f;
             ArrangeMode = ArrangeMode.EvenSpacing;
             ArrangeBulge = 100f;
+            RoundaboutRadius = 24f;
+            RoundaboutClockwise = false;
             ConnectMode = ConnectMode.SimpleCurve;
             ParallelOffset = 16f;
             ParallelHeight = 0f;
@@ -222,6 +236,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ReverseTool)), "Reverse tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ReverseTool)), "Toggle the Reverse tool. Pick two nodes to reverse the direction of the road between them, e.g. to flip a one-way road." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.ReverseTool)), "Reverse tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.RoundaboutTool)), "Roundabout tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.RoundaboutTool)), "Toggle the Roundabout tool. Click a junction to turn it into a roundabout; set the radius and direction in the tool panel." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.RoundaboutTool)), "Roundabout tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },

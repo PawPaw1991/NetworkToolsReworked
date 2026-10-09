@@ -29,6 +29,7 @@ import { ShapeOptions } from "./ShapeOptions";
 import { SmoothOptions } from "./SmoothOptions";
 import { MoveOptions } from "./MoveOptions";
 import { ArrangeOptions } from "./ArrangeOptions";
+import { RoundaboutOptions } from "./RoundaboutOptions";
 
 const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "AddNode", label: "Add Node", hint: "Click a road to split it with a new node." },
@@ -38,6 +39,7 @@ const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "MoveNode", label: "Move Node", hint: "Move a node; the roads attached to it follow." },
   { id: "Arrange", label: "Arrange", hint: "Space the nodes between two nodes evenly, on the current shape, a straight line or an arc." },
   { id: "Reverse", label: "Reverse", hint: "Reverse the direction of the road between two nodes, e.g. a one-way road." },
+  { id: "Roundabout", label: "Roundabout", hint: "Turn a junction into a roundabout. The ring uses the same road type as the junction." },
   { id: "Connect", label: "Connect", hint: "Build a new road between two nodes. , and . rotate the start direction." },
   { id: "Parallel", label: "Parallel", hint: "Build a copy of the road between two nodes, offset to the side." },
 ];
@@ -52,6 +54,11 @@ const STEPS: Steps = {
 
 // Tools whose steps read differently from the two-node tools.
 const TOOL_STEPS: Partial<Record<ToolId, Steps>> = {
+  Roundabout: {
+    PickStart: { step: "1/2", text: "Hover a junction to preview, click it to lock the preview." },
+    PickEnd: { step: "1/2", text: "Hover a junction to preview, click it to lock the preview." },
+    Review: { step: "2/2", text: "Set the radius and direction below. Click or press Apply to build it, right-click or Back to pick another junction." },
+  },
   MoveNode: {
     PickStart: { step: "1/3", text: "Click the node to move." },
     PickEnd: { step: "2/3", text: "Move the cursor to drag it, click to drop. Right-click to pick another node." },
@@ -122,6 +129,8 @@ export const ToolPanel = () => {
       {active === "MoveNode" && <MoveOptions />}
 
       {active === "Arrange" && <ArrangeOptions />}
+
+      {active === "Roundabout" && <RoundaboutOptions />}
 
       {active === "Connect" && (
         <>

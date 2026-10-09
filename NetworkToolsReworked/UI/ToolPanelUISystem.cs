@@ -39,6 +39,8 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<float> m_MoveHeight;
         private ValueBinding<int> m_ArrangeMode;
         private ValueBinding<float> m_ArrangeBulge;
+        private ValueBinding<float> m_RoundaboutRadius;
+        private ValueBinding<bool> m_RoundaboutClockwise;
         private SlopeToolSystem m_SlopeToolSystem;
 
         protected override void OnCreate()
@@ -73,6 +75,8 @@ namespace NetworkToolsReworked.UI
             AddBinding(m_MoveHeight = new ValueBinding<float>(kGroup, "MoveHeight", 0f));
             AddBinding(m_ArrangeMode = new ValueBinding<int>(kGroup, "ArrangeMode", 0));
             AddBinding(m_ArrangeBulge = new ValueBinding<float>(kGroup, "ArrangeBulge", 100f));
+            AddBinding(m_RoundaboutRadius = new ValueBinding<float>(kGroup, "RoundaboutRadius", 24f));
+            AddBinding(m_RoundaboutClockwise = new ValueBinding<bool>(kGroup, "RoundaboutClockwise", false));
 
             AddBinding(new TriggerBinding(kGroup, "TogglePanel", () => m_PanelOpen.Update(!m_PanelOpen.value)));
             AddBinding(new TriggerBinding<string>(kGroup, "SelectTool", name =>
@@ -101,6 +105,8 @@ namespace NetworkToolsReworked.UI
             AddBinding(new TriggerBinding<float>(kGroup, "SetMoveHeight", v => m_ToolActivationSystem.MoveNodeTool.HeightOffset = v));
             AddBinding(new TriggerBinding<int>(kGroup, "SetArrangeMode", v => Save(s => s.ArrangeMode = (ArrangeMode)v)));
             AddBinding(new TriggerBinding<float>(kGroup, "SetArrangeBulge", v => Save(s => s.ArrangeBulge = v)));
+            AddBinding(new TriggerBinding<float>(kGroup, "SetRoundaboutRadius", v => Save(s => s.RoundaboutRadius = v)));
+            AddBinding(new TriggerBinding<bool>(kGroup, "SetRoundaboutClockwise", v => Save(s => s.RoundaboutClockwise = v)));
             AddBinding(new TriggerBinding(kGroup, "ApplyPreview", () => m_ToolActivationSystem.PreviewTool?.RequestApply()));
             AddBinding(new TriggerBinding(kGroup, "CancelPreview", () => m_ToolActivationSystem.PreviewTool?.RequestCancel()));
             AddBinding(new TriggerBinding<int>(kGroup, "RotateConnect", steps => m_ToolActivationSystem.ConnectTool.RequestRotate(steps)));
@@ -138,6 +144,8 @@ namespace NetworkToolsReworked.UI
             m_MoveHeight.Update(move.HeightOffset);
             m_ArrangeMode.Update((int)settings.ArrangeMode);
             m_ArrangeBulge.Update(settings.ArrangeBulge);
+            m_RoundaboutRadius.Update(settings.RoundaboutRadius);
+            m_RoundaboutClockwise.Update(settings.RoundaboutClockwise);
         }
 
         private static void Save(Action<Setting> change)
