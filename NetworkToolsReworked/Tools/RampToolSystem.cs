@@ -18,9 +18,8 @@ namespace NetworkToolsReworked.Tools
     /// side, angle, turn, length and height in the panel, then click or Apply. The ramp uses the road's
     /// own type unless another type is copied from a road. See <see cref="RampEdit"/>.
     /// </summary>
-    public partial class RampToolSystem : ToolBaseSystem, IPreviewTool
+    public partial class RampToolSystem : NetEditToolSystem, IPreviewTool
     {
-        private ToolOutputBarrier m_ToolOutputBarrier;
         private TerrainSystem m_TerrainSystem;
         private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
@@ -57,7 +56,6 @@ namespace NetworkToolsReworked.Tools
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0x4A3Bu);
@@ -93,7 +91,7 @@ namespace NetworkToolsReworked.Tools
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             var applyRequested = m_ApplyRequested;
             var cancelRequested = m_CancelRequested;
@@ -175,7 +173,7 @@ namespace NetworkToolsReworked.Tools
                 Length = settings.RampLength,
                 Height = settings.RampHeight,
             };
-            if (!RampEdit.Emit(EntityManager, m_ToolOutputBarrier.CreateCommandBuffer(), ref terrain, edge, t, rampPrefab, ramp, limit, m_Random.NextInt(), out var result))
+            if (!RampEdit.Emit(EntityManager, DefinitionBuffer(), ref terrain, edge, t, rampPrefab, ramp, limit, m_Random.NextInt(), out var result))
                 return inputDeps;
 
             var locked = m_LockedEdge != Entity.Null;

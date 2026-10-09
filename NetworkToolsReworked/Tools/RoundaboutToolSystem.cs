@@ -17,9 +17,8 @@ namespace NetworkToolsReworked.Tools
     /// Click a junction to preview a roundabout around it, adjust the radius and direction in the panel,
     /// then click or press Apply. Right-click picks another junction, or exits.
     /// </summary>
-    public partial class RoundaboutToolSystem : ToolBaseSystem, IPreviewTool
+    public partial class RoundaboutToolSystem : NetEditToolSystem, IPreviewTool
     {
-        private ToolOutputBarrier m_ToolOutputBarrier;
         private TerrainSystem m_TerrainSystem;
         private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
@@ -41,7 +40,6 @@ namespace NetworkToolsReworked.Tools
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0x60DAu);
@@ -75,7 +73,7 @@ namespace NetworkToolsReworked.Tools
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             var applyRequested = m_ApplyRequested;
             var cancelRequested = m_CancelRequested;
@@ -118,7 +116,7 @@ namespace NetworkToolsReworked.Tools
             }
 
             var terrain = m_TerrainSystem.GetHeightData();
-            var ecb = m_ToolOutputBarrier.CreateCommandBuffer();
+            var ecb = DefinitionBuffer();
             if (!RoundaboutEdit.Emit(EntityManager, ecb, ref terrain, target, radius, Mod.Settings.RoundaboutClockwise, m_Random.NextInt(), m_Ring))
                 return inputDeps;
 

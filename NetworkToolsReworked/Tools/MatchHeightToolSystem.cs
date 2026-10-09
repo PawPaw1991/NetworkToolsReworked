@@ -17,9 +17,8 @@ namespace NetworkToolsReworked.Tools
     /// them moved to that height and click to apply, one node after another. Nodes keep their position
     /// on the map; the roads at them follow, as with Move Node. Right-click forgets the height.
     /// </summary>
-    public partial class MatchHeightToolSystem : ToolBaseSystem, IPreviewTool
+    public partial class MatchHeightToolSystem : NetEditToolSystem, IPreviewTool
     {
-        private ToolOutputBarrier m_ToolOutputBarrier;
         private TerrainSystem m_TerrainSystem;
         private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
@@ -51,7 +50,6 @@ namespace NetworkToolsReworked.Tools
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0x4E1Au);
@@ -85,7 +83,7 @@ namespace NetworkToolsReworked.Tools
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             var cancelRequested = m_CancelRequested;
             m_CancelRequested = false;
@@ -137,7 +135,7 @@ namespace NetworkToolsReworked.Tools
 
             var target = new float3(position.x, TargetHeight, position.z);
             var terrain = m_TerrainSystem.GetHeightData();
-            if (!MoveEdit.Emit(EntityManager, m_ToolOutputBarrier.CreateCommandBuffer(), ref terrain, hovered, target, m_Random.NextInt()))
+            if (!MoveEdit.Emit(EntityManager, DefinitionBuffer(), ref terrain, hovered, target, m_Random.NextInt()))
                 return inputDeps;
 
             m_Overlay.Node(hovered, ToolOverlay.End);

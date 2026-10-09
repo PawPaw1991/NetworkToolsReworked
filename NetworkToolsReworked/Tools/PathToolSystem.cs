@@ -18,9 +18,8 @@ namespace NetworkToolsReworked.Tools
     /// Subclasses only emit the definitions for the found path. Tools that copy something from a road
     /// (<see cref="UsesSource"/>) first ask for that road; the choice is kept until picked again.
     /// </summary>
-    public abstract partial class PathToolSystem : ToolBaseSystem, IPreviewTool
+    public abstract partial class PathToolSystem : NetEditToolSystem, IPreviewTool
     {
-        private ToolOutputBarrier m_ToolOutputBarrier;
         private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
         private readonly List<Entity> m_PathNodes = new List<Entity>();
@@ -104,7 +103,6 @@ namespace NetworkToolsReworked.Tools
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random((uint)toolID.GetHashCode() | 1u);
         }
@@ -138,7 +136,7 @@ namespace NetworkToolsReworked.Tools
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             var applyRequested = m_ApplyRequested;
             var cancelRequested = m_CancelRequested;
@@ -232,7 +230,7 @@ namespace NetworkToolsReworked.Tools
             }
 
             OnBeforeEmit();
-            var emitted = EmitPath(m_ToolOutputBarrier.CreateCommandBuffer(), m_PathNodes, m_PathEdges, m_Random.NextInt());
+            var emitted = EmitPath(DefinitionBuffer(), m_PathNodes, m_PathEdges, m_Random.NextInt());
             DrawPath(m_Overlay, m_PathNodes, m_PathEdges, locked);
             m_Overlay.Node(end, locked ? ToolOverlay.End : ToolOverlay.Hover);
             Summary = emitted ? Describe(m_PathNodes, m_PathEdges) : NothingToChange;
@@ -289,7 +287,7 @@ namespace NetworkToolsReworked.Tools
                 }
             }
 
-            var ecb = m_ToolOutputBarrier.CreateCommandBuffer();
+            var ecb = DefinitionBuffer();
             var seed = m_Random.NextInt();
             var emitted = false;
             var roads = 0;

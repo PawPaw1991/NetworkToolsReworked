@@ -22,12 +22,10 @@ namespace NetworkToolsReworked.Tools
     /// Add a node to an edge, or remove a node joining two edges. Every frame the hovered target is
     /// written as definitions (preview); a click applies them. Vanilla validation stays enabled.
     /// </summary>
-    public partial class NodeToolSystem : ToolBaseSystem
+    public partial class NodeToolSystem : NetEditToolSystem
     {
         // Don't split closer than this to an existing node, in metres along the edge.
         private const float kMinSplitDistance = 4f;
-
-        private ToolOutputBarrier m_ToolOutputBarrier;
         private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
 
@@ -38,7 +36,6 @@ namespace NetworkToolsReworked.Tools
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0x6E74u);
         }
@@ -69,7 +66,7 @@ namespace NetworkToolsReworked.Tools
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             if (cancelAction.WasPressedThisFrame())
             {
@@ -85,7 +82,7 @@ namespace NetworkToolsReworked.Tools
             if (!GetRaycastResult(out Entity hitEntity, out RaycastHit hit))
                 return inputDeps;
 
-            var ecb = m_ToolOutputBarrier.CreateCommandBuffer();
+            var ecb = DefinitionBuffer();
             var seed = m_Random.NextInt();
             bool emitted = Mode switch
             {

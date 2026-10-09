@@ -20,12 +20,10 @@ namespace NetworkToolsReworked.Tools
     /// has a safe fix, previews the fix, which is applied with a click or Apply. The list is scanned again
     /// after every fix and on request.
     /// </summary>
-    public partial class HealthToolSystem : ToolBaseSystem, IPreviewTool
+    public partial class HealthToolSystem : NetEditToolSystem, IPreviewTool
     {
         private static readonly Color kFixable = new Color(1f, 0.65f, 0.15f, 0.8f);
         private static readonly Color kReport = new Color(1f, 0.25f, 0.2f, 0.8f);
-
-        private ToolOutputBarrier m_ToolOutputBarrier;
         private CameraUpdateSystem m_CameraUpdateSystem;
         private ToolOverlay m_Overlay;
         private EntityQuery m_EdgeQuery;
@@ -65,7 +63,6 @@ namespace NetworkToolsReworked.Tools
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_CameraUpdateSystem = World.GetOrCreateSystemManaged<CameraUpdateSystem>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0x4EA1u);
@@ -102,7 +99,7 @@ namespace NetworkToolsReworked.Tools
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             var applyRequested = m_ApplyRequested;
             var cancelRequested = m_CancelRequested;
@@ -153,7 +150,7 @@ namespace NetworkToolsReworked.Tools
             Highlight(issue.A);
             Highlight(issue.B);
 
-            var fixable = NetworkScan.EmitFix(EntityManager, m_ToolOutputBarrier.CreateCommandBuffer(), issue, m_Random.NextInt());
+            var fixable = NetworkScan.EmitFix(EntityManager, DefinitionBuffer(), issue, m_Random.NextInt());
             Summary = $"{m_Selected + 1} of {m_Issues.Count}: {issue.Text}" + (fixable ? " Click or press Apply to fix it." : "");
 
             if (fixable && (applyAction.WasPressedThisFrame() || applyRequested))

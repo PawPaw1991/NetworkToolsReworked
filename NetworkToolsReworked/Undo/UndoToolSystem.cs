@@ -22,12 +22,10 @@ namespace NetworkToolsReworked.Undo
     /// Rolling back several edits undoes them one after another, waiting a few frames between them so
     /// each undo has landed before the next one looks for its roads.
     /// </summary>
-    public partial class UndoToolSystem : ToolBaseSystem, IPreviewTool
+    public partial class UndoToolSystem : NetEditToolSystem, IPreviewTool
     {
         private const float kMatchDistance = 0.1f;
         private const int kFramesBetweenSteps = 5;
-
-        private ToolOutputBarrier m_ToolOutputBarrier;
         private ToolOverlay m_Overlay;
         private EntityQuery m_EdgeQuery;
         private EntityQuery m_NodeQuery;
@@ -40,6 +38,10 @@ namespace NetworkToolsReworked.Undo
         private bool m_CancelRequested;
         private int m_Remaining;
         private int m_Wait;
+
+        // The step whose definitions were written last frame. Applying uses last frame's preview, so a
+        // step is only applied once it has been previewed for a frame.
+        private UndoStep m_PreviewedStep;
 
         public override string toolID => "NetworkToolsReworked.UndoTool";
 
@@ -61,7 +63,6 @@ namespace NetworkToolsReworked.Undo
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0x0DD0u);
             m_EdgeQuery = GetEntityQuery(ComponentType.ReadOnly<Edge>(), ComponentType.ReadOnly<Curve>(), ComponentType.Exclude<Deleted>(), ComponentType.Exclude<Temp>());
@@ -103,7 +104,7 @@ namespace NetworkToolsReworked.Undo
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             var applyRequested = m_ApplyRequested;
             var cancelRequested = m_CancelRequested;
@@ -120,6 +121,8 @@ namespace NetworkToolsReworked.Undo
             UndoRecorder.Suspend();
             m_Overlay.BeginFrame();
 
+            var previewed = m_PreviewedStep;
+            m_PreviewedStep = null;
             if (m_Wait > 0)
             {
                 m_Wait--;
@@ -157,7 +160,7 @@ namespace NetworkToolsReworked.Undo
                 return inputDeps;
             }
 
-            var ecb = m_ToolOutputBarrier.CreateCommandBuffer();
+            var ecb = DefinitionBuffer();
             var seed = m_Random.NextInt();
             foreach (var edge in m_ToRemove)
             {
@@ -180,8 +183,10 @@ namespace NetworkToolsReworked.Undo
             if (auto)
                 Summary = $"Rolling back ({m_Remaining} left). " + Summary;
 
-            if (applyAction.WasPressedThisFrame() || applyRequested || auto)
+            m_PreviewedStep = step;
+            if ((applyAction.WasPressedThisFrame() || applyRequested || auto) && previewed == step)
             {
+                m_PreviewedStep = null;
                 applyMode = ApplyMode.Apply;
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"Undo applied for {step.Tool}: removed {m_ToRemove.Count}, restored {step.Originals.Count}");

@@ -18,9 +18,8 @@ namespace NetworkToolsReworked.Tools
     /// Hover a road where another road crosses it without a junction; the crossing nearest the cursor is
     /// previewed as a new junction. Click to lock, then click or press Apply. Right-click steps back or exits.
     /// </summary>
-    public partial class IntersectToolSystem : ToolBaseSystem, IPreviewTool
+    public partial class IntersectToolSystem : NetEditToolSystem, IPreviewTool
     {
-        private ToolOutputBarrier m_ToolOutputBarrier;
         private TerrainSystem m_TerrainSystem;
         private ToolOverlay m_Overlay;
         private EntityQuery m_EdgeQuery;
@@ -47,7 +46,6 @@ namespace NetworkToolsReworked.Tools
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0x1A7Eu);
@@ -82,7 +80,7 @@ namespace NetworkToolsReworked.Tools
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             var applyRequested = m_ApplyRequested;
             var cancelRequested = m_CancelRequested;
@@ -141,7 +139,7 @@ namespace NetworkToolsReworked.Tools
 
             m_Overlay.Point(hit.PointA, 6f, m_LockedEdge != Entity.Null ? ToolOverlay.End : ToolOverlay.Start);
             var terrain = m_TerrainSystem.GetHeightData();
-            if (!IntersectEdit.Emit(EntityManager, m_ToolOutputBarrier.CreateCommandBuffer(), ref terrain, edge, other, hit, m_Random.NextInt()))
+            if (!IntersectEdit.Emit(EntityManager, DefinitionBuffer(), ref terrain, edge, other, hit, m_Random.NextInt()))
                 return inputDeps;
             Summary = $"New junction where the two roads cross ({heightGap:0.0} m height difference evened out)";
 

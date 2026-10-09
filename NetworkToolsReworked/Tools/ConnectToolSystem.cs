@@ -19,12 +19,10 @@ namespace NetworkToolsReworked.Tools
     /// turn the start direction in 15° steps. Right-click steps back one phase, or exits if nothing is
     /// picked. The new road uses the start node's road type.
     /// </summary>
-    public partial class ConnectToolSystem : ToolBaseSystem, IPreviewTool
+    public partial class ConnectToolSystem : NetEditToolSystem, IPreviewTool
     {
         private const float kRotateStep = math.PI / 12f;
         private const float kGuideLength = 24f;
-
-        private ToolOutputBarrier m_ToolOutputBarrier;
         private TerrainSystem m_TerrainSystem;
         private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
@@ -56,7 +54,6 @@ namespace NetworkToolsReworked.Tools
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0xC0EEu);
@@ -96,7 +93,7 @@ namespace NetworkToolsReworked.Tools
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             var applyRequested = m_ApplyRequested;
             var cancelRequested = m_CancelRequested;
@@ -168,7 +165,7 @@ namespace NetworkToolsReworked.Tools
                 return inputDeps;
             }
 
-            var ecb = m_ToolOutputBarrier.CreateCommandBuffer();
+            var ecb = DefinitionBuffer();
             var terrain = m_TerrainSystem.GetHeightData();
             if (!ConnectEdit.Emit(EntityManager, ecb, ref terrain, m_StartNode, end, direction, Mod.Settings.ConnectMode, m_Random.NextInt()))
             {

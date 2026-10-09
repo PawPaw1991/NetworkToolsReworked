@@ -19,9 +19,8 @@ namespace NetworkToolsReworked.Tools
     /// Apply. A helix from a road end uses that road's type unless another type is copied; a free one
     /// needs a copied type. See <see cref="HelixEdit"/>.
     /// </summary>
-    public partial class HelixToolSystem : ToolBaseSystem, IPreviewTool
+    public partial class HelixToolSystem : NetEditToolSystem, IPreviewTool
     {
-        private ToolOutputBarrier m_ToolOutputBarrier;
         private TerrainSystem m_TerrainSystem;
         private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
@@ -57,7 +56,6 @@ namespace NetworkToolsReworked.Tools
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0x4E11u);
@@ -93,7 +91,7 @@ namespace NetworkToolsReworked.Tools
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             var applyRequested = m_ApplyRequested;
             var cancelRequested = m_CancelRequested;
@@ -192,7 +190,7 @@ namespace NetworkToolsReworked.Tools
                 m_Overlay.Point(centre, 4f, m_Locked ? ToolOverlay.End : ToolOverlay.Start);
             }
 
-            HelixEdit.Emit(EntityManager, m_ToolOutputBarrier.CreateCommandBuffer(), ref terrain, prefabToUse, centre, startAngle, startHeight, node, helix, m_Random.NextInt(), out var result);
+            HelixEdit.Emit(EntityManager, DefinitionBuffer(), ref terrain, prefabToUse, centre, startAngle, startHeight, node, helix, m_Random.NextInt(), out var result);
             var limit = EntityManager.TryGetComponent(prefabToUse, out NetGeometryData geometry) && geometry.m_MaxSlopeSteepness > 0f ? geometry.m_MaxSlopeSteepness : 0.12f;
             var color = Grades.ColorFor(result.Grade, limit);
             foreach (var curve in result.Curves)

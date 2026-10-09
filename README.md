@@ -6,7 +6,7 @@ It is a from-scratch rework inspired by the ideas in CS1's Network Multitool and
 
 ## Design rule
 
-**Every edit goes through the game's tool pipeline.** Tools emit `CreationDefinition` + `NetCourse` definition entities (with `m_Original` set when modifying existing networks, and correct start/end elevations). Vanilla systems then build the `Temp` preview, validate it and apply it.
+**Every edit goes through the game's tool pipeline.** Tools emit `CreationDefinition` + `NetCourse` definition entities (with `m_Original` set when modifying existing networks, and correct start/end elevations). Vanilla systems then build the `Temp` preview, validate it and apply it. As in the game's own tools, last frame's definitions are destroyed every update, and nothing new is written on the frame a tool applies, so what gets built is the preview the player saw (`Tools/NetEditToolSystem.cs`). New nodes shared by several courses carry no IsFirst/IsLast flags and one identical elevation, or the game won't join them.
 
 Tools never write `Game.Net.Node`, `Edge`, `Curve`, `Composition` or `Elevation` on live entities, and never add `Deleted` directly. Doing so leaves geometry, composition, lanes and the utility flow graph out of sync, which shows up as gray or invisible roads after a reload and as crashes.
 

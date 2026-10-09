@@ -21,9 +21,8 @@ namespace NetworkToolsReworked.Tools
     /// click or Apply; the same group can then be placed again. Groups can be saved as layouts and
     /// placed in other cities. See <see cref="LayoutEdit"/> and <see cref="LayoutStore"/>.
     /// </summary>
-    public partial class DuplicateToolSystem : ToolBaseSystem, IPreviewTool
+    public partial class DuplicateToolSystem : NetEditToolSystem, IPreviewTool
     {
-        private ToolOutputBarrier m_ToolOutputBarrier;
         private TerrainSystem m_TerrainSystem;
         private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
@@ -64,7 +63,6 @@ namespace NetworkToolsReworked.Tools
         protected override void OnCreate()
         {
             base.OnCreate();
-            m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0xD0B1u);
@@ -98,7 +96,7 @@ namespace NetworkToolsReworked.Tools
 
         public override bool TrySetPrefab(PrefabBase prefab) => false;
 
-        protected override JobHandle OnUpdate(JobHandle inputDeps)
+        protected override JobHandle OnToolUpdate(JobHandle inputDeps)
         {
             var applyRequested = m_ApplyRequested;
             var cancelRequested = m_CancelRequested;
@@ -139,7 +137,7 @@ namespace NetworkToolsReworked.Tools
 
             var s = Mod.Settings;
             var placed = LayoutEdit.Place(ref terrain, m_Layout, target, s.DuplicateMode, s.DuplicateAngle);
-            LayoutEdit.Emit(m_ToolOutputBarrier.CreateCommandBuffer(), ref terrain, m_Layout, placed, s.DuplicateMode, m_Random.NextInt());
+            LayoutEdit.Emit(DefinitionBuffer(), ref terrain, m_Layout, placed, s.DuplicateMode, m_Random.NextInt());
             foreach (var curve in placed)
                 m_Overlay.Bezier(curve, 2f, m_Locked ? ToolOverlay.Locked : ToolOverlay.Path);
             m_Overlay.Point(target, 4f, m_Locked ? ToolOverlay.End : ToolOverlay.Start);
