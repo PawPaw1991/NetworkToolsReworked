@@ -61,6 +61,8 @@ Slope, Connect and Parallel work in three steps, shown in the panel: click a sta
 
 **Clearance warning** (Options, default 6 m, 0 turns it off): Slope & Curve and Smooth mark in red any spot where the reshaped road passes closer than this above or below another road, and say so in the panel. The game's own checks still decide what can be built.
 
+**Presets** (tool panel): Slope & Curve, Smooth, Arrange, Roundabout, Parallel, Ramp, Move Node and Connect can save their current options as a preset, named after the options (for example "Exit right, 15°, 120 m, +6 m"). Click a preset to load it, × to delete it. Presets are kept in `ModsSettings/NetworkToolsReworked/presets.txt` in the game's user data folder, up to 12 per tool.
+
 Press the key again or right-click to leave the tool. Both keys can be rebound in Options.
 
 ## Building

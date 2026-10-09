@@ -49,6 +49,8 @@ export const rampLength$ = bindValue<number>(mod.id, "RampLength", 120);
 export const rampHeight$ = bindValue<number>(mod.id, "RampHeight", 6);
 export const rampType$ = bindValue<string>(mod.id, "RampType", "");
 export const matchHeight$ = bindValue<number>(mod.id, "MatchHeight", 0);
+export const presetsAvailable$ = bindValue<boolean>(mod.id, "PresetsAvailable", false);
+export const presetNames$ = bindValue<string>(mod.id, "PresetNames", "");
 export const connectRotation$ = bindValue<number>(mod.id, "ConnectRotation", 0);
 
 export const togglePanel = () => trigger(mod.id, "TogglePanel");
@@ -96,5 +98,8 @@ export const setRampHeight = (value: number) => trigger(mod.id, "SetRampHeight",
 export const pickRampType = () => trigger(mod.id, "PickRampType");
 export const useRoadType = () => trigger(mod.id, "UseRoadType");
 export const setMatchHeight = (value: number) => trigger(mod.id, "SetMatchHeight", value);
+export const savePreset = () => trigger(mod.id, "SavePreset");
+export const loadPreset = (index: number) => trigger(mod.id, "LoadPreset", index);
+export const deletePreset = (index: number) => trigger(mod.id, "DeletePreset", index);
 export const pickSource = () => trigger(mod.id, "PickSource");
 export const setMoveGridSize = (value: number) => trigger(mod.id, "SetMoveGridSize", value);

@@ -44,7 +44,7 @@
   flex-wrap: wrap;
 }
 
-.tool, .choice, .step {
+.tool, .choice, .step, .preset {
   margin: 2rem;
   padding: 4rem 8rem;
   border-radius: 3rem;
@@ -66,6 +66,7 @@
 }
 
 .label { flex: 1; margin-left: 2rem; }
+.preset { flex: 1; }
 .value { width: 64rem; text-align: center; }
 
 .status {

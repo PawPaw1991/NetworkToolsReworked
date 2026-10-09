@@ -28,6 +28,7 @@ import { ReplaceOptions, UpgradesOptions } from "./ReplaceOptions";
 import { ParallelOptions } from "./ParallelOptions";
 import { RampOptions } from "./RampOptions";
 import { MatchHeightOptions } from "./MatchHeightOptions";
+import { PresetOptions } from "./PresetOptions";
 
 const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "AddNode", label: "Add Node", hint: "Click a road to split it with a new node." },
@@ -193,6 +194,8 @@ export const ToolPanel = () => {
       {active === "Ramp" && <RampOptions />}
 
       {active === "MatchHeight" && <MatchHeightOptions />}
+
+      <PresetOptions />
     </div>
   );
 };

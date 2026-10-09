@@ -2,6 +2,7 @@ using System;
 using Colossal.UI.Binding;
 using Game.UI;
 using NetworkToolsReworked.Edits;
+using NetworkToolsReworked.Presets;
 using NetworkToolsReworked.Tools;
 using Unity.Mathematics;
 
@@ -59,6 +60,8 @@ namespace NetworkToolsReworked.UI
         private ValueBinding<float> m_RampHeight;
         private ValueBinding<string> m_RampType;
         private ValueBinding<float> m_MatchHeight;
+        private ValueBinding<bool> m_PresetsAvailable;
+        private ValueBinding<string> m_PresetNames;
         private SlopeToolSystem m_SlopeToolSystem;
 
         protected override void OnCreate()
@@ -113,6 +116,8 @@ namespace NetworkToolsReworked.UI
             AddBinding(m_RampHeight = new ValueBinding<float>(kGroup, "RampHeight", 6f));
             AddBinding(m_RampType = new ValueBinding<string>(kGroup, "RampType", string.Empty));
             AddBinding(m_MatchHeight = new ValueBinding<float>(kGroup, "MatchHeight", 0f));
+            AddBinding(m_PresetsAvailable = new ValueBinding<bool>(kGroup, "PresetsAvailable", false));
+            AddBinding(m_PresetNames = new ValueBinding<string>(kGroup, "PresetNames", string.Empty));
 
             AddBinding(new TriggerBinding(kGroup, "TogglePanel", () => m_PanelOpen.Update(!m_PanelOpen.value)));
             AddBinding(new TriggerBinding<string>(kGroup, "SelectTool", name =>
@@ -161,6 +166,9 @@ namespace NetworkToolsReworked.UI
             AddBinding(new TriggerBinding(kGroup, "PickRampType", () => m_ToolActivationSystem.RampTool.RequestPickType()));
             AddBinding(new TriggerBinding(kGroup, "UseRoadType", () => m_ToolActivationSystem.RampTool.UseRoadType()));
             AddBinding(new TriggerBinding<float>(kGroup, "SetMatchHeight", v => m_ToolActivationSystem.MatchHeightTool.SetTargetHeight(v)));
+            AddBinding(new TriggerBinding(kGroup, "SavePreset", () => PresetStore.SaveCurrent(m_ToolActivationSystem.Current)));
+            AddBinding(new TriggerBinding<int>(kGroup, "LoadPreset", i => PresetStore.Load(m_ToolActivationSystem.Current, i)));
+            AddBinding(new TriggerBinding<int>(kGroup, "DeletePreset", i => PresetStore.Delete(m_ToolActivationSystem.Current, i)));
             AddBinding(new TriggerBinding(kGroup, "PickSource", () => m_ToolActivationSystem.SourceTool?.RequestPickSource()));
             AddBinding(new TriggerBinding(kGroup, "ApplyPreview", () => m_ToolActivationSystem.PreviewTool?.RequestApply()));
             AddBinding(new TriggerBinding(kGroup, "CancelPreview", () => m_ToolActivationSystem.PreviewTool?.RequestCancel()));
@@ -219,6 +227,23 @@ namespace NetworkToolsReworked.UI
             m_RampHeight.Update(settings.RampHeight);
             m_RampType.Update(m_ToolActivationSystem.RampTool.RampTypeName);
             m_MatchHeight.Update(m_ToolActivationSystem.MatchHeightTool.TargetHeight);
+            UpdatePresets();
+        }
+
+        private void UpdatePresets()
+        {
+            var tool = m_ToolActivationSystem.Current;
+            var available = m_PanelOpen.value && PresetStore.Supports(tool);
+            m_PresetsAvailable.Update(available);
+            if (!available)
+            {
+                m_PresetNames.Update(string.Empty);
+                return;
+            }
+            var names = new System.Collections.Generic.List<string>();
+            foreach (var preset in PresetStore.For(tool))
+                names.Add(preset.Name);
+            m_PresetNames.Update(string.Join("\n", names));
         }
 
         private static void Save(Action<Setting> change)
