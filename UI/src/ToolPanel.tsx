@@ -40,6 +40,7 @@ const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "Arrange", label: "Arrange", hint: "Space the nodes between two nodes evenly, on the current shape, a straight line or an arc." },
   { id: "Reverse", label: "Reverse", hint: "Reverse the direction of the road between two nodes, e.g. a one-way road." },
   { id: "Roundabout", label: "Roundabout", hint: "Turn a junction into a roundabout. The ring uses the same road type as the junction." },
+  { id: "Intersect", label: "Intersect", hint: "Join two roads that cross without a junction. Hover near the crossing." },
   { id: "Undo", label: "Undo", hint: "Undo the last edit made with these tools (last 30 this session). Ctrl+Alt+Z." },
   { id: "Connect", label: "Connect", hint: "Build a new road between two nodes. , and . rotate the start direction." },
   { id: "Parallel", label: "Parallel", hint: "Build a copy of the road between two nodes, offset to the side." },
@@ -58,6 +59,11 @@ const UNDO_STEP = { step: "", text: "Red roads are removed and green ones restor
 
 const TOOL_STEPS: Partial<Record<ToolId, Steps>> = {
   Undo: { PickStart: UNDO_STEP, PickEnd: UNDO_STEP, Review: UNDO_STEP },
+  Intersect: {
+    PickStart: { step: "1/2", text: "Hover a road near where another crosses it, click to lock the preview." },
+    PickEnd: { step: "1/2", text: "Hover a road near where another crosses it, click to lock the preview." },
+    Review: { step: "2/2", text: "Click or press Apply to make the junction, right-click or Back to pick another crossing." },
+  },
   Roundabout: {
     PickStart: { step: "1/2", text: "Hover a junction to preview, click it to lock the preview." },
     PickEnd: { step: "1/2", text: "Hover a junction to preview, click it to lock the preview." },
