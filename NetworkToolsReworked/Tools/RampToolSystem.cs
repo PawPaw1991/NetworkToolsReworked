@@ -22,7 +22,6 @@ namespace NetworkToolsReworked.Tools
     {
         private ToolOutputBarrier m_ToolOutputBarrier;
         private TerrainSystem m_TerrainSystem;
-        private PrefabSystem m_PrefabSystem;
         private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
         private Entity m_LockedEdge;
@@ -61,7 +60,6 @@ namespace NetworkToolsReworked.Tools
             base.OnCreate();
             m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
-            m_PrefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0x4A3Bu);
         }

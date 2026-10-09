@@ -15,7 +15,6 @@ namespace NetworkToolsReworked.Tools
     public partial class ReplaceToolSystem : PathToolSystem
     {
         private TerrainSystem m_TerrainSystem;
-        private PrefabSystem m_PrefabSystem;
         private Entity m_Prefab;
         private int m_Changed;
 
@@ -27,7 +26,6 @@ namespace NetworkToolsReworked.Tools
         {
             base.OnCreate();
             m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
-            m_PrefabSystem = World.GetOrCreateSystemManaged<PrefabSystem>();
         }
 
         protected override bool TakeSource(Entity edge, out string problem)
