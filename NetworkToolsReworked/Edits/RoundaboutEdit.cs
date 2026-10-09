@@ -53,8 +53,6 @@ namespace NetworkToolsReworked.Edits
                 return false;
 
             var centre = em.GetComponentData<Node>(node).m_Position;
-            // Same rule as the shortened roads use, so ring and roads carry the same elevation where they meet.
-            var hasElevation = SlopeEdit.IsElevatedNode(em, node);
             var ring = new List<(float angle, float3 point)>();
             Entity ringPrefab = Entity.Null;
 
@@ -98,6 +96,9 @@ namespace NetworkToolsReworked.Edits
                 ring.Add((math.atan2(point.z - centre.z, point.x - centre.x), point));
             }
 
+            // The junction node itself goes; every road that met there now ends on the ring.
+            NetDefinitions.DeleteNode(em, ecb, node, randomSeed);
+
             // Ring roads between neighbouring road ends, split so no piece turns more than 90 degrees.
             ring.Sort((x, y) => x.angle.CompareTo(y.angle));
             for (var i = 0; i < ring.Count; i++)
@@ -118,7 +119,7 @@ namespace NetworkToolsReworked.Edits
                     if (k == pieces - 1) arc.d = to.point;
                     if (clockwise)
                         arc = MathUtils.Invert(arc);
-                    EmitRingPiece(em, ecb, ref terrain, ringPrefab, arc, hasElevation, centre, randomSeed);
+                    EmitRingPiece(ecb, ref terrain, ringPrefab, arc, randomSeed);
                     ringOut?.Add(MathUtils.Position(arc, 0.5f));
                 }
             }
@@ -126,10 +127,10 @@ namespace NetworkToolsReworked.Edits
             return true;
         }
 
-        private static void EmitRingPiece(EntityManager em, EntityCommandBuffer ecb, ref TerrainHeightData terrain, Entity prefab, Bezier4x3 arc, bool hasElevation, float3 centre, int randomSeed)
+        private static void EmitRingPiece(EntityCommandBuffer ecb, ref TerrainHeightData terrain, Entity prefab, Bezier4x3 arc, int randomSeed)
         {
-            var startPos = RingEnd(ref terrain, arc, start: true, hasElevation);
-            var endPos = RingEnd(ref terrain, arc, start: false, hasElevation);
+            var startPos = RingEnd(ref terrain, arc, start: true);
+            var endPos = RingEnd(ref terrain, arc, start: false);
             NetDefinitions.Emit(ecb, new CreationDefinition
             {
                 m_Prefab = prefab,
@@ -147,7 +148,7 @@ namespace NetworkToolsReworked.Edits
         }
 
         // A static method rather than a local function: C# does not let local functions capture ref parameters.
-        private static CoursePos RingEnd(ref TerrainHeightData terrain, Bezier4x3 arc, bool start, bool hasElevation)
+        private static CoursePos RingEnd(ref TerrainHeightData terrain, Bezier4x3 arc, bool start)
         {
             var p = start ? arc.a : arc.d;
             var tangent = start ? MathUtils.StartTangent(arc) : MathUtils.EndTangent(arc);
@@ -156,9 +157,9 @@ namespace NetworkToolsReworked.Edits
                 m_Entity = Entity.Null,
                 m_Position = p,
                 m_Rotation = NetUtils.GetNodeRotation(tangent),
-                m_Elevation = hasElevation ? new float2(p.y - TerrainUtils.SampleHeight(ref terrain, p)) : float2.zero,
+                // Same rule as SlopeEdit.ChainEnd for new nodes, so ring pieces and roads join up.
+                m_Elevation = new float2(p.y - TerrainUtils.SampleHeight(ref terrain, p)),
                 m_CourseDelta = start ? 0f : 1f,
-                m_Flags = start ? CoursePosFlags.IsFirst : CoursePosFlags.IsLast,
                 m_ParentMesh = -1,
             };
         }

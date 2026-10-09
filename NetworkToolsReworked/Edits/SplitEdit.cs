@@ -225,7 +225,8 @@ namespace NetworkToolsReworked.Edits
                 m_Rotation = NetUtils.GetNodeRotation(start ? MathUtils.StartTangent(piece) : MathUtils.EndTangent(piece)),
                 m_Elevation = new float2(hasElevation ? p.y - TerrainUtils.SampleHeight(ref terrain, p) : 0f),
                 m_CourseDelta = start ? 0f : 1f,
-                m_Flags = start ? CoursePosFlags.IsFirst : CoursePosFlags.IsLast,
+                // A split point is shared by the pieces either side of it, so it carries no end flags
+                // (see SlopeEdit.ChainEnd).
                 m_ParentMesh = -1,
             };
         }

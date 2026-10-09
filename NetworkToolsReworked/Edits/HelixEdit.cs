@@ -79,11 +79,12 @@ namespace NetworkToolsReworked.Edits
                 var startPos = previous;
                 startPos.m_Rotation = NetUtils.GetNodeRotation(MathUtils.StartTangent(curve));
                 startPos.m_CourseDelta = 0f;
-                startPos.m_Flags = CoursePosFlags.IsFirst;
+                // Only the helix's own two ends are loose ends; the joints between quarters are shared.
+                startPos.m_Flags = k == 0 ? CoursePosFlags.IsFirst : 0;
                 var endPos = End(em, ref terrain, p1, Entity.Null, ref result);
                 endPos.m_Rotation = NetUtils.GetNodeRotation(MathUtils.EndTangent(curve));
                 endPos.m_CourseDelta = 1f;
-                endPos.m_Flags = CoursePosFlags.IsLast;
+                endPos.m_Flags = k == quarters - 1 ? CoursePosFlags.IsLast : 0;
 
                 NetDefinitions.Emit(ecb, new CreationDefinition
                 {

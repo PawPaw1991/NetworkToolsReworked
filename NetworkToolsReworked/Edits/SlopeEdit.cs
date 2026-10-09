@@ -270,11 +270,13 @@ namespace NetworkToolsReworked.Edits
                     ecb.AddComponent(definition, upgraded);
             }
 
-            // Re-point the other roads at each moved node, keeping those roads themselves (m_Original).
+            // Re-point the other roads at each moved node, keeping those roads themselves (m_Original),
+            // and remove the old node outright, so nothing can stay attached to it.
             var chainEdges = new HashSet<Entity>(edges);
             var handled = new HashSet<Entity>();
             foreach (var node in newPositions.Keys)
             {
+                NetDefinitions.DeleteNode(em, ecb, node, randomSeed);
                 foreach (var connected in em.GetBuffer<ConnectedEdge>(node, isReadOnly: true))
                 {
                     var side = connected.m_Edge;
@@ -639,11 +641,15 @@ namespace NetworkToolsReworked.Edits
 
             if (newPositions.TryGetValue(node, out var moved))
             {
+                // A new node is shared by several courses, and the game only joins them into one node if
+                // they agree exactly. So the elevation is the true height above ground (the same for every
+                // course, and it stops the game pulling a raised ground road back down), and the end
+                // flags are left off: IsFirst/IsLast mark the loose ends of a drawn road, and on a shared
+                // joint they make the game treat each course's end on its own.
                 pos.m_Entity = Entity.Null;
                 pos.m_Position = moved;
-                // Decided per node, not per road: every course meeting at a new node must carry the same
-                // elevation, or the game builds separate nodes and the roads come apart.
-                pos.m_Elevation = hasElevation || IsElevatedNode(em, node) ? new float2(moved.y - TerrainUtils.SampleHeight(ref terrain, moved)) : float2.zero;
+                pos.m_Elevation = new float2(moved.y - TerrainUtils.SampleHeight(ref terrain, moved));
+                pos.m_Flags = 0;
             }
             else
             {
@@ -653,19 +659,6 @@ namespace NetworkToolsReworked.Edits
             }
 
             return pos;
-        }
-
-        /// <summary>True if the node, or any road ending at it, is raised or sunk (bridge, tunnel).</summary>
-        internal static bool IsElevatedNode(EntityManager em, Entity node)
-        {
-            if (em.HasComponent<Elevation>(node))
-                return true;
-            if (!em.HasBuffer<ConnectedEdge>(node))
-                return false;
-            foreach (var connected in em.GetBuffer<ConnectedEdge>(node, isReadOnly: true))
-                if (em.HasComponent<Elevation>(connected.m_Edge) && !em.HasComponent<Owner>(connected.m_Edge))
-                    return true;
-            return false;
         }
 
         internal static bool IsEditableNode(EntityManager em, Entity node)

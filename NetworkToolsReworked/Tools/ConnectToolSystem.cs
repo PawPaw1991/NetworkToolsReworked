@@ -3,6 +3,7 @@ using Game.Common;
 using Game.Input;
 using Game.Net;
 using Game.Prefabs;
+using Game.Simulation;
 using Game.Tools;
 using NetworkToolsReworked.Edits;
 using NetworkToolsReworked.Undo;
@@ -24,6 +25,7 @@ namespace NetworkToolsReworked.Tools
         private const float kGuideLength = 24f;
 
         private ToolOutputBarrier m_ToolOutputBarrier;
+        private TerrainSystem m_TerrainSystem;
         private ToolOverlay m_Overlay;
         private Unity.Mathematics.Random m_Random;
         private ProxyAction m_RotateLeftAction;
@@ -55,6 +57,7 @@ namespace NetworkToolsReworked.Tools
         {
             base.OnCreate();
             m_ToolOutputBarrier = World.GetOrCreateSystemManaged<ToolOutputBarrier>();
+            m_TerrainSystem = World.GetOrCreateSystemManaged<TerrainSystem>();
             m_Overlay = new ToolOverlay(World);
             m_Random = new Unity.Mathematics.Random(0xC0EEu);
             m_RotateLeftAction = Mod.Settings.GetAction(nameof(Setting.ConnectRotateLeft));
@@ -158,16 +161,28 @@ namespace NetworkToolsReworked.Tools
             if (end == Entity.Null || end == m_StartNode)
                 return inputDeps;
 
+            if (!ConnectEdit.SameKind(EntityManager, m_StartNode, end))
+            {
+                m_Overlay.Node(end, ToolOverlay.Invalid);
+                Summary = "Connect joins like with like: road to road, track to track, path to path.";
+                return inputDeps;
+            }
+
             var ecb = m_ToolOutputBarrier.CreateCommandBuffer();
-            if (!ConnectEdit.Emit(EntityManager, ecb, m_StartNode, end, direction, Mod.Settings.ConnectMode, m_Random.NextInt()))
+            var terrain = m_TerrainSystem.GetHeightData();
+            if (!ConnectEdit.Emit(EntityManager, ecb, ref terrain, m_StartNode, end, direction, Mod.Settings.ConnectMode, m_Random.NextInt()))
             {
                 m_Overlay.Node(end, ToolOverlay.Invalid);
                 Summary = "These nodes can't be connected.";
                 return inputDeps;
             }
 
-            m_Overlay.Node(end, locked ? ToolOverlay.End : ToolOverlay.Hover);
+            var limit = ConnectEdit.GradeLimit(EntityManager, ConnectEdit.PrefabFor(EntityManager, m_StartNode));
+            var tooSteep = Grade(start, target) > limit;
+            m_Overlay.Node(end, tooSteep ? ToolOverlay.Invalid : locked ? ToolOverlay.End : ToolOverlay.Hover);
             Summary = Describe(start, target);
+            if (tooSteep)
+                Summary += $". Steeper than this type allows ({limit * 100f:0.#}%): the game may flatten or reject it. Pick a node further away, or use Slope or Ramp.";
 
             if (!locked)
             {
@@ -184,6 +199,13 @@ namespace NetworkToolsReworked.Tools
             }
 
             return inputDeps;
+        }
+
+        /// <summary>Average grade of the straight line between two points, ignoring direction.</summary>
+        private static float Grade(float3 start, float3 end)
+        {
+            var distance = math.distance(start.xz, end.xz);
+            return distance > 0.01f ? math.abs(end.y - start.y) / distance : 0f;
         }
 
         private string Describe(float3 start, float3 end)

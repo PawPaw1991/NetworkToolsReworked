@@ -3,6 +3,7 @@ using Colossal.Mathematics;
 using Game.Common;
 using Game.Net;
 using Game.Prefabs;
+using Game.Simulation;
 using Game.Tools;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -76,6 +77,31 @@ namespace NetworkToolsReworked.Edits
             return prefab != Entity.Null && RestyleEdit.KindOf(em, prefab) == RestyleEdit.NetKind.Track;
         }
 
+        /// <summary>True if both nodes carry the same broad kind of network (road, track, path).</summary>
+        public static bool SameKind(EntityManager em, Entity a, Entity b)
+        {
+            var pa = PrefabFor(em, a);
+            var pb = PrefabFor(em, b);
+            return pa != Entity.Null && pb != Entity.Null && RestyleEdit.KindOf(em, pa) == RestyleEdit.KindOf(em, pb);
+        }
+
+        /// <summary>Steepest grade the network type allows (rise per metre).</summary>
+        public static float GradeLimit(EntityManager em, Entity prefab)
+        {
+            return em.TryGetComponent(prefab, out NetGeometryData geometry) && geometry.m_MaxSlopeSteepness > 0f ? geometry.m_MaxSlopeSteepness : 0.12f;
+        }
+
+        /// <summary>
+        /// The node's own elevation for bridges and tunnels; otherwise its real height above the ground,
+        /// so a link climbing from a raised ground node isn't treated as starting at ground level.
+        /// </summary>
+        private static float2 NodeElevation(EntityManager em, ref TerrainHeightData terrain, Entity node, float3 position)
+        {
+            if (em.TryGetComponent(node, out Elevation elevation))
+                return elevation.m_Elevation;
+            return new float2(position.y - TerrainUtils.SampleHeight(ref terrain, position));
+        }
+
         private static float3 Flat(float3 v) => math.normalizesafe(new float3(v.x, 0f, v.z));
 
         public static Entity PrefabFor(EntityManager em, Entity node)
@@ -95,13 +121,13 @@ namespace NetworkToolsReworked.Edits
         }
 
         /// <param name="startDirection">Horizontal direction of travel leaving the start node.</param>
-        public static bool Emit(EntityManager em, EntityCommandBuffer ecb, Entity start, Entity end, float3 startDirection, ConnectMode mode, int randomSeed)
+        public static bool Emit(EntityManager em, EntityCommandBuffer ecb, ref TerrainHeightData terrain, Entity start, Entity end, float3 startDirection, ConnectMode mode, int randomSeed)
         {
             if (start == end || AreConnected(em, start, end))
                 return false;
 
             var prefab = PrefabFor(em, start);
-            if (prefab == Entity.Null)
+            if (prefab == Entity.Null || !SameKind(em, start, end))
                 return false;
 
             var p0 = em.GetComponentData<Node>(start).m_Position;
@@ -138,8 +164,8 @@ namespace NetworkToolsReworked.Edits
             curve.c.y = math.lerp(p0.y, p1.y, 2f / 3f);
             curve.d.y = p1.y;
 
-            var startElevation = em.TryGetComponent(start, out Elevation e0) ? e0.m_Elevation : float2.zero;
-            var endElevation = em.TryGetComponent(end, out Elevation e1) ? e1.m_Elevation : float2.zero;
+            var startElevation = NodeElevation(em, ref terrain, start, p0);
+            var endElevation = NodeElevation(em, ref terrain, end, p1);
 
             var course = new NetCourse
             {

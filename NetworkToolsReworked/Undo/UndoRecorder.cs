@@ -42,11 +42,16 @@ namespace NetworkToolsReworked.Undo
         private static UndoStep s_Current;
         private static readonly HashSet<Entity> s_Seen = new HashSet<Entity>();
 
+        // With debug logging on: every definition of the current frame, written to the log on commit,
+        // so a bad edit can be compared with what the game actually built.
+        private static readonly List<string> s_Trace = new List<string>();
+
         public static void Begin(EntityManager em, string tool)
         {
             s_EntityManager = em;
             s_Current = new UndoStep { Tool = tool };
             s_Seen.Clear();
+            s_Trace.Clear();
         }
 
         /// <summary>Stops recording without keeping anything (used while undoing).</summary>
@@ -60,6 +65,9 @@ namespace NetworkToolsReworked.Undo
                 s_Current.Label = Label(s_Current.Tool, description);
                 UndoHistory.Push(s_Current);
             }
+            if (Mod.Settings.DebugLogging && s_Trace.Count > 0)
+                Mod.Log.Info($"{ToolName(s_Current?.Tool ?? "")} applied {s_Trace.Count} definitions:\n" + string.Join("\n", s_Trace));
+            s_Trace.Clear();
             s_Current = null;
         }
 
@@ -79,10 +87,18 @@ namespace NetworkToolsReworked.Undo
         {
             if (s_Current == null)
                 return;
+            if (Mod.Settings.DebugLogging)
+                s_Trace.Add($"  original {definition.m_Original} flags {definition.m_Flags} | start {Describe(course.m_StartPosition)} | end {Describe(course.m_EndPosition)} | elevation {course.m_Elevation.x:R},{course.m_Elevation.y:R}");
             if (definition.m_Original != Entity.Null)
                 RecordOriginal(definition.m_Original);
             if ((definition.m_Flags & CreationFlags.Delete) == 0 && course.m_Length > 0.01f)
                 s_Current.Results.Add(course.m_Curve);
+        }
+
+        private static string Describe(CoursePos pos)
+        {
+            var p = pos.m_Position;
+            return $"{pos.m_Entity} ({p.x:R}, {p.y:R}, {p.z:R}) elev {pos.m_Elevation.x:R} flags {pos.m_Flags}";
         }
 
         /// <summary>Snapshots an existing road the edit removes or changes (once per road).</summary>
