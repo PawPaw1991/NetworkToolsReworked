@@ -67,6 +67,10 @@ namespace NetworkToolsReworked
         [SettingsUIKeyboardBinding(BindingKeyboard.A, nameof(ArrangeTool), ctrl: true, shift: true)]
         public ProxyBinding ArrangeTool { get; set; }
 
+        [SettingsUISection(kSection, kKeybindingGroup)]
+        [SettingsUIKeyboardBinding(BindingKeyboard.R, nameof(ReverseTool), ctrl: true, shift: true)]
+        public ProxyBinding ReverseTool { get; set; }
+
         [SettingsUISection(kSection, kGeneralGroup)]
         public SlopeProfile SlopeProfile { get; set; }
 
@@ -214,6 +218,10 @@ namespace NetworkToolsReworked
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ArrangeTool)), "Arrange tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.ArrangeTool)), "Toggle the Arrange tool. Pick two nodes to space the nodes between them evenly, along the current shape, a straight line or an arc." },
                 { m_Setting.GetBindingKeyLocaleID(nameof(Setting.ArrangeTool)), "Arrange tool" },
+
+                { m_Setting.GetOptionLabelLocaleID(nameof(Setting.ReverseTool)), "Reverse tool" },
+                { m_Setting.GetOptionDescLocaleID(nameof(Setting.ReverseTool)), "Toggle the Reverse tool. Pick two nodes to reverse the direction of the road between them, e.g. to flip a one-way road." },
+                { m_Setting.GetBindingKeyLocaleID(nameof(Setting.ReverseTool)), "Reverse tool" },
 
                 { m_Setting.GetOptionLabelLocaleID(nameof(Setting.SmoothTool)), "Smooth tool" },
                 { m_Setting.GetOptionDescLocaleID(nameof(Setting.SmoothTool)), "Toggle the Smooth tool. Pick two nodes to smooth the curves, and optionally the grade, of the road between them. Nodes stay put unless Relax is used." },

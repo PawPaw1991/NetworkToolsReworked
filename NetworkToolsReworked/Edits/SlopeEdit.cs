@@ -552,7 +552,7 @@ namespace NetworkToolsReworked.Edits
         /// One end of a course: an existing node if it isn't moving, otherwise a new node (m_Entity null)
         /// at its new position with its elevation above terrain.
         /// </summary>
-        private static CoursePos ChainEnd(EntityManager em, ref TerrainHeightData terrain, Entity node, Dictionary<Entity, float3> newPositions, Bezier4x3 curve, bool start, bool hasElevation)
+        internal static CoursePos ChainEnd(EntityManager em, ref TerrainHeightData terrain, Entity node, Dictionary<Entity, float3> newPositions, Bezier4x3 curve, bool start, bool hasElevation)
         {
             var tangent = start ? MathUtils.StartTangent(curve) : MathUtils.EndTangent(curve);
             var pos = new CoursePos
