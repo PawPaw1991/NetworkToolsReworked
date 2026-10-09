@@ -6,6 +6,7 @@ using Game.Net;
 using Game.Prefabs;
 using Game.Tools;
 using NetworkToolsReworked.Edits;
+using NetworkToolsReworked.Undo;
 using Unity.Entities;
 using Unity.Jobs;
 
@@ -78,6 +79,7 @@ namespace NetworkToolsReworked.Tools
 
             // Clear last frame's preview; definitions are re-emitted for whatever is hovered now.
             applyMode = ApplyMode.Clear;
+            UndoRecorder.Begin(EntityManager, toolID);
             m_Overlay.BeginFrame();
 
             if (!GetRaycastResult(out Entity hitEntity, out RaycastHit hit))
@@ -95,6 +97,7 @@ namespace NetworkToolsReworked.Tools
             if (emitted && applyAction.WasPressedThisFrame())
             {
                 applyMode = ApplyMode.Apply;
+                UndoRecorder.Commit();
                 if (Mod.Settings.DebugLogging)
                     Mod.Log.Info($"{Mode} applied on {hitEntity}");
             }
