@@ -36,7 +36,20 @@ namespace NetworkToolsReworked.Tools
 
         public void RequestCancel() => m_CancelRequested = true;
 
-        protected abstract void EmitPath(EntityCommandBuffer ecb, List<Entity> nodes, List<Entity> edges, int randomSeed);
+        /// <summary>Writes the definitions for the path. Returns false if there is nothing to change.</summary>
+        protected abstract bool EmitPath(EntityCommandBuffer ecb, List<Entity> nodes, List<Entity> edges, int randomSeed);
+
+        /// <summary>Highlights the path; called after <see cref="EmitPath"/>.</summary>
+        protected virtual void DrawPath(ToolOverlay overlay, List<Entity> nodes, List<Entity> edges, bool locked)
+        {
+            foreach (var edge in edges)
+                overlay.Edge(edge, locked ? ToolOverlay.Locked : ToolOverlay.Path);
+        }
+
+        /// <summary>Called when the start node is cleared, to reset per-selection options.</summary>
+        protected virtual void OnSelectionCleared()
+        {
+        }
 
         /// <summary>One line describing the previewed change, shown in the tool panel.</summary>
         protected virtual string Describe(List<Entity> nodes, List<Entity> edges) => PathInfo.Describe(EntityManager, nodes, edges);
@@ -88,7 +101,7 @@ namespace NetworkToolsReworked.Tools
                 if (m_EndNode != Entity.Null)
                     m_EndNode = Entity.Null;
                 else if (m_StartNode != Entity.Null)
-                    m_StartNode = Entity.Null;
+                    Reset();
                 else
                     m_ToolSystem.activeTool = m_DefaultToolSystem;
                 Summary = string.Empty;
@@ -132,19 +145,17 @@ namespace NetworkToolsReworked.Tools
                 return inputDeps;
             }
 
-            foreach (var edge in m_PathEdges)
-                m_Overlay.Edge(edge, locked ? ToolOverlay.Locked : ToolOverlay.Path);
+            var emitted = EmitPath(m_ToolOutputBarrier.CreateCommandBuffer(), m_PathNodes, m_PathEdges, m_Random.NextInt());
+            DrawPath(m_Overlay, m_PathNodes, m_PathEdges, locked);
             m_Overlay.Node(end, locked ? ToolOverlay.End : ToolOverlay.Hover);
-
-            EmitPath(m_ToolOutputBarrier.CreateCommandBuffer(), m_PathNodes, m_PathEdges, m_Random.NextInt());
-            Summary = Describe(m_PathNodes, m_PathEdges);
+            Summary = emitted ? Describe(m_PathNodes, m_PathEdges) : "Nothing to change yet: adjust the options.";
 
             if (!locked)
             {
                 if (click)
                     m_EndNode = end;
             }
-            else if (click || applyRequested)
+            else if (emitted && (click || applyRequested))
             {
                 applyMode = ApplyMode.Apply;
                 if (Mod.Settings.DebugLogging)
@@ -160,6 +171,7 @@ namespace NetworkToolsReworked.Tools
             m_StartNode = Entity.Null;
             m_EndNode = Entity.Null;
             Summary = string.Empty;
+            OnSelectionCleared();
         }
 
         private Entity HoveredNode(Entity entity, RaycastHit hit)

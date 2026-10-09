@@ -13,6 +13,13 @@ export const parallelReverse$ = bindValue<boolean>(mod.id, "ParallelReverse", fa
 export type Phase = "" | "PickStart" | "PickEnd" | "Review";
 export const phase$ = bindValue<Phase>(mod.id, "Phase", "");
 export const summary$ = bindValue<string>(mod.id, "Summary", "");
+export const slopeEase$ = bindValue<number>(mod.id, "SlopeEase", 50);
+export const slopeArch$ = bindValue<number>(mod.id, "SlopeArch", 0);
+export const slopeStartOffset$ = bindValue<number>(mod.id, "SlopeStartOffset", 0);
+export const slopeEndOffset$ = bindValue<number>(mod.id, "SlopeEndOffset", 0);
+export const curveMode$ = bindValue<number>(mod.id, "CurveMode", 0);
+export const curveStrength$ = bindValue<number>(mod.id, "CurveStrength", 100);
+export const curveKeepEnds$ = bindValue<boolean>(mod.id, "CurveKeepEnds", true);
 export const connectRotation$ = bindValue<number>(mod.id, "ConnectRotation", 0);
 
 export const togglePanel = () => trigger(mod.id, "TogglePanel");
@@ -25,3 +32,10 @@ export const setParallelReverse = (value: boolean) => trigger(mod.id, "SetParall
 export const applyPreview = () => trigger(mod.id, "ApplyPreview");
 export const cancelPreview = () => trigger(mod.id, "CancelPreview");
 export const rotateConnect = (steps: number) => trigger(mod.id, "RotateConnect", steps);
+export const setSlopeEase = (value: number) => trigger(mod.id, "SetSlopeEase", value);
+export const setSlopeArch = (value: number) => trigger(mod.id, "SetSlopeArch", value);
+export const setSlopeStartOffset = (value: number) => trigger(mod.id, "SetSlopeStartOffset", value);
+export const setSlopeEndOffset = (value: number) => trigger(mod.id, "SetSlopeEndOffset", value);
+export const setCurveMode = (value: number) => trigger(mod.id, "SetCurveMode", value);
+export const setCurveStrength = (value: number) => trigger(mod.id, "SetCurveStrength", value);
+export const setCurveKeepEnds = (value: boolean) => trigger(mod.id, "SetCurveKeepEnds", value);

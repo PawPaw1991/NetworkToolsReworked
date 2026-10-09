@@ -31,11 +31,17 @@ Click the **Network Tools** button at the top left of the screen to open the too
 |---|---|
 | Ctrl+N | Add Node: hover a road, path or track and click to split it with a new node |
 | Ctrl+Shift+N | Remove Node: hover a node joining two segments of the same type and click to merge them |
-| Ctrl+G | Slope: click a start node, hover an end node to preview, click to re-grade the road between them. The shape (linear or ease in/out) is set in Options |
+| Ctrl+G | Slope & Curve: pick two nodes to re-grade, smooth or straighten the road between them. Options are in the tool panel |
 | Ctrl+J | Connect: click a start node, hover an end node to preview a new road between them, click to build it. `,` and `.` rotate the start direction |
 | Ctrl+Shift+P | Parallel: click a start node, hover an end node to preview a copy of the road between them, click to build it. Side offset, height offset and direction are set in Options |
 
 Slope, Connect and Parallel work in three steps, shown in the panel: click a start node, hover an end node and click it to lock the preview, then review it. While the preview is locked you can change the tool's options in the panel and the preview updates; click again or press **Apply** to build it, or right-click / **Back** to pick another end. The picked nodes and the affected roads are highlighted (green start, orange end, red when the target can't be used), and the panel shows length, height change and grade.
+
+**Slope & Curve options** (tool panel):
+
+- Slope: Keep, Linear or Ease in/out, with the ease length (5 to 50% of the road at each end), an arch (bump or dip at the middle), and start and end height changes in 0.1 m or 1 m steps.
+- Curve: Keep, Smooth (line up the direction at every joint; optionally keep the direction at both ends so roads beyond stay aligned) or Straighten, each with a strength from 0 to 100%.
+- The preview is coloured by grade against each road's own limit (green, yellow, red) and the panel shows the steepest grade. When no node moves (for example smoothing only), the roads are edited in place and keep their identity.
 
 Press the key again or right-click to leave the tool. Both keys can be rebound in Options.
 

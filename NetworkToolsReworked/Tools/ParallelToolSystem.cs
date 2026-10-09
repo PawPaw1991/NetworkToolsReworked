@@ -10,9 +10,10 @@ namespace NetworkToolsReworked.Tools
     {
         public override string toolID => "NetworkToolsReworked.ParallelTool";
 
-        protected override void EmitPath(EntityCommandBuffer ecb, List<Entity> nodes, List<Entity> edges, int randomSeed)
+        protected override bool EmitPath(EntityCommandBuffer ecb, List<Entity> nodes, List<Entity> edges, int randomSeed)
         {
             ParallelEdit.Emit(EntityManager, ecb, nodes, edges, Mod.Settings.ParallelOffset, Mod.Settings.ParallelHeight, Mod.Settings.ParallelReverse, randomSeed);
+            return true;
         }
 
         protected override string Describe(List<Entity> nodes, List<Entity> edges)

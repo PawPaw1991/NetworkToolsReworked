@@ -66,7 +66,7 @@
 }
 
 .label { flex: 1; margin-left: 2rem; }
-.value { width: 50rem; text-align: center; }
+.value { width: 64rem; text-align: center; }
 
 .status {
   margin: 4rem 2rem 8rem 2rem;
@@ -87,4 +87,10 @@
   margin-top: 4rem;
   font-size: 12rem;
   color: rgba(255, 210, 120, 1);
+}
+
+.section {
+  margin: 8rem 2rem 2rem 2rem;
+  font-weight: bold;
+  opacity: 0.9;
 }

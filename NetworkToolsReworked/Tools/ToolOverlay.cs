@@ -64,11 +64,14 @@ namespace NetworkToolsReworked.Tools
             Buffer.DrawCurve(color, curve.m_Bezier, Width(edge));
         }
 
+        public void Bezier(Bezier4x3 curve, float width, Color color) => Buffer.DrawCurve(color, curve, width);
+
         public void Point(float3 position, float diameter, Color color) => Buffer.DrawCircle(color, position, diameter);
 
         public void Line(float3 from, float3 to, float width, Color color) => Buffer.DrawLine(color, new Line3.Segment(from, to), width);
 
-        private float Width(Entity entity)
+        /// <summary>Road width of an edge or node's prefab, used to size highlights.</summary>
+        public float Width(Entity entity)
         {
             if (m_EntityManager.TryGetComponent(entity, out PrefabRef prefab) &&
                 m_EntityManager.TryGetComponent(prefab.m_Prefab, out NetGeometryData geometry))
