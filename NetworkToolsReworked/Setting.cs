@@ -5,6 +5,7 @@ using Game.Input;
 using Game.Modding;
 using Game.Settings;
 using NetworkToolsReworked.Edits;
+using NetworkToolsReworked.Tools;
 
 namespace NetworkToolsReworked
 {
@@ -158,6 +159,21 @@ namespace NetworkToolsReworked
         public bool UpgradesSwapSides { get; set; }
 
         [SettingsUIHidden]
+        public ParallelSpacing ParallelSpacing { get; set; }
+
+        /// <summary>Parallel, Touching spacing: gap between the road edges in metres.</summary>
+        [SettingsUIHidden]
+        public float ParallelGap { get; set; }
+
+        /// <summary>Parallel, Widths spacing: centre-to-centre distance in road widths.</summary>
+        [SettingsUIHidden]
+        public float ParallelWidths { get; set; }
+
+        /// <summary>Parallel: build a copy on each side of the road.</summary>
+        [SettingsUIHidden]
+        public bool ParallelBothSides { get; set; }
+
+        [SettingsUIHidden]
         public MoveSnap MoveSnap { get; set; }
 
         /// <summary>Move Node grid snapping size in metres.</summary>
@@ -209,6 +225,10 @@ namespace NetworkToolsReworked
             RoundaboutClockwise = false;
             ReplaceKeepUpgrades = true;
             UpgradesSwapSides = false;
+            ParallelSpacing = ParallelSpacing.Metres;
+            ParallelGap = 0f;
+            ParallelWidths = 1f;
+            ParallelBothSides = false;
             MoveSnap = MoveSnap.Off;
             MoveGridSize = 8f;
             ClearanceWarning = 6f;

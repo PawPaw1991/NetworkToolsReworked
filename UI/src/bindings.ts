@@ -36,6 +36,10 @@ export const moveGridSize$ = bindValue<number>(mod.id, "MoveGridSize", 8);
 export const sourceName$ = bindValue<string>(mod.id, "SourceName", "");
 export const replaceKeepUpgrades$ = bindValue<boolean>(mod.id, "ReplaceKeepUpgrades", true);
 export const upgradesSwapSides$ = bindValue<boolean>(mod.id, "UpgradesSwapSides", false);
+export const parallelSpacing$ = bindValue<number>(mod.id, "ParallelSpacing", 0);
+export const parallelGap$ = bindValue<number>(mod.id, "ParallelGap", 0);
+export const parallelWidths$ = bindValue<number>(mod.id, "ParallelWidths", 1);
+export const parallelBothSides$ = bindValue<boolean>(mod.id, "ParallelBothSides", false);
 export const connectRotation$ = bindValue<number>(mod.id, "ConnectRotation", 0);
 
 export const togglePanel = () => trigger(mod.id, "TogglePanel");
@@ -69,5 +73,9 @@ export const setRoundaboutClockwise = (value: boolean) => trigger(mod.id, "SetRo
 export const setMoveSnap = (value: number) => trigger(mod.id, "SetMoveSnap", value);
 export const setReplaceKeepUpgrades = (value: boolean) => trigger(mod.id, "SetReplaceKeepUpgrades", value);
 export const setUpgradesSwapSides = (value: boolean) => trigger(mod.id, "SetUpgradesSwapSides", value);
+export const setParallelSpacing = (value: number) => trigger(mod.id, "SetParallelSpacing", value);
+export const setParallelGap = (value: number) => trigger(mod.id, "SetParallelGap", value);
+export const setParallelWidths = (value: number) => trigger(mod.id, "SetParallelWidths", value);
+export const setParallelBothSides = (value: boolean) => trigger(mod.id, "SetParallelBothSides", value);
 export const pickSource = () => trigger(mod.id, "PickSource");
 export const setMoveGridSize = (value: number) => trigger(mod.id, "SetMoveGridSize", value);

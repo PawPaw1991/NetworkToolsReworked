@@ -10,27 +10,22 @@ import {
   connectMode$,
   connectRotation$,
   panelOpen$,
-  parallelHeight$,
-  parallelOffset$,
-  parallelReverse$,
   phase$,
   rotateConnect,
   selectTool,
   setConnectMode,
-  setParallelHeight,
-  setParallelOffset,
-  setParallelReverse,
   summary$,
   togglePanel,
 } from "bindings";
 import styles from "./ToolPanel.module.scss";
-import { Choice, Stepper, indexed } from "./controls";
+import { Choice, indexed } from "./controls";
 import { ShapeOptions } from "./ShapeOptions";
 import { SmoothOptions } from "./SmoothOptions";
 import { MoveOptions } from "./MoveOptions";
 import { ArrangeOptions } from "./ArrangeOptions";
 import { RoundaboutOptions } from "./RoundaboutOptions";
 import { ReplaceOptions, UpgradesOptions } from "./ReplaceOptions";
+import { ParallelOptions } from "./ParallelOptions";
 
 const TOOLS: { id: ToolId; label: string; hint: string }[] = [
   { id: "AddNode", label: "Add Node", hint: "Click a road to split it with a new node." },
@@ -102,9 +97,6 @@ export const ToolPanel = () => {
   const open = useValue(panelOpen$);
   const active = useValue(activeTool$);
   const connectMode = useValue(connectMode$);
-  const offset = useValue(parallelOffset$);
-  const height = useValue(parallelHeight$);
-  const reverse = useValue(parallelReverse$);
   const phase = useValue(phase$);
   const summary = useValue(summary$);
   const rotation = useValue(connectRotation$);
@@ -181,13 +173,7 @@ export const ToolPanel = () => {
         </>
       )}
 
-      {active === "Parallel" && (
-        <>
-          <Stepper label="Side offset" unit="m" value={offset} step={1} min={-64} max={64} onChange={setParallelOffset} />
-          <Stepper label="Height offset" unit="m" value={height} step={1} min={-40} max={40} onChange={setParallelHeight} />
-          <Choice options={indexed(["Same direction", "Opposite"])} value={reverse ? 1 : 0} onChange={(v) => setParallelReverse(v === 1)} />
-        </>
-      )}
+      {active === "Parallel" && <ParallelOptions />}
     </div>
   );
 };
