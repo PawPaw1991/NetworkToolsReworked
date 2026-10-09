@@ -266,6 +266,10 @@ namespace NetworkToolsReworked
         [SettingsUIHidden]
         public float RampHeight { get; set; }
 
+        /// <summary>Parallel: whether the offset eases in from the start node or out to the end node.</summary>
+        [SettingsUIHidden]
+        public ParallelTaper ParallelTaper { get; set; }
+
         /// <summary>Split and simplify: what to do.</summary>
         [SettingsUIHidden]
         public SplitMode SplitMode { get; set; }
@@ -367,6 +371,7 @@ namespace NetworkToolsReworked
             RampHeight = 6f;
             HealthMinLength = 3f;
             FilletRadius = 40f;
+            ParallelTaper = ParallelTaper.Off;
             SplitMode = SplitMode.EqualParts;
             SplitParts = 2f;
             SplitSpacing = 48f;

@@ -6,6 +6,7 @@ import {
   parallelOffset$,
   parallelReverse$,
   parallelSpacing$,
+  parallelTaper$,
   parallelWidths$,
   setParallelBothSides,
   setParallelGap,
@@ -13,6 +14,7 @@ import {
   setParallelOffset,
   setParallelReverse,
   setParallelSpacing,
+  setParallelTaper,
   setParallelWidths,
 } from "bindings";
 import { Choice, Section, Stepper, indexed } from "./controls";
@@ -25,6 +27,7 @@ export const ParallelOptions = () => {
   const gap = useValue(parallelGap$);
   const widths = useValue(parallelWidths$);
   const bothSides = useValue(parallelBothSides$);
+  const taper = useValue(parallelTaper$);
   const right = offset >= 0;
 
   return (
@@ -42,6 +45,8 @@ export const ParallelOptions = () => {
           if (v !== 2 && (v === 1) !== right) setParallelOffset(offset === 0 ? (v === 1 ? 16 : -16) : -offset);
         }}
       />
+      <Section title="Taper" />
+      <Choice options={indexed(["None", "Split off at start", "Merge in at end"])} value={taper} onChange={setParallelTaper} />
       <Section title="Height and direction" />
       <Stepper label="Height offset" unit="m" value={height} step={1} fine={0.5} min={-40} max={40} onChange={setParallelHeight} />
       <Choice options={indexed(["Same direction", "Opposite"])} value={reverse ? 1 : 0} onChange={(v) => setParallelReverse(v === 1)} />

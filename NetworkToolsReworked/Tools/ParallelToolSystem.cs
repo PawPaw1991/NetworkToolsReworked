@@ -29,9 +29,9 @@ namespace NetworkToolsReworked.Tools
         {
             var s = Mod.Settings;
             var offset = Offset(edges);
-            ParallelEdit.Emit(EntityManager, ecb, nodes, edges, offset, s.ParallelHeight, s.ParallelReverse, randomSeed);
+            ParallelEdit.Emit(EntityManager, ecb, nodes, edges, offset, s.ParallelHeight, s.ParallelReverse, s.ParallelTaper, randomSeed);
             if (s.ParallelBothSides)
-                ParallelEdit.Emit(EntityManager, ecb, nodes, edges, -offset, s.ParallelHeight, s.ParallelReverse, randomSeed);
+                ParallelEdit.Emit(EntityManager, ecb, nodes, edges, -offset, s.ParallelHeight, s.ParallelReverse, s.ParallelTaper, randomSeed);
             return true;
         }
 
@@ -41,6 +41,10 @@ namespace NetworkToolsReworked.Tools
             var offset = Offset(edges);
             var side = s.ParallelBothSides ? "on both sides" : offset >= 0f ? "to the right" : "to the left";
             var direction = s.ParallelReverse ? ", opposite direction" : "";
+            if (s.ParallelTaper == ParallelTaper.Split)
+                direction += ", splitting off at the start node";
+            else if (s.ParallelTaper == ParallelTaper.Merge)
+                direction += ", merging in at the end node";
             var spacing = s.ParallelSpacing == ParallelSpacing.Touching ? $" (road width {PathInfo.Distance(RoadWidth(edges))} + {s.ParallelGap:0.#} m gap)"
                 : s.ParallelSpacing == ParallelSpacing.Widths ? $" ({s.ParallelWidths:0} road widths)" : "";
             return $"{PathInfo.Describe(EntityManager, nodes, edges)}, {PathInfo.Distance(math.abs(offset))}{spacing} {side}, {PathInfo.Signed(s.ParallelHeight)} m height{direction}";

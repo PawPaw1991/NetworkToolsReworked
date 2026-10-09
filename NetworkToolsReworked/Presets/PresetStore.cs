@@ -32,7 +32,7 @@ namespace NetworkToolsReworked.Presets
             [ToolId.Smooth] = new[] { nameof(Setting.SmoothStrength), nameof(Setting.SmoothKeepEnds), nameof(Setting.SmoothGrades), nameof(Setting.SmoothRelax) },
             [ToolId.Arrange] = new[] { nameof(Setting.ArrangeMode), nameof(Setting.ArrangeBulge) },
             [ToolId.Roundabout] = new[] { nameof(Setting.RoundaboutRadius), nameof(Setting.RoundaboutClockwise) },
-            [ToolId.Parallel] = new[] { nameof(Setting.ParallelSpacing), nameof(Setting.ParallelOffset), nameof(Setting.ParallelGap), nameof(Setting.ParallelWidths), nameof(Setting.ParallelBothSides), nameof(Setting.ParallelHeight), nameof(Setting.ParallelReverse) },
+            [ToolId.Parallel] = new[] { nameof(Setting.ParallelSpacing), nameof(Setting.ParallelOffset), nameof(Setting.ParallelGap), nameof(Setting.ParallelWidths), nameof(Setting.ParallelBothSides), nameof(Setting.ParallelHeight), nameof(Setting.ParallelReverse), nameof(Setting.ParallelTaper) },
             [ToolId.Ramp] = new[] { nameof(Setting.RampEntry), nameof(Setting.RampRight), nameof(Setting.RampFlip), nameof(Setting.RampAngle), nameof(Setting.RampTurn), nameof(Setting.RampLength), nameof(Setting.RampHeight) },
             [ToolId.MoveNode] = new[] { nameof(Setting.MoveSnap), nameof(Setting.MoveGridSize) },
             [ToolId.Connect] = new[] { nameof(Setting.ConnectMode) },
@@ -117,7 +117,8 @@ namespace NetworkToolsReworked.Presets
                         : s.ParallelSpacing == ParallelSpacing.Widths ? $"{s.ParallelWidths:0} widths" : $"{Math.Abs(s.ParallelOffset).ToString("0.#", c)} m";
                     var side = s.ParallelBothSides ? "both sides" : s.ParallelOffset >= 0f ? "right" : "left";
                     var height = s.ParallelHeight != 0f ? $", {s.ParallelHeight.ToString("+0.#;-0.#", c)} m high" : "";
-                    return $"{spacing} {side}{height}{(s.ParallelReverse ? ", opposite" : "")}";
+                    var taper = s.ParallelTaper == ParallelTaper.Split ? ", split" : s.ParallelTaper == ParallelTaper.Merge ? ", merge" : "";
+                    return $"{spacing} {side}{height}{(s.ParallelReverse ? ", opposite" : "")}{taper}";
                 case ToolId.Ramp:
                     var turn = s.RampTurn != 0f ? $", turn {s.RampTurn:0}°" : "";
                     return $"{(s.RampEntry ? "Entry" : "Exit")} {(s.RampRight ? "right" : "left")}, {s.RampAngle:0}°, {s.RampLength:0} m, {s.RampHeight.ToString("+0.#;-0.#;0", c)} m{turn}";

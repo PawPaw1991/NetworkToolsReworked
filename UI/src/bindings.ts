@@ -56,6 +56,7 @@ export const usingSelection$ = bindValue<boolean>(mod.id, "UsingSelection", fals
 export const healthIssues$ = bindValue<string>(mod.id, "HealthIssues", "");
 export const healthSelected$ = bindValue<number>(mod.id, "HealthSelected", -1);
 export const healthMinLength$ = bindValue<number>(mod.id, "HealthMinLength", 3);
+export const parallelTaper$ = bindValue<number>(mod.id, "ParallelTaper", 0);
 export const splitMode$ = bindValue<number>(mod.id, "SplitMode", 0);
 export const splitParts$ = bindValue<number>(mod.id, "SplitParts", 2);
 export const splitSpacing$ = bindValue<number>(mod.id, "SplitSpacing", 48);
@@ -117,6 +118,7 @@ export const deletePreset = (index: number) => trigger(mod.id, "DeletePreset", i
 export const selectIssue = (index: number) => trigger(mod.id, "SelectIssue", index);
 export const rescanHealth = () => trigger(mod.id, "RescanHealth");
 export const setHealthMinLength = (value: number) => trigger(mod.id, "SetHealthMinLength", value);
+export const setParallelTaper = (value: number) => trigger(mod.id, "SetParallelTaper", value);
 export const setSplitMode = (value: number) => trigger(mod.id, "SetSplitMode", value);
 export const setSplitParts = (value: number) => trigger(mod.id, "SetSplitParts", value);
 export const setSplitSpacing = (value: number) => trigger(mod.id, "SetSplitSpacing", value);
